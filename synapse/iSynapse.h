@@ -10,6 +10,13 @@
 
 
 /*
+
+#include "../andreKildefiler/main.h"
+
+
+
+
+/*
  * class iSynapse 		interface class
  *
  * Interface for the classes
@@ -17,23 +24,23 @@
  * 		k_synapse 	synapse for kappa-based ANN
  * 		synSkilleElement
  *
- */
-class iSynapse{
-	/* public variable*/
+ * /
+class iSynapse : public tidInterface{
+	/* public variables* /
 	auron* pPreNode;
 	auron* pPostNode;
 
-	/* public functions*/
+	/* public functions* /
 	//iSynapse();
 	//iSynapse(auron* pPre, auron* pPost);
 	// ~iSynapse();
 
 protected:
-	/* protected variables */
+	/* protected variables * /
 	const bool inhibEffekt;
 	unsigned long timestampForrigeOppdatering;
 
-	/* protected functions */
+	/* protected functions * /
 	virtual void synPlast(float postSynDepol) =0;
 	virtual void oppdaterSyn() 						=0;
 	virtual void regnUtOgOverfoer() 				=0;
@@ -41,18 +48,7 @@ protected:
 	friend class auron;
 	friend class synSkilleElement;
 };
-
-
-class tidsSkilleElement : public iSynapse{
-	// Arbeidsliste -kø
-	static list<synapse*> pNesteSynapseUtregningsKoe;
-
-	void synPlast(float){/*tom*/};
-	void regnUtOgOverfoer();
-
-};
-
-
+*/
 
 
 #endif /* ISYNAPSE_H_ */
