@@ -60,18 +60,23 @@ int main(int argc, char *argv[])
 			{
 				case 'i':
 					// Sjekker om antall iterasjoner er i samme argument (uten mellomrom):
-					if( 		(nAntallTidsiterasjonerTESTING_SLETT = atoi( &argv[innArgumentPos][2])) ) 	cout<<"Anntall tidsiterasjoner er satt til " <<nAntallTidsiterasjonerTESTING_SLETT <<endl;
+					if( 		(nAntallTidsiterasjonerTESTING_SLETT = atoi( &argv[innArgumentPos][2])) ) 	cout<<"Simulation length set to " <<nAntallTidsiterasjonerTESTING_SLETT <<" time steps\n";
 					// Ellers: sjekker om det er på neste argument (med mellomrom):
-					else if( 	(nAntallTidsiterasjonerTESTING_SLETT = atoi( argv[++innArgumentPos]) ) )		cout<<"Anntall tidsiterasjoner er satt til " <<nAntallTidsiterasjonerTESTING_SLETT <<endl;
-					else{
-						cout<<"Can not decode the argument. Please follow the conventions for arguments." <<endl;
+					else if( 	(nAntallTidsiterasjonerTESTING_SLETT = atoi( argv[innArgumentPos+1]) ) ){
+						++innArgumentPos;
+						cout<<"Anntall tidsiterasjoner er satt til " <<nAntallTidsiterasjonerTESTING_SLETT <<endl;
+					}else{
+						cout<<"Can not read argument. Please follow the conventions:" <<endl;
 						skrivUtArgumentKonvensjoner(argv[0]);
-						exit(-1);
+						continue;
+						//exit(-1);
 					}
 				default:
-					cout<<"Unknown argument: " <<argv[innArgumentPos] <<"\tPlease follow conventions and try again." <<endl;
+					if( atoi( argv[innArgumentPos] ) )
+						cout<<"Her var eit tall, ja!\n";
+
+					cout<<"Unknown argument: " <<argv[innArgumentPos] <<"\tUnable to complete request. Try again." <<endl;
 					skrivUtArgumentKonvensjoner(argv[0]);
-					exit(-1);
 			}
 
 			// Går vidare til neste argument.
@@ -85,7 +90,7 @@ int main(int argc, char *argv[])
 		{
 			int nInnInt;
 			//innArgumentPos er på siste argumentet for programkallet.
-			if( (nInnInt = atoi( argv[innArgumentPos])>0) ) //Skal eg sette øvre grense også?
+			if( ( (nInnInt = atoi( argv[innArgumentPos]))>0) ) //Skal eg sette øvre grense også?
 			{
 				cout<<"Argument gives number of iterations to be: \t\t" <<nInnInt <<endl;
 				nAntallTidsiterasjonerTESTING_SLETT=nInnInt;
@@ -114,10 +119,12 @@ int main(int argc, char *argv[])
 	auron C("C");
 
 	synapse(&A, &B); //TODO Ikkje ferdig enda..
+	synapse(&A, &C);
+	synapse(&C, &A);
 
 	/* <<aTest funker, men <<A.pAxon_output funker ikkje (segfault). Må være feil med constructor..  Thats right! Brukte feil constructor pga. andre argument..*/
 	
-	cout<<*(A.pAxon_output) <<endl;
+	//cout<<*(A.pAxon_output) <<endl;
 	
 	
 	/******************************************* Starter void taskSchedulerFunction(void*); ****************************************************/
@@ -269,12 +276,11 @@ std::ostream & operator<<(std::ostream& ut, auron* pAuronArg )
 
 std::ostream & operator<< (std::ostream & ut, axon axonArg )
 { //{
-	ut<<"| " <<(axonArg.pElementAvAuron)->sNavn <<"  | \ttil **UFERDIG**\n";
+	ut<<"Utsynapser fra axon tilhørende neuron " <<*axonArg.pElementAvAuron <<endl; 
 
 	// Utsynapser:
 	for( std::list<synapse*>::iterator iter = axonArg.pUtSynapser.begin(); iter != axonArg.pUtSynapser.end(); iter++ ){
-
-	 	ut 	<<"\t\t\t|\t" <<(axonArg.pElementAvAuron)->sNavn <<" -> "    <<endl;//<<(*iter)->pPostNode->pElementAvAuron->sNavn <<endl;
+	 	ut 	<<"\t\t\t|\t" <<(axonArg.pElementAvAuron)->sNavn <<" -> "    <<(*iter)->pPostNode->sNavn <<endl;
 		
 	}
 

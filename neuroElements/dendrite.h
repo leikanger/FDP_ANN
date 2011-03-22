@@ -33,7 +33,8 @@ class dendrite : public tidInterface{
 
 	public:
 	//Constructor: 	
-	dendrite(auron* pPostNodeArg) : pElementAvAuron(pPostNodeArg){} //constuctor
+	dendrite( auron* pPostSynAuron_Arg ); // : pElementAvAuron(pPostSynAuron_Arg)  		Definisjon i neuroElement.cpp
+	// XXX Hugs destructor
 	
 	//Destructor:
 	/* kommenterer ut mens synapser ikkje er laga enda.. //{
@@ -50,6 +51,7 @@ class dendrite : public tidInterface{
 	*/ //}
 
 	friend class auron;
+	friend class synapse;
 };
 
 /* //{ UTKOMMENTERT

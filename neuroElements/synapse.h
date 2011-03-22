@@ -7,6 +7,7 @@
 #include "../andreKildefiler/tid.h"
 
 //#include "../andreKildefiler/aktivitetsObj.h"
+class axon;
 
 class synapse : public tidInterface{
 	
@@ -25,11 +26,15 @@ class synapse : public tidInterface{
 	}
 
 	public:
-	synapse() : tidInterface("synapse"), bInhibitorisk_effekt(false){} 		//XXX SKAL VEKK XXX
+	//synapse() : tidInterface("synapse"), bInhibitorisk_effekt(false){} 		//XXX SKAL VEKK XXX
+
+	// Lag også axon.nySynapse(auron* pOutputAuron){  new synapse(this, pOutputAuron); } XXX
 	synapse(auron* pPresynAuron_arg, auron* pPostsynAuron_arg, bool bInhibEffekt_Arg =false, float fSynVekt_Arg =1) ; // : pPreNode(), pPostNode(), bInhibitorisk_effekt(), fSynaptiskVekt()
+	//XXX hugs destructor
 
 
 	//friend std::ostream & operator<< (std::ostream & ut, synapse*); //TODO
+	friend std::ostream & operator<< (std::ostream & ut, axon axonArg );
 };
 
 /* Kommentert ut: 

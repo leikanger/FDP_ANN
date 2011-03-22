@@ -41,7 +41,7 @@ class axon : public tidInterface{
 	****                                           ****
 	**************************************************/
 	axon(const auron* pAuronArg);// : tidInterface("axon"), pElementAvAuron(pAuronArg){ //TODO tanke er at axon må tilhøre eit auron. Difor auronpeiker.
-
+	// XXX HUGS destructor
 
 	/* Feilmeldinger fordi eg ikkje har laga synapse enda. Kommenterer ut så lenge
 	~axon() //destructor
@@ -61,6 +61,7 @@ class axon : public tidInterface{
 	}
 	*/
 	friend class auron;
+	friend class synapse;
 	friend void testFunksjon_slett(auron*);
 	friend std::ostream & operator<< (std::ostream & ut, axon axonArg );
 	friend int main(int, char**); //TODO SLETT

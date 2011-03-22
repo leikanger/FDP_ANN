@@ -35,7 +35,7 @@ class auron : public tidInterface
 	protected:
 	//Deler av auronet:
 	axon* pAxon_output;
-	dendrite* pDendritt_input; 
+	dendrite* pDendrite_input; 
 	// FUUNKER DETTE: dendritt dendritt_input(this);
 	//Dendritter (alle input) 	Bør være fleire enn en for simulering, men for no kjører eg med bare en.  Kan for eksempel bli: //std::vector<sDendritt> dendritter;
 
@@ -104,15 +104,13 @@ class auron : public tidInterface
 	public:
 	/*auron() 					: tidInterface("auron"), ao_AuronetsAktivitet(this), sNavn("unnamed") {
 		pAxon_output = new axon(this); 						// TODdO XdXX Husk destructor. Husk å også destruere dette axon (fra det frie lageret). 
-	 	pDendritt_input = new dendrite(this); 				// TOdDO XXdX Husk destructor. Husk å også destruere dette axon (fra det frie lageret). 
+	 	pDendrite_input = new dendrite(this); 				// TOdDO XXdX Husk destructor. Husk å også destruere dette axon (fra det frie lageret). 
 
 	} //X XX  Utesta før aktivitetsObj er i orden.
 	*/
-	auron(std::string sNavn_Arg ="unnamed") : tidInterface("auron"), ao_AuronetsAktivitet(this), sNavn(sNavn_Arg) {
-		pAxon_output = new axon(this); 						// TODO XXX Husk destructor. Husk å også destruere dette axon (fra det frie lageret). XXX TODO
-	 	pDendritt_input = new dendrite(this); 				// TODO XXX Husk destructor. Husk å også destruere dette axon (fra det frie lageret). XXX TODO
-	}
-	
+	auron(std::string /*sNavn_Arg ="unnamed"*/); //: tidInterface("auron"), ao_AuronetsAktivitet(this), sNavn(sNavn_Arg) {
+	//XXX Hugs destructor
+
 	std::string sNavn; //for utskrift
 	const std::string getNavn(){ return sNavn; }
 
@@ -122,8 +120,11 @@ class auron : public tidInterface
 	 	fyr();
 	}
 
+	friend class synapse;
+	friend class dendrite;
 	friend void testFunksjon_slett(auron*);
-	friend std::ostream & operator<<(std::ostream& , auron);
+	friend std::ostream & operator<< (std::ostream& , auron);
+	friend std::ostream & operator<< (std::ostream & ut, axon axonArg );
 
 	friend int main(int, char**); //TODO SLETT
 }; 
