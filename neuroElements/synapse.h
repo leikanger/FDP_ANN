@@ -2,7 +2,7 @@
 #ifndef SYNAPSE_H_
 #define SYNAPSE_H_
 
-#include "../auron/auron.h"
+#include "../neuroElements/auron.h"
 //#include "../andreKildefiler/main.h"
 #include "../andreKildefiler/tid.h"
 
@@ -26,9 +26,7 @@ class synapse : public tidInterface{
 
 	public:
 	synapse() : tidInterface("synapse"), bInhibitorisk_effekt(false){} 		//XXX SKAL VEKK XXX
-	synapse(auron* pPresynAuron_arg, auron* pPostsynAuron_arg, bool bInhibEffekt_Arg /*=false*/, float fSynVekt_Arg /*=1*/) 
-	//		: 	pPreNode(pPresynAuron_arg), pPostNode(pPostsynAuron_arg), bInhibitorisk_effekt(bInhibEffekt_Arg), fSynaptiskVekt(fSynVekt_Arg)
-	; 
+	synapse(auron* pPresynAuron_arg, auron* pPostsynAuron_arg, bool bInhibEffekt_Arg =false, float fSynVekt_Arg =1) ; // : pPreNode(), pPostNode(), bInhibitorisk_effekt(), fSynaptiskVekt()
 
 
 	//friend std::ostream & operator<< (std::ostream & ut, synapse*); //TODO

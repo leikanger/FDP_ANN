@@ -15,6 +15,8 @@ void* taskSchedulerFunction(void*);
 //deklarasjoner
 extern std::list<tidInterface*> tid::pTaskArbeidsKoe_List;
 extern unsigned long tid::ulTidsiterasjoner;
+std::ostream & operator<<(std::ostream& ut, auron* pAuronArg );
+std::ostream & operator<< (std::ostream & ut, auron auronArg );
 
 //extern std::list<tidInterface*> tid::pTaskArbeidsKoe_List;
 
@@ -106,20 +108,20 @@ int main(int argc, char *argv[])
 
 
 
-	auron A;
-	auron B;
+	auron A("A");
+	auron B("B");
 	
 	auron C("C");
-	cout<<C.sNavn;
 
-	//synapse(&A, &B); //TODO Ikkje ferdig enda..
+	synapse(&A, &B); //TODO Ikkje ferdig enda..
 
-	testFunksjon_slett(&A);
+	/* <<aTest funker, men <<A.pAxon_output funker ikkje (segfault). Må være feil med constructor..  Thats right! Brukte feil constructor pga. andre argument..*/
 	
-
+	cout<<*(A.pAxon_output) <<endl;
+	
+	
 	/******************************************* Starter void taskSchedulerFunction(void*); ****************************************************/
-	taskSchedulerFunction(0);
-
+//	taskSchedulerFunction(0);
 
 
 	cout<<"\n\nWIN!\n";
@@ -127,10 +129,48 @@ int main(int argc, char *argv[])
 }
 
 
+void testFunksjon_slett(auron* pA) //XXX
+{ //{
+	//tid::pTaskArbeidsKoe_List .push_back( pA->pAxon_output );
+	//tid::pTaskArbeidsKoe_List .push_back( pA );
+
+//	pA->ao_AuronetsAktivitet.updateDepol();
+//	cout<<pA <<" sender inn 100.\n";
+//	pA->ao_AuronetsAktivitet.incomingSignal(100);
+
+//	tid::ulTidsiterasjoner++;
+//	pA->ao_AuronetsAktivitet.updateDepol();
+//	cout<<"\n\nA:\t" <<*pA <<endl;
 
 
+	(pA->pAxon_output)->doTask();
 
+	cout<<"Neste.\n";
+	cout<<*(pA->pAxon_output) <<endl;
 
+	//taskSchedulerFunction(0);
+	
+	/*
+	cout<<"Første fyring i testFunksjon_slett():\n\n";
+	pA->fyr();
+	
+	cout<<"Itererer tid:\n\n";
+	tid::u lTidsiterasjoner++;
+
+	cout<<"Andre fyring i testFunksjon_slett():\n\n";
+	pA->fyr();
+*/
+
+} //}
+
+void skrivUtArgumentKonvensjoner(std::string programKall)
+{ //{
+	cout<<"\n\nConventions for running auron.out: \n"
+		<<"\t"<<programKall <<"[-options] [number of iterations]\n"
+		<<"\t\tOptions: \n\t\t\t-i [n] \t number of iterations on simulation."
+		<<"\nHUGS Å LEGGE VED VALG OM [spiking ANN], [K ANN], [sammenligning], osv.\n\n\n\n"; 		//TODO
+
+} //}
 
 
 /*****************************************************************
@@ -158,36 +198,6 @@ void initialiserArbeidsKoe()
 } //}1
 
 
-void testFunksjon_slett(auron* pA) //XXX
-{ //{
-	tid::pTaskArbeidsKoe_List .push_back( pA->pAxon_output );
-	tid::pTaskArbeidsKoe_List .push_back( pA );
-
-	//taskSchedulerFunction(0);
-	
-	/*
-	cout<<"Første fyring i testFunksjon_slett():\n\n";
-	pA->fyr();
-	
-	cout<<"Itererer tid:\n\n";
-	tid::u lTidsiterasjoner++;
-
-	cout<<"Andre fyring i testFunksjon_slett():\n\n";
-	pA->fyr();
-*/
-
-} //}
-
-void skrivUtArgumentKonvensjoner(std::string programKall)
-{ //{
-	cout<<"\n\nConventions for running auron.out: \n"
-		<<"\t"<<programKall <<"[-options] [number of iterations]\n"
-		<<"\t\tOptions: \n\t\t\t-i [n] \t number of iterations on simulation."
-		<<"\nHUGS Å LEGGE VED VALG OM [spiking ANN], [K ANN], [sammenligning], osv.\n\n\n\n"; 		//TODO
-
-} //}
-
-
 extern int nAntallTidsiterasjonerTESTING_SLETT;
 /*****************************************************************
 ** 	void* taskSchedulerFunction(void*)							**
@@ -201,11 +211,12 @@ extern int nAntallTidsiterasjonerTESTING_SLETT;
 *****************************************************************/
 void* taskSchedulerFunction(void* )
 { //{1
-	cout<<"\n\nKjører void* taskSchedulerFunction(void*);\n";
+	cout<<"\n\n\t\t\t\t\tKjører void* taskSchedulerFunction(void*);\n";
 	for(int i=0; i<=nAntallTidsiterasjonerTESTING_SLETT; i++) // XXX Skal bli "uendelig" løkke etterkvart:
 	//while(/*En eller anna avsluttings-bool =*/true)
 	{
 			/*FEILSJEKK (kan takast vekk)*/
+			//cout<<"feilsjekk: Antall element i pTaskArbeidsKoe_List :  " <<tid::pTaskArbeidsKoe_List.size() <<endl;
 			if(tid::pTaskArbeidsKoe_List.empty()){ cout<<"\n\n\nFEIL. tid::pTaskArbeidsKoe_List er tom. Skal aldri skje. \nFeilmelding: [tid.h taskSchedulerFunction::c01]\n\n\n"; exit(-1);}
 
 			// DEBUG: 	Skriv ut klassenavn på element:
@@ -227,4 +238,47 @@ void* taskSchedulerFunction(void* )
 } //}1
 
 
+
+/***************************
+*** Utskriftsprosedyrer: ***
+***************************/
+std::ostream & operator<< (std::ostream & ut, auron auronArg )
+{ //{
+	ut<<"| " <<auronArg.getNavn() <<"  | verdi: " <<auronArg.ao_AuronetsAktivitet.getDepol();// <<" \t|\tMed utsynapser:\n";
+	
+	// Innsynapser:
+	//for( std::vector<synapse*>::iterator iter = neuroArg.pInnSynapser.begin(); iter != neuroArg.pInnSynapser.end(); iter++ ){
+	// 	ut 	<<"\t" <<(*iter)->pPreNode->navn <<" -> " <<neuroArg.navn <<"\t|" <<endl;
+	// }
+
+	// Utsynapser:
+	//for( std::vector<synapse*>::iterator iter = neuroArg.pUtSynapser.begin(); iter != neuroArg.pUtSynapser.end(); iter++ ){
+	// 	ut 	<<"\t\t\t|\t" <<neuroArg.navn <<" -> " <<(*iter)->pPostNode->navn <<endl;
+	//		//<< (*iter)->ulAntallSynapticVesiclesAtt <<" antall syn.vesicles att.  TIL "
+	// }
+
+
+	return ut;
+} //}
+
+std::ostream & operator<<(std::ostream& ut, auron* pAuronArg )
+{
+	ut<<(*pAuronArg);
+	return ut;
+}
+
+std::ostream & operator<< (std::ostream & ut, axon axonArg )
+{ //{
+	ut<<"| " <<(axonArg.pElementAvAuron)->sNavn <<"  | \ttil **UFERDIG**\n";
+
+	// Utsynapser:
+	for( std::list<synapse*>::iterator iter = axonArg.pUtSynapser.begin(); iter != axonArg.pUtSynapser.end(); iter++ ){
+
+	 	ut 	<<"\t\t\t|\t" <<(axonArg.pElementAvAuron)->sNavn <<" -> "    <<endl;//<<(*iter)->pPostNode->pElementAvAuron->sNavn <<endl;
+		
+	}
+
+
+	return ut;
+} //}
 

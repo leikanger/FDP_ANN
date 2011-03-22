@@ -1,18 +1,16 @@
-//XXX Veit ikkje kvifor, men med neste linje avkommentert får eg helvete av feilmeldinger..
-#ifndef SYNAPSE_H_
 #include "synapse.h"
-#endif
 
 
 
-synapse::synapse(auron* pPresynAuron_arg, auron* pPostsynAuron_arg, bool bInhibEffekt_Arg =false, float fSynVekt_Arg =1) 
+
+//synapse::synapse(auron* pPresynAuron_arg, auron* pPostsynAuron_arg, bool bInhibEffekt_Arg =false, float fSynVekt_Arg =1) 
+synapse::synapse(auron* pPresynAuron_arg, auron* pPostsynAuron_arg, bool bInhibEffekt_Arg /*=false*/, float fSynVekt_Arg /*=1*/) 
 			: 	pPreNode(pPresynAuron_arg), pPostNode(pPostsynAuron_arg), bInhibitorisk_effekt(bInhibEffekt_Arg), fSynaptiskVekt(fSynVekt_Arg)
 {	
-	//cout<<"Inne i constructor for synapse mellom presyn. auron " <<pPreNode->sNavn <<" og " <<pPostNode->sNavn <<endl;
+	cout<<"Inne i constructor for synapse mellom presyn. auron " <<pPreNode->sNavn <<" og " <<pPostNode->sNavn <<endl;
 }
 
 /*
-
 // constructor:
 //{ Kommentert ut
 synapse::synapse(auron* pPresynAuron, auron* pPostsynAuron, bool inhibitoriskEffekt =false, float vekt =1) :
@@ -43,3 +41,9 @@ synapse::synapse(auron* pPresynAuron, auron* pPostsynAuron, bool inhibitoriskEff
 }  	//}
 //}
 */
+
+	
+	
+axon::axon(const auron* pAuronArg) : tidInterface("axon"), pElementAvAuron(pAuronArg){ // tanke er at axon må tilhøre eit auron. Difor auronpeiker.
+	cout<<"lager axon fra auron " <<pAuronArg->sNavn <<endl;		
+}

@@ -11,9 +11,9 @@
 
 #include "../andreKildefiler/main.h"
 #include "../andreKildefiler/tid.h"
-#include "../dendritt_axon/axon.h"
-#include "../dendritt_axon/dentrite.h"
 #include "../andreKildefiler/aktivitetsObj.h"
+#include "../neuroElements/axon.h"
+#include "../neuroElements/dendrite.h"
 
 
 using std::endl;
@@ -31,7 +31,7 @@ class spiking_aktivitetsObj;
  * 	Skriver først auron for spiking ANN
  */
 class auron : public tidInterface
-{ 			//{auron for spiking ANN
+{ 			
 	protected:
 	//Deler av auronet:
 	axon* pAxon_output;
@@ -47,19 +47,7 @@ class auron : public tidInterface
 	unsigned long ulTimestampForrigeFyring;
 	
 
-	// static liste over alle nodene. For å regne ut lekkasje for spiking auron.
-	static std::list<auron*> lAlleNodeneSomSkal_doTask; 	//skal være med i både s_auron og k_auron.
-
-	/* XXX Flytta inn i class aktivitetsObj (for spiking_aktivitetsObj) //{3 KOMMENTERT UT
-	// Lekkasje for 'leaky integrator'. Skal kjøres kvar klokkeiterasjon i SANN. (er bare med i SANN)
-	void verdiLekkasje()
-	{ // {2
-		// Gjør simulert asynkronitet redundant tankearbeid for SANN, men det vil ikkje minke effektivitet for SANN
-		aktivitetsVariabel *= LEKKASJEFAKTOR_FOR_DEPOL;
-	} // }2
- 	*/ //}3
-
-	virtual void fyr() // UTDATERT! Har gått over til aktivitetsObj. Alt blir tatt hand om der..
+	virtual void fyr() 
 	{ 
 		
 		//Axon hillock: send aksjonspotensial 	-- innkapsling gir at axon skal ta hånd om all output. // bestiller at axon skal fyre NESTE tidsiterasjon. Simulerer tidsdelay i axonet.
@@ -68,7 +56,8 @@ class auron : public tidInterface
 		// Test..
 		cout<<"\n\t\tauron: PANG:\t\t";// <<sNavn "\n\n";
 
-	/* //{2 	UTKOMMENTERT 		//Skal bl.a. oppdatere DA-nivå i dendritter, osv.
+	/* //{ 	UTKOMMENTERT 		//Skal bl.a. oppdatere DA-nivå i dendritter, osv.
+// UTDATERT! Har gått over til aktivitetsObj. Alt blir tatt hand om der..
 		//oppdaterNeuron() //er dette naudsynt FØR fyring?
 
 		// 'Refraction time' skal være implementert i overføring-funk (i sy napse)..
@@ -113,17 +102,19 @@ class auron : public tidInterface
 
 
 	public:
-	auron() 					: tidInterface("auron"), ao_AuronetsAktivitet(this), sNavn("unnamed") {
+	/*auron() 					: tidInterface("auron"), ao_AuronetsAktivitet(this), sNavn("unnamed") {
+		pAxon_output = new axon(this); 						// TODdO XdXX Husk destructor. Husk å også destruere dette axon (fra det frie lageret). 
+	 	pDendritt_input = new dendrite(this); 				// TOdDO XXdX Husk destructor. Husk å også destruere dette axon (fra det frie lageret). 
+
+	} //X XX  Utesta før aktivitetsObj er i orden.
+	*/
+	auron(std::string sNavn_Arg ="unnamed") : tidInterface("auron"), ao_AuronetsAktivitet(this), sNavn(sNavn_Arg) {
 		pAxon_output = new axon(this); 						// TODO XXX Husk destructor. Husk å også destruere dette axon (fra det frie lageret). XXX TODO
 	 	pDendritt_input = new dendrite(this); 				// TODO XXX Husk destructor. Husk å også destruere dette axon (fra det frie lageret). XXX TODO
-
-	} //XXX  Utesta før aktivitetsObj er i orden.
-	
-	auron(std::string sNavn_Arg) : tidInterface("auron"), ao_AuronetsAktivitet(this), sNavn(sNavn_Arg) {
-		auron();
 	}
 	
 	std::string sNavn; //for utskrift
+	const std::string getNavn(){ return sNavn; }
 
 	//testfunksjon:
 	void exiterNeuronTilFyringGjennomElectrode()
@@ -132,8 +123,10 @@ class auron : public tidInterface
 	}
 
 	friend void testFunksjon_slett(auron*);
+	friend std::ostream & operator<<(std::ostream& , auron);
 
-}; //}
+	friend int main(int, char**); //TODO SLETT
+}; 
 
 
 

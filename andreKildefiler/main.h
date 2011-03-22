@@ -12,7 +12,7 @@
 
 
 //Defines:
-#define DEFAULT_ANTALL_TIDSITERASJONER 10
+#define DEFAULT_ANTALL_TIDSITERASJONER 5
 
 #define alpha 0.96
 #define LEKKASJEFAKTOR_FOR_DEPOL alpha
@@ -24,12 +24,12 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
-#include "../auron/auron.h"
+#include "../neuroElements/auron.h"
 #include "tid.h"
 #include "aktivitetsObj.h"
 
 #ifndef SYNAPSE_H_
-#include "../synapse/synapse.h"
+#include "../neuroElements/synapse.h"
 #endif
 
 //using std::list;

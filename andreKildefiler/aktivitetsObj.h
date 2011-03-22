@@ -50,6 +50,8 @@ class spiking_aktivitetsObj : public abstract_aktivitetsOvj
 
 
 	 	ulForrigeOppdatering_tidspkt = tid::getTid();
+
+		cout<<"Oppdaterer aktivitetsObj: \tDet er " <<ulTidsstegSidenForrigeOppdatering <<" tidssteg siden sist. Dette gir faktor " <<faktor <<endl;
 	}
 
 	public:
@@ -67,6 +69,7 @@ class spiking_aktivitetsObj : public abstract_aktivitetsOvj
 		updateDepol();
 		depolarisasjon += signalSize;
 	}
+
 	const void sendVidareSignal()
 	{
 		// Mest for kann:
@@ -83,6 +86,8 @@ class spiking_aktivitetsObj : public abstract_aktivitetsOvj
 		slett ++;
 
 	}
+
+	friend void testFunksjon_slett(auron* );
 };
 
 #endif
