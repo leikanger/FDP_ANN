@@ -5,3 +5,10 @@ NEI, har det heller slik at eg har interface--klasse for aktivitetsObj.
 
 Forskjellen mellom SANN og KANN er måten aktiviteten propagerer. Dersom eg da har eit aktivitetsObj med relevante funskjoner (som sendSignal(), getDepol(), osv), så kan synapse, dendrite og auron være det samme for ANN og SANN (bare med ulikt aktivitetsObj (nedarva fra i\_aktivitetsObj, som er interfaceklasse for begge aktivitetsObj--typer).
 
+\subsection{peikere}
+Siden eg heile tida opererer med peikere, og lager alle objekt i det frie lageret, trenger eg å eksplisitt kalle destruktor.
+Siden synapse kvar synapse er tilknytta bare en presynatisk og en postsynaptisk node, begynner eg destrueringa her. Når f.eks. eit axon skal destrueres går eg gjennom alle pUtSynapser--element, og destruerer.
+\begin{lstlisting}
+while( !pUtSynapser.empty() )
+	delete ( *pUtSynapser.begin() )
+\end{lstlisting}

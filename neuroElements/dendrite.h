@@ -6,7 +6,7 @@
 #include "../andreKildefiler/tid.h"
 #include "../andreKildefiler/main.h"
 #include "../neuroElements/synapse.h"
-#include "../neuroElements/auron.h"
+#include "../neuroElements/soma.h"
 //#include "../andreKildefiler/aktivitetsObj.h"
 
 
@@ -52,16 +52,9 @@ class dendrite : public tidInterface{
 
 	friend class auron;
 	friend class synapse;
+	//friend std::ostream & operator<< (std::ostream & ut, axon  );
+	friend std::ostream & operator<< (std::ostream & ut, axon* );
 };
-
-/* //{ UTKOMMENTERT
-
-
-
-
-};
-
-	*/ //}
 
 
 #endif

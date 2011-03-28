@@ -5,7 +5,7 @@
 
 // TODO sjekk om desse er nødvendig (kommenter ut, når kompilering funker..)
 //#include "main.h"
-#include "../neuroElements/auron.h"
+#include "../neuroElements/soma.h"
 
 using std::cout;
 using std::endl;

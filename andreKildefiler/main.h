@@ -24,7 +24,7 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
-#include "../neuroElements/auron.h"
+#include "../neuroElements/soma.h"
 #include "tid.h"
 #include "aktivitetsObj.h"
 

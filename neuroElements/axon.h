@@ -5,7 +5,7 @@
 #include "../andreKildefiler/tid.h"
 #include "../andreKildefiler/main.h"
 #include "../neuroElements/synapse.h"
-#include "../neuroElements/auron.h"
+#include "../neuroElements/soma.h"
 //#include "../andreKildefiler/aktivitetsObj.h"
 
 
@@ -30,7 +30,7 @@ class axon : public tidInterface{
 		}
 	} //}
 
-	const auron* pElementAvAuron;
+	const auron* pElementAvAuron; // TODO ENDRE TIL pElementOfAuron, eller noke. Sjå kva eg har skreve i rapporten.
 	std::list<synapse*> pUtSynapser;
 
 	public:
@@ -41,7 +41,7 @@ class axon : public tidInterface{
 	****                                           ****
 	**************************************************/
 	axon(const auron* pAuronArg);// : tidInterface("axon"), pElementAvAuron(pAuronArg){ //TODO tanke er at axon må tilhøre eit auron. Difor auronpeiker.
-	// XXX HUGS destructor
+	~axon();
 
 	/* Feilmeldinger fordi eg ikkje har laga synapse enda. Kommenterer ut så lenge
 	~axon() //destructor
@@ -63,7 +63,8 @@ class axon : public tidInterface{
 	friend class auron;
 	friend class synapse;
 	friend void testFunksjon_slett(auron*);
-	friend std::ostream & operator<< (std::ostream & ut, axon axonArg );
+	//friend std::ostream & operator<< (std::ostream & ut, axon );
+	friend std::ostream & operator<< (std::ostream & ut, axon* );
 	friend int main(int, char**); //TODO SLETT
 };
 

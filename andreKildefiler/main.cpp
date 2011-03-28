@@ -113,18 +113,28 @@ int main(int argc, char *argv[])
 
 
 
-	auron A("A");
-	auron B("B");
-	
-	auron C("C");
+	auron* paA = new auron("A");
+	auron* paB = new auron("B");
+	auron* paC = new auron("C");
+	auron* paD = new auron("D");
+	auron* paE = new auron("E");
 
-	synapse(&A, &B); //TODO Ikkje ferdig enda..
-	synapse(&A, &C);
-	synapse(&C, &A);
+	synapse* sAB = new synapse(paA, paB);
+	synapse* sAC = new synapse(paA, paC);
+	synapse* sAD = new synapse(paA, paD);
+	synapse* sAE = new synapse(paA, paE);
+	synapse* sCA = new synapse(paC, paA);
 
-	/* <<aTest funker, men <<A.pAxon_output funker ikkje (segfault). Må være feil med constructor..  Thats right! Brukte feil constructor pga. andre argument..*/
+
+	cout<<"\n\n\tSLETTER paA\n\n";
+	delete paA;
+
+	cout<<"JAJAJAJA\n\n\n";
+
+
+	/* <<aTest funker, men <<A.pOutputAxon funker ikkje (segfault). Må være feil med constructor..  Thats right! Brukte feil constructor pga. andre argument..*/
 	
-	//cout<<*(A.pAxon_output) <<endl;
+	//cout<<*(A.pOutputAxon) <<endl;
 	
 	
 	/******************************************* Starter void taskSchedulerFunction(void*); ****************************************************/
@@ -138,7 +148,7 @@ int main(int argc, char *argv[])
 
 void testFunksjon_slett(auron* pA) //XXX
 { //{
-	//tid::pTaskArbeidsKoe_List .push_back( pA->pAxon_output );
+	//tid::pTaskArbeidsKoe_List .push_back( pA->pOutputAxon );
 	//tid::pTaskArbeidsKoe_List .push_back( pA );
 
 //	pA->ao_AuronetsAktivitet.updateDepol();
@@ -150,10 +160,10 @@ void testFunksjon_slett(auron* pA) //XXX
 //	cout<<"\n\nA:\t" <<*pA <<endl;
 
 
-	(pA->pAxon_output)->doTask();
+	(pA->pOutputAxon)->doTask();
 
 	cout<<"Neste.\n";
-	cout<<*(pA->pAxon_output) <<endl;
+	cout<<(pA->pOutputAxon) <<endl;
 
 	//taskSchedulerFunction(0);
 	
@@ -274,17 +284,30 @@ std::ostream & operator<<(std::ostream& ut, auron* pAuronArg )
 	return ut;
 }
 
+std::ostream & operator<< (std::ostream & ut, axon* pAxonArg )
+{ //{
+	ut<<"Utsynapser fra axon tilhørende neuron " <<(pAxonArg->pElementAvAuron)->sNavn <<endl; 
+
+	// Utsynapser:
+	for( std::list<synapse*>::iterator iter = pAxonArg->pUtSynapser.begin(); iter != pAxonArg->pUtSynapser.end(); iter++ ){
+	 	ut 	<<"\t\t\t|\t" <<(pAxonArg->pElementAvAuron)->sNavn <<" -> "    <<(*iter)->pPostNodeDendrite->pElementAvAuron->sNavn <<"\t\t|\n";
+	}
+
+
+	return ut;
+} //}
+/*
 std::ostream & operator<< (std::ostream & ut, axon axonArg )
 { //{
-	ut<<"Utsynapser fra axon tilhørende neuron " <<*axonArg.pElementAvAuron <<endl; 
+	ut<<"Utsynapser fra axon tilhørende neuron " <<(axonArg.pElementAvAuron)->sNavn <<endl; 
 
 	// Utsynapser:
 	for( std::list<synapse*>::iterator iter = axonArg.pUtSynapser.begin(); iter != axonArg.pUtSynapser.end(); iter++ ){
-	 	ut 	<<"\t\t\t|\t" <<(axonArg.pElementAvAuron)->sNavn <<" -> "    <<(*iter)->pPostNode->sNavn <<endl;
+	 	ut 	<<"\t\t\t|\t" <<(axonArg.pElementAvAuron)->sNavn <<" -> "    <<(*iter)->pPostNodeDendrite->pElementAvAuron->sNavn <<endl;
 		
 	}
 
 
 	return ut;
 } //}
-
+*/

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.2.28)  18 MAR 2011 14:21
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.2.28)  28 MAR 2011 14:24
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -337,6 +337,31 @@ LaTeX Font Info:    Redeclaring font encoding OMS on input line 568.
 LaTeX Info: Redefining \[ on input line 2666.
 LaTeX Info: Redefining \] on input line 2667.
 )
+(/usr/share/texmf-texlive/tex/latex/listings/listings.sty
+\lst@mode=\count100
+\lst@gtempboxa=\box28
+\lst@token=\toks22
+\lst@length=\count101
+\lst@currlwidth=\dimen120
+\lst@column=\count102
+\lst@pos=\count103
+\lst@lostspace=\dimen121
+\lst@width=\dimen122
+\lst@newlines=\count104
+\lst@lineno=\count105
+\lst@maxwidth=\dimen123
+
+(/usr/share/texmf-texlive/tex/latex/listings/lstmisc.sty
+File: lstmisc.sty 2007/02/22 1.4 (Carsten Heinz)
+\c@lstnumber=\count106
+\lst@skipnumbers=\count107
+\lst@framebox=\box29
+)
+(/usr/share/texmf-texlive/tex/latex/listings/listings.cfg
+File: listings.cfg 2007/02/22 1.4 listings configuration
+))
+Package: listings 2007/02/22 1.4 (Carsten Heinz)
+
 
 LaTeX Warning: Unused global option(s):
     [9pt].
@@ -345,20 +370,22 @@ LaTeX Warning: Unused global option(s):
 ))
 \openout1 = `DOKUMENTASJON.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
 Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: listings package is loaded.
 Package caption Info: End \AtBeginDocument code.
+\c@lstlisting=\count108
  [1
 
 ]
@@ -403,12 +430,12 @@ No file DOKUMENTASJON.bbl.
 (./DOKUMENTASJON.aux (./dokumentasjon_tid.aux) (./klassene.aux) (./dendrite.aux
 )) ) 
 Here is how much of TeX's memory you used:
- 2328 strings out of 495062
- 32245 string characters out of 1182644
- 92419 words of memory out of 3000000
- 5491 multiletter control sequences out of 15000+50000
+ 3917 strings out of 495062
+ 53040 string characters out of 1182644
+ 110030 words of memory out of 3000000
+ 7068 multiletter control sequences out of 15000+50000
  10851 words of font info for 39 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
- 36i,6n,38p,290b,191s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 36i,6n,38p,404b,983s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on DOKUMENTASJON.dvi (5 pages, 7344 bytes).
+Output written on DOKUMENTASJON.dvi (5 pages, 9124 bytes).
