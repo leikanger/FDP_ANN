@@ -2,7 +2,7 @@
 #ifndef SYNAPSE_H_
 #define SYNAPSE_H_
 
-#include "../neuroElements/soma.h"
+#include "../neuroElements/auron.h"
 #include "../andreKildefiler/tid.h"
 
 //#include "../andreKildefiler/aktivitetsObj.h"
@@ -11,33 +11,27 @@ class dendrite;
 
 class synapse : public tidInterface{
 	
-	/*const*/ axon* pPreNodeAxon; 				//bør være const
-	/*const*/ dendrite* pPostNodeDendrite; 		//bør være const
+	axon* pPreNodeAxon;
+	dendrite* pPostNodeDendrite;
 
 	const bool bInhibitorisk_effekt;
-	float fSynaptiskVekt;
+	int nSynaptiskVekt;
 
 
-	void doTask(){
-		//Skal handteres i aktivitetsObj:
-		// aktivitetsObj.kall-rette-funksjoner();
-		// For SANN: summer input.
-		// For KANN: oppdater kappa.
-		//aktivitetsObj. TODO
-	}
+	inline void doTask();
+
+	void transmission();
 
 	public:
-	//synapse() : tidInterface("synapse"), bInhibitorisk_effekt(false){} 		//XXX SKAL VEKK XXX
+	//synapse() : tidInterface("synapse"), bInhibitorisk_effekt(false){} 		// SKAL VEKK
 
 	// Lag også axon.nySynapse(auron* pOutputAuron){  new synapse(this, pOutputAuron); } XXX
-	//synapse(auron* pPresynAuron_arg, auron* pPostsynAuron_arg, bool bInhibEffekt_Arg =false, float fSynVekt_Arg =1) : bInhibitorisk_effekt(bInhibEffekt_Arg){
-	//	synapse(pPresynAuron_arg->pOutputAxon, pPostsynAuron_arg->pInputDendrite, bInhibEffekt_Arg, fSynVekt_Arg);
-	//}
 
 	//synapse(axon* pPresynAxon_arg, dendrite* pPostsynDendrite_arg, bool bInhibEffekt_Arg =false, float fSynVekt_Arg =1) ;
-	synapse(auron*, auron*, bool bInhibEffekt_Arg =false, float fSynVekt_Arg =1) ;
+	synapse(auron*, auron*, float fSynVekt_Arg =1, bool bInhibEffekt_Arg =false) ;
 	~synapse(); //Sjå neuroElement.cpp
-
+	
+	int getSynVekt(){ return nSynaptiskVekt; }
 
 	//friend std::ostream & operator<< (std::ostream & ut, synapse*); //TODO
 	//friend std::ostream & operator<< (std::ostream & ut, axon  );

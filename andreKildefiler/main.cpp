@@ -22,7 +22,7 @@ std::ostream & operator<< (std::ostream & ut, auron auronArg );
 
 // Foreløpig testvariabel: 		Global variabel som skal lese inn fra argv**. 	
 // XXX Gå over til funk-som-global-variabel!   Og referer til stroustrup i rapport.
-int nAntallTidsiterasjonerTESTING_SLETT;
+unsigned long ulAntallTidsiterasjonerTESTING_SLETT;
 //{ Alternativt med referanse-returnerende funk. : 
 /**********************************************************************************
 *** 	int& nAntallTidsiterasjoner()
@@ -60,11 +60,11 @@ int main(int argc, char *argv[])
 			{
 				case 'i':
 					// Sjekker om antall iterasjoner er i samme argument (uten mellomrom):
-					if( 		(nAntallTidsiterasjonerTESTING_SLETT = atoi( &argv[innArgumentPos][2])) ) 	cout<<"Simulation length set to " <<nAntallTidsiterasjonerTESTING_SLETT <<" time steps\n";
+					if( 		(ulAntallTidsiterasjonerTESTING_SLETT = atoi( &argv[innArgumentPos][2])) ) 	cout<<"Simulation length set to " <<ulAntallTidsiterasjonerTESTING_SLETT <<" time steps\n";
 					// Ellers: sjekker om det er på neste argument (med mellomrom):
-					else if( 	(nAntallTidsiterasjonerTESTING_SLETT = atoi( argv[innArgumentPos+1]) ) ){
+					else if( 	(ulAntallTidsiterasjonerTESTING_SLETT = atoi( argv[innArgumentPos+1]) ) ){
 						++innArgumentPos;
-						cout<<"Anntall tidsiterasjoner er satt til " <<nAntallTidsiterasjonerTESTING_SLETT <<endl;
+						cout<<"Anntall tidsiterasjoner er satt til " <<ulAntallTidsiterasjonerTESTING_SLETT <<endl;
 					}else{
 						cout<<"Can not read argument. Please follow the conventions:" <<endl;
 						skrivUtArgumentKonvensjoner(argv[0]);
@@ -93,20 +93,20 @@ int main(int argc, char *argv[])
 			if( ( (nInnInt = atoi( argv[innArgumentPos]))>0) ) //Skal eg sette øvre grense også?
 			{
 				cout<<"Argument gives number of iterations to be: \t\t" <<nInnInt <<endl;
-				nAntallTidsiterasjonerTESTING_SLETT=nInnInt;
+				ulAntallTidsiterasjonerTESTING_SLETT=nInnInt;
 			}else{
 				cout<<"Number of iterations must be a positive number.\nUse default: " <<DEFAULT_ANTALL_TIDSITERASJONER <<endl;
 			}
 		}
 	}else{ // for if(argc > 1)
 		cout<<"No arguments listed. Continue with default values:\tNumber of iterations: " <<DEFAULT_ANTALL_TIDSITERASJONER <<endl;
-		nAntallTidsiterasjonerTESTING_SLETT = DEFAULT_ANTALL_TIDSITERASJONER;
+		ulAntallTidsiterasjonerTESTING_SLETT = DEFAULT_ANTALL_TIDSITERASJONER;
 
 		skrivUtArgumentKonvensjoner(argv[0]);
 	} //}1
 	
 
-	cout<<"******************************************\n*** BEGYNNER KJØRING AV auronNett.out: ***\n******************************************\n\n";
+	cout<<"******************************************\n*** BEGYNNER KJØRING AV ANN: ***\n******************************************\n\n";
 
 		
 
@@ -119,17 +119,32 @@ int main(int argc, char *argv[])
 	auron* paD = new auron("D");
 	auron* paE = new auron("E");
 
-	synapse* sAB = new synapse(paA, paB);
+
+	synapse* sAB = new synapse(paA, paB, 111);
 	synapse* sAC = new synapse(paA, paC);
 	synapse* sAD = new synapse(paA, paD);
 	synapse* sAE = new synapse(paA, paE);
 	synapse* sCA = new synapse(paC, paA);
 
+	synapse* sBA = new synapse(paB, paA);
+	synapse* sBD = new synapse(paB, paC);
 
-	cout<<"\n\n\tSLETTER paA\n\n";
+	//Gjør noke med auron.sNavn; for å ikkje få så mykje warnings (BARE TULL: )
+	cout<<"\n\n\nLitt båss, for å unngå feilmeldinger: " <<paA->sNavn <<paB->sNavn <<paC->sNavn <<paD->sNavn <<paE->sNavn <<sAB->getSynVekt() <<sAC->getSynVekt() <<sAD->getSynVekt() <<sAE->getSynVekt() <<sCA->getSynVekt() <<"\n\n";
+
+	paA->doTask();
+
+	cout<<"lengde på arbeidkø (i tillegg til [tid] ): " <<tid::pTaskArbeidsKoe_List.size()-1 <<endl;
+
+	sleep(1);
+	taskSchedulerFunction(0);
+
+
+
+
+	cout<<"\n\n\n\n\n\nSLETTER \t\t\tpaA\n\n";
 	delete paA;
 
-	cout<<"JAJAJAJA\n\n\n";
 
 
 	/* <<aTest funker, men <<A.pOutputAxon funker ikkje (segfault). Må være feil med constructor..  Thats right! Brukte feil constructor pga. andre argument..*/
@@ -215,7 +230,7 @@ void initialiserArbeidsKoe()
 } //}1
 
 
-extern int nAntallTidsiterasjonerTESTING_SLETT;
+extern unsigned long ulAntallTidsiterasjonerTESTING_SLETT;
 /*****************************************************************
 ** 	void* taskSchedulerFunction(void*)							**
 ** 																**
@@ -229,7 +244,7 @@ extern int nAntallTidsiterasjonerTESTING_SLETT;
 void* taskSchedulerFunction(void* )
 { //{1
 	cout<<"\n\n\t\t\t\t\tKjører void* taskSchedulerFunction(void*);\n";
-	for(int i=0; i<=nAntallTidsiterasjonerTESTING_SLETT; i++) // XXX Skal bli "uendelig" løkke etterkvart:
+	while( tid::ulTidsiterasjoner <= ulAntallTidsiterasjonerTESTING_SLETT) // XXX Skal bli "uendelig" løkke etterkvart:
 	//while(/*En eller anna avsluttings-bool =*/true)
 	{
 			/*FEILSJEKK (kan takast vekk)*/
@@ -237,7 +252,7 @@ void* taskSchedulerFunction(void* )
 			if(tid::pTaskArbeidsKoe_List.empty()){ cout<<"\n\n\nFEIL. tid::pTaskArbeidsKoe_List er tom. Skal aldri skje. \nFeilmelding: [tid.h taskSchedulerFunction::c01]\n\n\n"; exit(-1);}
 
 			// DEBUG: 	Skriv ut klassenavn på element:
-			cout<<"\tKjører element i arbeidskø: " <<tid::pTaskArbeidsKoe_List.front() ->klasseNavn <<endl; 		
+			cout<<"\tKjører element i arbeidskø: " <<tid::pTaskArbeidsKoe_List.front() ->klasseNavn <<"\t\t\t\titer: "<<tid::ulTidsiterasjoner <<endl; 		
 	
 
 			// Setter igang utføring av neste jobb i lista:
@@ -261,7 +276,7 @@ void* taskSchedulerFunction(void* )
 ***************************/
 std::ostream & operator<< (std::ostream & ut, auron auronArg )
 { //{
-	ut<<"| " <<auronArg.getNavn() <<"  | verdi: " <<auronArg.ao_AuronetsAktivitet.getDepol();// <<" \t|\tMed utsynapser:\n";
+	ut<<"| " <<auronArg.getNavn() <<"  | verdi: " <<auronArg.getAktivityVar();// <<" \t|\tMed utsynapser:\n";
 	
 	// Innsynapser:
 	//for( std::vector<synapse*>::iterator iter = neuroArg.pInnSynapser.begin(); iter != neuroArg.pInnSynapser.end(); iter++ ){

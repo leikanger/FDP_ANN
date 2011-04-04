@@ -6,7 +6,7 @@
 #include "../andreKildefiler/tid.h"
 #include "../andreKildefiler/main.h"
 #include "../neuroElements/synapse.h"
-#include "../neuroElements/soma.h"
+#include "../neuroElements/auron.h"
 //#include "../andreKildefiler/aktivitetsObj.h"
 
 
@@ -22,14 +22,13 @@
 **
 *****************************************************************/
 class dendrite : public tidInterface{
-	inline void doTask()
-	{ // { 
-		cout<<"\n\n\n\n\n\nJADA DENTRITE.doTask()\n\n\n\n";
+	inline void doTask();
 
-	} // }
-
-	const auron* pElementAvAuron;
+	auron* pElementAvAuron;
 	std::list<synapse*> pInnSynapser;
+
+	inline void newInputSignal( int nNewSignal );
+	inline void calculateLeakage();
 
 	public:
 	//Constructor: 	

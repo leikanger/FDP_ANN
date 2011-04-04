@@ -28,13 +28,13 @@ class spiking_aktivitetsObj;
 
 
 /*
- * 	Skriver først auron for spiking ANN
+ * 	Skriver først soma for spiking ANN
  */
- //TODO endre navn: 	auron => soma 	 ? 	TODO
-class auron : public tidInterface
+ //TODO endre navn: 	soma => soma 	 ? 	TODO
+class soma : public tidInterface
 { 			
-	protected:
-	//Deler av auronet:
+//	protected: gjorde private: 29.03
+	//Deler av somaet:
 	axon* pOutputAxon; 			
  	dendrite* pInputDendrite; 
 	// FUUNKER DETTE: dendritt dendritt_input(this);
@@ -44,8 +44,8 @@ class auron : public tidInterface
 	spiking_aktivitetsObj ao_AuronetsAktivitet;
 
 	//bare for spiking Auron: XXX Skal vekk: (over i aktivitetsObj..)
-	unsigned long ulTimestampForrigeInput;
-	unsigned long ulTimestampForrigeFyring;
+	//unsigned long ulTimestampForrigeInput;
+	//unsigned long ulTimestampForrigeFyring;
 	
 
 	virtual void fyr() 
@@ -55,7 +55,7 @@ class auron : public tidInterface
 		tid::pTaskArbeidsKoe_List .push_back( pOutputAxon );
 
 		// Test..
-		cout<<"\n\t\tauron: PANG:\t\t";// <<sNavn "\n\n";
+		cout<<"\n\t\tsoma: PANG:\t\t";// <<sNavn "\n\n";
 
 	/* //{ 	UTKOMMENTERT 		//Skal bl.a. oppdatere DA-nivå i dendritter, osv.
 // UTDATERT! Har gått over til aktivitetsObj. Alt blir tatt hand om der..
@@ -64,7 +64,7 @@ class auron : public tidInterface
 		// 'Refraction time' skal være implementert i overføring-funk (i sy napse)..
 	 	if( ulTimestampForrigeFyring == tid::ul Tidsiterasjoner )
 		{
-			cout<<"\n\n************************\nFeil?\nTo fyringer på en iterasjon? \nFeilmelding au#103 @ auron.h\n************************\n\n";
+			cout<<"\n\n************************\nFeil?\nTo fyringer på en iterasjon? \nFeilmelding au#103 @ soma.h\n************************\n\n";
 			return;
 		}
 
@@ -83,13 +83,13 @@ class auron : public tidInterface
 
 	/* //{ Om doTask() 
 		KVA SKAL doTask() GJØRE?
- 			auron::doTask() skal kanskje gjøre lekkasje for spiking neuron?
+ 			soma::doTask() skal kanskje gjøre lekkasje for spiking neuron?
 				( Overføring i sy napsene, som fører til depol. i postsyn gjøres no i class sy napse.. )
 				Anna:
 					-
 	*/ //}
 	inline void doTask(){
-		//XXX Kva skal skje for auron::doTask() ?   // Initiere A.P. ? 
+		//XXX Kva skal skje for soma::doTask() ?   // Initiere A.P. ? 
 													// Lekkasje? 
 													// `backpropagating action potential' (syn.plast.)? (type sjekke overføringstid for sy napser og gjennomføre syn.plast.)
 	}
@@ -104,14 +104,14 @@ class auron : public tidInterface
 
 
 	public:
-	/*auron() 					: tidInterface("auron"), ao_AuronetsAktivitet(this), sNavn("unnamed") {
+	/*soma() 					: tidInterface("soma"), ao_AuronetsAktivitet(this), sNavn("unnamed") {
 		pOutputAxon = new axon(this); 						// TODdO XdXX Husk destructor. Husk å også destruere dette axon (fra det frie lageret). 
 	 	pInputDendrite = new dendrite(this); 				// TOdDO XXdX Husk destructor. Husk å også destruere dette axon (fra det frie lageret). 
 
 	} //X XX  Utesta før aktivitetsObj er i orden.
 	*/
-	auron(std::string /*sNavn_Arg ="unnamed"*/); 		//: tidInterface("auron"), ao_AuronetsAktivitet(this), sNavn(sNavn_Arg) {
-	~auron();
+	soma(std::string /*sNavn_Arg ="unnamed"*/); 		//: tidInterface("soma"), ao_AuronetsAktivitet(this), sNavn(sNavn_Arg) {
+	~soma();
 
 
 	std::string sNavn; //for utskrift
@@ -126,8 +126,8 @@ class auron : public tidInterface
 	friend class axon;
 	friend class synapse;
 	friend class dendrite;
-	friend void testFunksjon_slett(auron*);
-	friend std::ostream & operator<< (std::ostream& , auron);
+	friend void testFunksjon_slett(soma*);
+	friend std::ostream & operator<< (std::ostream& , soma);
 	//friend std::ostream & operator<< (std::ostream & ut, axon  );
 	friend std::ostream & operator<< (std::ostream & ut, axon* );
 

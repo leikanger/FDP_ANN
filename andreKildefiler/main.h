@@ -12,19 +12,20 @@
 
 
 //Defines:
-#define DEFAULT_ANTALL_TIDSITERASJONER 5
+#define DEFAULT_ANTALL_TIDSITERASJONER 10
 
 #define alpha 0.96
 #define LEKKASJEFAKTOR_FOR_DEPOL alpha
 
 
+#define FYRINGSTERSKEL 100
 
 
 
 #ifndef MAIN_H_
 #define MAIN_H_
 
-#include "../neuroElements/soma.h"
+#include "../neuroElements/auron.h"
 #include "tid.h"
 #include "aktivitetsObj.h"
 

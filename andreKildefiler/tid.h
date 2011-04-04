@@ -5,7 +5,7 @@
 
 // TODO sjekk om desse er nødvendig (kommenter ut, når kompilering funker..)
 //#include "main.h"
-#include "../neuroElements/soma.h"
+#include "../neuroElements/auron.h"
 
 using std::cout;
 using std::endl;
@@ -34,11 +34,23 @@ class tidInterface
 };
 
 
-// XXX NY IDE:
-// Eg kan lage lokal tid for kvart auron, for å kunne kjøre K(1-e^{-at})+v_0 e^{-at} lettare. Ved oppdatering av K (eller fyring) kan lokal tid settes til 0.
-// I så fall bør eg ha en peiker tid::masterTid som peiker på pHovedskille = mew tid; laga i void initialiserArbeidsKoe();
-// 	Dette krever forresten meir: trenger en static peiker til hoved-tid, men f.eks. unsigned long ulTidsiterasjoner kan ikkje være static. For å finne denne må man da kalle tid::hovedTid.ulTidsiterasjoner;
-// 	pTaskArbeidsKoe_List kan fortsatt være static!
+
+
+
+
+
+/**************************TODO : ************
+
+Ordne slik at alle element som legges inn sjekker om andre identiske element eksisterer. I så fall skal de andre fjærnes.
+Typisk om en dendrite legges inn etter ei synapses overføring, så legges samme dendritt til for omregning etter ei til overføring samme tidsiterasjon. I dette fallet skal bare en av de ligge i lista. (samme hvilken?)
+	NEINEINEI: Det som bare skal skje en gang er lekkasjen. Begge overføringer skal selvfølgelig inn!
+
+Kvar gang det er overføring:
+	- kjøre depol.-lekkasje dersom det er en eller fleire iter siden forrige gang.
+	- plusse på ny depol.endring.
+
+**********************************************/
+
 
 /*********************************************************************************
 ** 	class tid  																	**
@@ -48,23 +60,31 @@ class tidInterface
 class tid : public tidInterface {
 	static unsigned long ulTidsiterasjoner;
 	
-	protected:
 	static std::list<tidInterface*> pTaskArbeidsKoe_List;
 
-	inline void doTask(){ 	//overlagring av tidInterface::doTask() - som med axon, soma, dendritt, synapse osv.
+	
+	protected:
+	inline void doTask(){ 	//overlagring av tidInterface::doTask() - som med axon, auron, dendritt, synapse osv.
 		// Legger til egenpeiker på slutt av pNesteJobb_ArbeidsKoe
 		pTaskArbeidsKoe_List.push_back(this);	
 
 		//itererer tid:
 		ulTidsiterasjoner++;
 		
+		cout<<"\n\nAUKER TID: \t" <<ulTidsiterasjoner-1 <<" => " <<ulTidsiterasjoner <<" * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * \n\n";
+		
 		// utskrift:
-		cout<<"Auker tid til " <<ulTidsiterasjoner <<endl;
+		//cout<<"Auker tid til " <<ulTidsiterasjoner <<endl;
 	}
 
 	public:
 	tid() : tidInterface("tid"){}
 
+
+	static void leggTilTask( tidInterface* pArg )
+	{
+	 	pTaskArbeidsKoe_List.push_back( pArg );
+	}
 	static unsigned long getTid(){ return ulTidsiterasjoner; }
 	//Noke slikt: XXX 	friend schedulerFunksjon;
 	// Viktig med inkapsling!

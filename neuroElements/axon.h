@@ -5,7 +5,7 @@
 #include "../andreKildefiler/tid.h"
 #include "../andreKildefiler/main.h"
 #include "../neuroElements/synapse.h"
-#include "../neuroElements/soma.h"
+#include "../neuroElements/auron.h"
 //#include "../andreKildefiler/aktivitetsObj.h"
 
 
@@ -15,22 +15,9 @@ class auron;
 //class tidInterface;
 
 class axon : public tidInterface{
-	inline void doTask()
-	{ //{ // initierAksjonspotensial()
-		cout<<"\n\n\n\n\n\nJADA\n\n\n\n";
+	inline void doTask();
 
-		// For meir nøyaktig simulering av tid kan alle synaper få verdi for 'time lag' før fyring. No fokuserer eg heller på effektivitet. 
-	 	for( std::list<synapse*>::iterator iter = pUtSynapser.begin(); iter != pUtSynapser.end(); iter++ )
-		{ // Legger alle pUtSynapser inn i arbeidskø: (FIFO-kø)
-			
-			//tid::pTaskArbeidsKoe_List.push_back( (*iter) );
-			cout<<"\tinne i loop for_a001(;;)\n";
-	//TODO ordne dette:
-			cout<<(*iter) <<endl;
-		}
-	} //}
-
-	const auron* pElementAvAuron; // TODO ENDRE TIL pElementOfAuron, eller noke. Sjå kva eg har skreve i rapporten.
+	const auron* pElementAvAuron; // TODO ENDRE TIL pElementAvAuron, eller noke. Sjå kva eg har skreve i rapporten.
 	std::list<synapse*> pUtSynapser;
 
 	public:
