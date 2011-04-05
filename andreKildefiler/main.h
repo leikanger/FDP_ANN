@@ -5,14 +5,14 @@
 #include <list>
 
 #include <stdlib.h> 	//- for rand()
-//include <cmath> 		//- for pow() funksjoner
+#include <cmath> 		//- for pow() funksjoner
 //include <algorithm> 	- for_each()
 //include <fstream> 	- file streams
 
 
 
 //Defines:
-#define DEFAULT_ANTALL_TIDSITERASJONER 10
+#define DEFAULT_ANTALL_TIDSITERASJONER 100
 
 #define alpha 0.96
 #define LEKKASJEFAKTOR_FOR_DEPOL alpha
@@ -26,12 +26,15 @@
 #define MAIN_H_
 
 #include "../neuroElements/auron.h"
-#include "tid.h"
-#include "aktivitetsObj.h"
+#include "time.h"
 
 #ifndef SYNAPSE_H_
 #include "../neuroElements/synapse.h"
 #endif
+/*
+#ifndef DENDRITE_H_
+#include "../neuroElements/dendrite.h"
+#endif*/
 
 //using std::list;
 using std::cout;
@@ -54,7 +57,7 @@ using std::endl;
 	simulert, diskret TID
 */
 //unsigned long ulTidsiterasjoner; // ligg i main.h
-// flytta inn som static tid::ulTidsiterasjoner;
+// flytta inn som static time_class::ulTidsiterasjoner;
 
 
 

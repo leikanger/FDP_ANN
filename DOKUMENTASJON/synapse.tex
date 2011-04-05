@@ -1,0 +1,20 @@
+
+\section{Synapse}
+
+\subsection{SANN}
+Synaptisk vekt skal være unsigned i staden for int!
+
+Ved kvar overføring skal synaptisk vekt legges til eller trekkes fra i postsyn. depol. (avhengig av synapse::bInhibEffekt). 
+
+Først sjekkes det om kor lenge det er siden syn.overføring.  (skjer i synapse::transmission() )
+\begin{lstlisting}
+if( (unsigned uTidSiden = ulTid - ulForrigeOppdatering) != 0) % eller kanskje heller: if(ulTid != ulForrigeOppdatering), og kjøre sammenligninga direkte i pow-funk i gjennomførLekkasje (unngår argumentkopiering..)
+	gjennomførLekkasje(uTidSiden);
+\end{lstlisting}
+
+og gjennomførLekkasje() :
+\begin{lstlisting}
+void gjennomførLekkasje(uTidSiden_arg){
+	depol = lekkasjeFaktor ^ uTidSiden_arg		
+}
+\end{lstlisting}

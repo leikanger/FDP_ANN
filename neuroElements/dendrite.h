@@ -3,7 +3,7 @@
 #define DENDRITE_H_
 
 
-#include "../andreKildefiler/tid.h"
+#include "../andreKildefiler/time.h"
 #include "../andreKildefiler/main.h"
 #include "../neuroElements/synapse.h"
 #include "../neuroElements/auron.h"
@@ -13,7 +13,7 @@
 //Deklarasjoner:
 //class synapse;
 //class auron;
-//class tidInterface;
+//class timeInterface;
 
 /*****************************************************************
 ** class dendritt 			-  	Notater:
@@ -21,7 +21,7 @@
 ** 		- dendritt må ha aktivitetsVariabel.
 **
 *****************************************************************/
-class dendrite : public tidInterface{
+class dendrite : public timeInterface{
 	inline void doTask();
 
 	auron* pElementAvAuron;
@@ -33,7 +33,7 @@ class dendrite : public tidInterface{
 	public:
 	//Constructor: 	
 	dendrite( auron* pPostSynAuron_Arg ); // : pElementAvAuron(pPostSynAuron_Arg)  		Definisjon i neuroElement.cpp
-	// XXX Hugs destructor
+	~dendrite();
 	
 	//Destructor:
 	/* kommenterer ut mens synapser ikkje er laga enda.. //{
@@ -53,6 +53,8 @@ class dendrite : public tidInterface{
 	friend class synapse;
 	//friend std::ostream & operator<< (std::ostream & ut, axon  );
 	friend std::ostream & operator<< (std::ostream & ut, axon* );
+
+	friend int main(int, char**); //TODO SLETT
 };
 
 

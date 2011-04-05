@@ -3,26 +3,22 @@ CPPFLAGS=${CFLAGS}
 
 
 
-#somaEnhet.o: soma/soma.cpp soma/soma.h andreKildefiler/tid.cpp andreKildefiler/tid.h dendritt_axon/axon.h synapse/synapse.cpp synapse/synapse.h
-#	g++ ${CFLAGS} -c soma/soma.cpp synapse/synapse.cpp -o soma.o
-
-#soma.o: andreKildefiler/tid.cpp andreKildefiler/tid.h neuroElements/soma.h neuroElements/axon.h neuroElements/synapse.cpp neuroElements/synapse.h
-#	g++ ${CFLAGS} -c neuroElements/soma.cpp -o soma.o
-
-neuroElement.o: andreKildefiler/tid.cpp andreKildefiler/tid.h neuroElements/axon.h neuroElements/dendrite.h neuroElements/synapse.h
-	g++ ${CFLAGS} -c neuroElements/neuroElement.cpp -o neuroElement.o
-
-
+#all: andreKildefiler/main.cpp andreKildefiler/main.h andreKildefiler/tid.cpp andreKildefiler/time.h neuroElements/axon.h neuroElements/dendrite.h neuroElements/synapse.h neuroElements/neuroElement.cpp
+#	clear; echo "make all:\n\n"; g++ ${CFLAGS} andreKildefiler/main.cpp neuroElements/neuroElement.cpp -o auroNett.out
 
 auroNett.out: main.o neuroElement.o
 	clear; echo "make auroNett.out:\n\n"; g++ ${CFLAGS} main.o neuroElement.o -o auroNett.out
 
+neuroElement.o: andreKildefiler/tid.cpp andreKildefiler/time.h neuroElements/axon.h neuroElements/dendrite.h neuroElements/synapse.h
+	g++ ${CFLAGS} -c neuroElements/neuroElement.cpp -o neuroElement.o
 
-
-main.o: andreKildefiler/main.cpp andreKildefiler/main.h andreKildefiler/tid.h andreKildefiler/tid.cpp 
+main.o: andreKildefiler/main.cpp andreKildefiler/main.h andreKildefiler/time.h andreKildefiler/tid.cpp 
 	g++ ${CFLAGS} -c andreKildefiler/main.cpp 
 
 
+
+visBareErrors: main.o neuroElement.o
+	make c 2>&1 | grep error #Funker om du skriver dette rett i shell!
 
 c:
 	make clean; clear; echo "\nHAR FJÆNA ALLE .out FILENE. Kjører make\n\n"; make auroNett.out

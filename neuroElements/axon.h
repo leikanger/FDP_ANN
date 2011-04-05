@@ -2,7 +2,7 @@
 #ifndef AXON_H_
 #define AXON_H_
 
-#include "../andreKildefiler/tid.h"
+#include "../andreKildefiler/time.h"
 #include "../andreKildefiler/main.h"
 #include "../neuroElements/synapse.h"
 #include "../neuroElements/auron.h"
@@ -12,9 +12,9 @@
 //Deklarasjoner:
 class synapse;
 class auron;
-//class tidInterface;
+//class timeInterface;
 
-class axon : public tidInterface{
+class axon : public timeInterface{
 	inline void doTask();
 
 	const auron* pElementAvAuron; // TODO ENDRE TIL pElementAvAuron, eller noke. Sjå kva eg har skreve i rapporten.
@@ -24,10 +24,10 @@ class axon : public tidInterface{
 	/**************************************************
 	****     axon::axon()  - constructor           ****
 	****        -pElementAvAuron(pAuronArg)        ****
-	****        -tidInterface("axon")              ****
+	****        -timeInterface("axon")              ****
 	****                                           ****
 	**************************************************/
-	axon(const auron* pAuronArg);// : tidInterface("axon"), pElementAvAuron(pAuronArg){ //TODO tanke er at axon må tilhøre eit auron. Difor auronpeiker.
+	axon(const auron* pAuronArg);// : timeInterface("axon"), pElementAvAuron(pAuronArg){ //TODO tanke er at axon må tilhøre eit auron. Difor auronpeiker.
 	~axon();
 
 	/* Feilmeldinger fordi eg ikkje har laga synapse enda. Kommenterer ut så lenge

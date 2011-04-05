@@ -5,7 +5,8 @@
  *      Author: kybpc1036
  */
 #include "main.h"
-#include "tid.h"
+#include "time.h"
+//#include "../neuroElements/dendrite.h" //KAANSKJE DEN SKAL VÆRE MED? XXX
 
 void initialiserArbeidsKoe();
 void testFunksjon_slett(auron*);
@@ -13,12 +14,12 @@ void skrivUtArgumentKonvensjoner(std::string);
 void* taskSchedulerFunction(void*);
 
 //deklarasjoner
-extern std::list<tidInterface*> tid::pTaskArbeidsKoe_List;
-extern unsigned long tid::ulTidsiterasjoner;
+extern std::list<timeInterface*> time_class::pTaskArbeidsKoe_List;
+extern unsigned long time_class::ulTidsiterasjoner;
 std::ostream & operator<<(std::ostream& ut, auron* pAuronArg );
 std::ostream & operator<< (std::ostream & ut, auron auronArg );
 
-//extern std::list<tidInterface*> tid::pTaskArbeidsKoe_List;
+//extern std::list<timeInterface*> time_class::pTaskArbeidsKoe_List;
 
 // Foreløpig testvariabel: 		Global variabel som skal lese inn fra argv**. 	
 // XXX Gå over til funk-som-global-variabel!   Og referer til stroustrup i rapport.
@@ -42,7 +43,7 @@ unsigned long ulAntallTidsiterasjonerTESTING_SLETT;
 
 int main(int argc, char *argv[])
 {
-	// Initierer arbeidskø (tid::pTaskArbeidsKoe_List)
+	// Initierer arbeidskø (time_class::pTaskArbeidsKoe_List)
 	initialiserArbeidsKoe();
 
 
@@ -111,41 +112,80 @@ int main(int argc, char *argv[])
 		
 
 
+	//TODO For at alle skal destrueres automatisk, legg alle peikere inn i std::vector, og destruer alle element i vector på slutten av main.
 
 
-	auron* paA = new auron("A");
+	auron* paA1 = new auron("A1");
+	auron* paA2 = new auron("A2");
+	auron* paA3 = new auron("A3");
+	auron* paA4 = new auron("A4");
+	auron* paA5 = new auron("A5");
+
 	auron* paB = new auron("B");
 	auron* paC = new auron("C");
 	auron* paD = new auron("D");
-	auron* paE = new auron("E");
+	auron* paE = new auron("E", 50);
 
 
-	synapse* sAB = new synapse(paA, paB, 111);
-	synapse* sAC = new synapse(paA, paC);
-	synapse* sAD = new synapse(paA, paD);
-	synapse* sAE = new synapse(paA, paE);
-	synapse* sCA = new synapse(paC, paA);
+	new synapse(paA1, paA2, 41);
+	new synapse(paA2, paA5, 111);
+	new synapse(paA1, paA3, 111);
+	new synapse(paA3, paA4, 111);
+	new synapse(paA4, paA5, 111);
+	new synapse(paA5, paA1, 111);
 
-	synapse* sBA = new synapse(paB, paA);
-	synapse* sBD = new synapse(paB, paC);
+	new synapse(paA1, paB, 11);
+	new synapse(paA2, paB, 11);
+	new synapse(paA3, paB, 11);
+	new synapse(paA4, paB, 11);
+	new synapse(paA5, paB, 11);
+	
+	new synapse(paA1, paB, 11);
+	new synapse(paA2, paB, 11);
+	new synapse(paA3, paB, 11);
+	new synapse(paA4, paB, 11);
+	new synapse(paA5, paB, 11);
+	
+	new synapse(paA5, paC, 21);
+	
+	new synapse(paA5, paD, 11);
+	new synapse(paC,  paD, 20);
 
-	//Gjør noke med auron.sNavn; for å ikkje få så mykje warnings (BARE TULL: )
-	cout<<"\n\n\nLitt båss, for å unngå feilmeldinger: " <<paA->sNavn <<paB->sNavn <<paC->sNavn <<paD->sNavn <<paE->sNavn <<sAB->getSynVekt() <<sAC->getSynVekt() <<sAD->getSynVekt() <<sAE->getSynVekt() <<sCA->getSynVekt() <<"\n\n";
+	
 
-	paA->doTask();
+	// Setter igang den neurale kretsen! -fyrer paA
+	paA1->doTask();
 
-	cout<<"lengde på arbeidkø (i tillegg til [tid] ): " <<tid::pTaskArbeidsKoe_List.size()-1 <<endl;
+	cout<<"lengde på arbeidkø (i tillegg til [time_class] ): " <<time_class::pTaskArbeidsKoe_List.size()-1 <<endl;
 
+
+//for å lage gjenkjennelig start på utskrifta:
+	for(int x = 0; x<20; x++){
+		cout<<"pow(LEKKASJEFAKTOR_FOR_DEPOL, x): " <<pow(LEKKASJEFAKTOR_FOR_DEPOL, x) <<"\t=>\t" <<100*pow(LEKKASJEFAKTOR_FOR_DEPOL, x) <<endl;
+	}
+
+
+/****************** taskSchedulerFunction(0) ***************/
 	sleep(1);
 	taskSchedulerFunction(0);
+	
+
+
 
 
 
 
 	cout<<"\n\n\n\n\n\nSLETTER \t\t\tpaA\n\n";
-	delete paA;
+	delete paA1;
+	delete paA2;
+	delete paA3;
+	delete paA4;
+	delete paA5;
+	delete paB;
+	delete paC;
+ 	delete paD;
 
-
+	delete paE;
 
 	/* <<aTest funker, men <<A.pOutputAxon funker ikkje (segfault). Må være feil med constructor..  Thats right! Brukte feil constructor pga. andre argument..*/
 	
@@ -163,14 +203,14 @@ int main(int argc, char *argv[])
 
 void testFunksjon_slett(auron* pA) //XXX
 { //{
-	//tid::pTaskArbeidsKoe_List .push_back( pA->pOutputAxon );
-	//tid::pTaskArbeidsKoe_List .push_back( pA );
+	//time_class::pTaskArbeidsKoe_List .push_back( pA->pOutputAxon );
+	//time_class::pTaskArbeidsKoe_List .push_back( pA );
 
 //	pA->ao_AuronetsAktivitet.updateDepol();
 //	cout<<pA <<" sender inn 100.\n";
 //	pA->ao_AuronetsAktivitet.incomingSignal(100);
 
-//	tid::ulTidsiterasjoner++;
+//	time_class::ulTidsiterasjoner++;
 //	pA->ao_AuronetsAktivitet.updateDepol();
 //	cout<<"\n\nA:\t" <<*pA <<endl;
 
@@ -186,8 +226,8 @@ void testFunksjon_slett(auron* pA) //XXX
 	cout<<"Første fyring i testFunksjon_slett():\n\n";
 	pA->fyr();
 	
-	cout<<"Itererer tid:\n\n";
-	tid::u lTidsiterasjoner++;
+	cout<<"Itererer time:\n\n";
+	time_class::u lTidsiterasjoner++;
 
 	cout<<"Andre fyring i testFunksjon_slett():\n\n";
 	pA->fyr();
@@ -217,14 +257,14 @@ void initialiserArbeidsKoe()
 	if(bInitialisertAllerede) return;
 
 	
-	// Lager instans av tid, og legger den i det frie lageret.
-	tid* pHovedskille = new tid();
-	// Legger til denne peikeren i arbeidskøa (som ligger som static-element i class tid) :
- 	tid::pTaskArbeidsKoe_List 	.push_back( pHovedskille );
+	// Lager instans av time, og legger den i det frie lageret.
+	time_class* pHovedskille = new time_class();
+	// Legger til denne peikeren i arbeidskøa (som ligger som static-element i class time) :
+ 	time_class::pTaskArbeidsKoe_List 	.push_back( pHovedskille );
 
 	// No ligger peikeren pHovedskille som einaste element i pTaskArbeidsKoe_List. Kvar gang denne kjører doTask() vil den ikkje fjærne seg fra arbeidsliste, men flytte seg bakerst i køa isteden.
 
-	// static bInitialisertAllerede vil eksistere kvar gang denne funksjonen kalles. Setter dermed bInitialisertAllerede til true for å forhindre at fleire tid legges til arbeidsKoe.
+	// static bInitialisertAllerede vil eksistere kvar gang denne funksjonen kalles. Setter dermed bInitialisertAllerede til true for å forhindre at fleire time legges til arbeidsKoe.
 	bInitialisertAllerede = true;
 
 } //}1
@@ -236,32 +276,32 @@ extern unsigned long ulAntallTidsiterasjonerTESTING_SLETT;
 ** 																**
 ** 		- Har ansvaret for å schedule arbeidet. 				**
 ** 			- kaller nesteJobb.doTask()							**
-** 			- For nesteJobb==tid vil tid::doTask() kalles 		**
-** 				Dette itererer tid, og gjør anna tidsrelevant 	**
+** 			- For nesteJobb==time vil time_class::doTask() kalles 		**
+** 				Dette itererer time, og gjør anna tidsrelevant 	**
 ** 					arbeid										**
 ** 																**
 *****************************************************************/
 void* taskSchedulerFunction(void* )
 { //{1
 	cout<<"\n\n\t\t\t\t\tKjører void* taskSchedulerFunction(void*);\n";
-	while( tid::ulTidsiterasjoner <= ulAntallTidsiterasjonerTESTING_SLETT) // XXX Skal bli "uendelig" løkke etterkvart:
+	while( time_class::ulTidsiterasjoner <= ulAntallTidsiterasjonerTESTING_SLETT) // XXX Skal bli "uendelig" løkke etterkvart:
 	//while(/*En eller anna avsluttings-bool =*/true)
 	{
 			/*FEILSJEKK (kan takast vekk)*/
-			//cout<<"feilsjekk: Antall element i pTaskArbeidsKoe_List :  " <<tid::pTaskArbeidsKoe_List.size() <<endl;
-			if(tid::pTaskArbeidsKoe_List.empty()){ cout<<"\n\n\nFEIL. tid::pTaskArbeidsKoe_List er tom. Skal aldri skje. \nFeilmelding: [tid.h taskSchedulerFunction::c01]\n\n\n"; exit(-1);}
+			//cout<<"feilsjekk: Antall element i pTaskArbeidsKoe_List :  " <<time_class::pTaskArbeidsKoe_List.size() <<endl;
+			if(time_class::pTaskArbeidsKoe_List.empty()){ cout<<"\n\n\nFEIL. time_class::pTaskArbeidsKoe_List er tom. Skal aldri skje. \nFeilmelding: [time.h taskSchedulerFunction::c01]\n\n\n"; exit(-1);}
 
 			// DEBUG: 	Skriv ut klassenavn på element:
-			cout<<"\tKjører element i arbeidskø: " <<tid::pTaskArbeidsKoe_List.front() ->klasseNavn <<"\t\t\t\titer: "<<tid::ulTidsiterasjoner <<endl; 		
+			cout<<time_class::pTaskArbeidsKoe_List.front() ->klasseNavn <<"\t:\t\t"; 		
 	
 
 			// Setter igang utføring av neste jobb i lista:
-			tid::pTaskArbeidsKoe_List.front() ->doTask(); 		//Dette er i orden, siden pTaskArbeidsKoe_List er av type list<tidInterface*> og alle arvinger av tidInterface har overlagra funksjonen doTask().
+			time_class::pTaskArbeidsKoe_List.front() ->doTask(); 		//Dette er i orden, siden pTaskArbeidsKoe_List er av type list<timeInterface*> og alle arvinger av timeInterface har overlagra funksjonen doTask().
 
 			// Tar vekk jobben fra pTaskArbeidsKoe_List:
-			tid::pTaskArbeidsKoe_List.pop_front();
+			time_class::pTaskArbeidsKoe_List.pop_front();
 			
-			//Evt annet som skal gjøres kvart tidssteg. Type sjekke etter andre events, legge til fleire synapser, etc.
+			//Evt annet som skal gjøres kvart timessteg. Type sjekke etter andre events, legge til fleire synapser, etc.
 
 			// For KANN: skal også sjekke om noko neuron er estimert til å fyre denne iterasjonen.
 	}
@@ -292,17 +332,18 @@ std::ostream & operator<< (std::ostream & ut, auron auronArg )
 
 	return ut;
 } //}
-
+/* Når eg fjærna denne, vart eg kvitt helvetes-std-feilmeldinger. Trur ikkje denne skal brukes. Slett om nokre veker. No: 05.04.2011
 std::ostream & operator<<(std::ostream& ut, auron* pAuronArg )
 {
 	ut<<(*pAuronArg);
 	return ut;
-}
+}*/
 
 std::ostream & operator<< (std::ostream & ut, axon* pAxonArg )
 { //{
 	ut<<"Utsynapser fra axon tilhørende neuron " <<(pAxonArg->pElementAvAuron)->sNavn <<endl; 
 
+ut<<"størrelse: " <<pAxonArg->pUtSynapser.size() <<endl;
 	// Utsynapser:
 	for( std::list<synapse*>::iterator iter = pAxonArg->pUtSynapser.begin(); iter != pAxonArg->pUtSynapser.end(); iter++ ){
 	 	ut 	<<"\t\t\t|\t" <<(pAxonArg->pElementAvAuron)->sNavn <<" -> "    <<(*iter)->pPostNodeDendrite->pElementAvAuron->sNavn <<"\t\t|\n";

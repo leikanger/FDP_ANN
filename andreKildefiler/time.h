@@ -14,18 +14,18 @@ using std::endl;
 //extern unsigned long ulTidsiterasjoner;
 class auron;
 // Flytta vekk herfra:
-//extern std::list<tidInterface*> tid::pTaskArbeidsKoe_List;
-//extern unsigned long tid::ulTidsiterasjoner;
+//extern std::list<timeInterface*> time_class::pTaskArbeidsKoe_List;
+//extern unsigned long time_class::ulTidsiterasjoner;
 
 
 /****************************************
 ***      abstract class !             ***
 ****************************************/
-class tidInterface
+class timeInterface
 {
 	public:
-	tidInterface(std::string s) : klasseNavn(s){}
-	tidInterface() 				{} 				//For mens eg itererer i utviklinga.  Trur ikkje eg skal ha denne etterpå..
+	timeInterface(std::string s) : klasseNavn(s){}
+	timeInterface() 				{} 				//For mens eg itererer i utviklinga.  Trur ikkje eg skal ha denne etterpå..
 
 	virtual void doTask() =0;
 
@@ -42,7 +42,7 @@ class tidInterface
 /**************************TODO : ************
 
 Ordne slik at alle element som legges inn sjekker om andre identiske element eksisterer. I så fall skal de andre fjærnes.
-Typisk om en dendrite legges inn etter ei synapses overføring, så legges samme dendritt til for omregning etter ei til overføring samme tidsiterasjon. I dette fallet skal bare en av de ligge i lista. (samme hvilken?)
+Typisk om en dendrite legges inn etter ei synapses overføring, så legges samme dendritt til for omregning etter ei til overføring samme timesiterasjon. I dette fallet skal bare en av de ligge i lista. (samme hvilken?)
 	NEINEINEI: Det som bare skal skje en gang er lekkasjen. Begge overføringer skal selvfølgelig inn!
 
 Kvar gang det er overføring:
@@ -53,35 +53,36 @@ Kvar gang det er overføring:
 
 
 /*********************************************************************************
-** 	class tid  																	**
-** 		- tid skal bare være en instans av denne klassen (i planen så langt). 		**
+** 	class time  																	**
+** 		- time skal bare være en instans av denne klassen (i planen så langt). 		**
 ** 		 																		**
 *********************************************************************************/
-class tid : public tidInterface {
+class time_class : public timeInterface {
 	static unsigned long ulTidsiterasjoner;
 	
-	static std::list<tidInterface*> pTaskArbeidsKoe_List;
+	static std::list<timeInterface*> pTaskArbeidsKoe_List;
 
 	
 	protected:
-	inline void doTask(){ 	//overlagring av tidInterface::doTask() - som med axon, auron, dendritt, synapse osv.
+	inline void doTask(){ 	//overlagring av timeInterface::doTask() - som med axon, auron, dendritt, synapse osv.
 		// Legger til egenpeiker på slutt av pNesteJobb_ArbeidsKoe
 		pTaskArbeidsKoe_List.push_back(this);	
 
-		//itererer tid:
+		//itererer time:
 		ulTidsiterasjoner++;
 		
-		cout<<"\n\nAUKER TID: \t" <<ulTidsiterasjoner-1 <<" => " <<ulTidsiterasjoner <<" * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * \n\n";
+		cout<<"\n\tAUKER TID: \t" <<ulTidsiterasjoner-1 <<" => " <<ulTidsiterasjoner <<" * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * "
+			<<ulTidsiterasjoner <<" * \n\n";
 		
 		// utskrift:
-		//cout<<"Auker tid til " <<ulTidsiterasjoner <<endl;
+		//cout<<"Auker time til " <<ulTidsiterasjoner <<endl;
 	}
 
 	public:
-	tid() : tidInterface("tid"){}
+	time_class() : timeInterface("time"){}
 
 
-	static void leggTilTask( tidInterface* pArg )
+	static void leggTilTask( timeInterface* pArg )
 	{
 	 	pTaskArbeidsKoe_List.push_back( pArg );
 	}
@@ -89,7 +90,7 @@ class tid : public tidInterface {
 	//Noke slikt: XXX 	friend schedulerFunksjon;
 	// Viktig med inkapsling!
 
-	// funker ikkje: friend class tidInterface; XXX TODO test igjen.
+	// funker ikkje: friend class timeInterface; XXX TODO test igjen.
 	friend class auron;
 	friend class axon;
 	//friend void auron::doTask();
