@@ -106,9 +106,7 @@ int main(int argc, char *argv[])
 		skrivUtArgumentKonvensjoner(argv[0]);
 	} //}1
 	
-
-	cout<<"******************************************\n*** BEGYNNER KJØRING AV ANN: ***\n******************************************\n\n";
-
+	
 		
 
 
@@ -118,8 +116,6 @@ int main(int argc, char *argv[])
 	auron* paA1 = new auron("A1");
 	auron* paA2 = new auron("A2");
 	auron* paA3 = new auron("A3");
-	auron* paA4 = new auron("A4");
-	auron* paA5 = new auron("A5");
 
 	auron* paB = new auron("B");
 	auron* paC = new auron("C");
@@ -127,29 +123,22 @@ int main(int argc, char *argv[])
 	auron* paE = new auron("E", 50);
 
 
-	new synapse(paA1, paA2, 41);
-	new synapse(paA2, paA5, 111);
-	new synapse(paA1, paA3, 111);
-	new synapse(paA3, paA4, 111);
-	new synapse(paA4, paA5, 111);
-	new synapse(paA5, paA1, 111);
+	new synapse(paA1, paA2, 111);
+	new synapse(paA2, paA3, 111);
+	new synapse(paA3, paA1, 111);
 
 	new synapse(paA1, paB, 11);
-	new synapse(paA2, paB, 11);
-	new synapse(paA3, paB, 11);
-	new synapse(paA4, paB, 11);
-	new synapse(paA5, paB, 11);
+	new synapse(paA2, paB, 19);
+	new synapse(paA3, paB, 19);
 	
-	new synapse(paA1, paB, 11);
-	new synapse(paA2, paB, 11);
-	new synapse(paA3, paB, 11);
-	new synapse(paA4, paB, 11);
-	new synapse(paA5, paB, 11);
+	new synapse(paB, paC, 11);
 	
-	new synapse(paA5, paC, 21);
+	new synapse(paA1, paC, 14);
+	new synapse(paA2, paC, 16);
+	new synapse(paA3, paC, 15);
 	
-	new synapse(paA5, paD, 11);
-	new synapse(paC,  paD, 20);
+	new synapse(paA3, paD, 11);
+	new synapse(paB,  paD, 15);
 
 	
 
@@ -161,8 +150,10 @@ int main(int argc, char *argv[])
 
 //for å lage gjenkjennelig start på utskrifta:
 	for(int x = 0; x<20; x++){
-		cout<<"pow(LEKKASJEFAKTOR_FOR_DEPOL, x): " <<pow(LEKKASJEFAKTOR_FOR_DEPOL, x) <<"\t=>\t" <<100*pow(LEKKASJEFAKTOR_FOR_DEPOL, x) <<endl;
+		cout<<"STARTER LOOP\n";
 	}
+	cout<<"******************************************\n*** BEGYNNER KJØRING AV ANN: ***\n******************************************\n\n";
+
 
 
 /****************** taskSchedulerFunction(0) ***************/
@@ -175,12 +166,10 @@ int main(int argc, char *argv[])
 
 
 
-	cout<<"\n\n\n\n\n\nSLETTER \t\t\tpaA\n\n";
+	cout<<"\n\n\n\n\n\n\n\n\nSLETTER \t\t\tpaA\n\n";
 	delete paA1;
 	delete paA2;
 	delete paA3;
-	delete paA4;
-	delete paA5;
 	delete paB;
 	delete paC;
  	delete paD;

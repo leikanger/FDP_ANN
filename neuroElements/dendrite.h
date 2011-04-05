@@ -30,6 +30,8 @@ class dendrite : public timeInterface{
 	inline void newInputSignal( int nNewSignal );
 	inline void calculateLeakage();
 
+	bool bBlokkerInput_refractionTime; //Blokkere input når refraction period eller når depol er over terskel.
+
 	public:
 	//Constructor: 	
 	dendrite( auron* pPostSynAuron_Arg ); // : pElementAvAuron(pPostSynAuron_Arg)  		Definisjon i neuroElement.cpp
@@ -50,6 +52,7 @@ class dendrite : public timeInterface{
 	*/ //}
 
 	friend class auron;
+	friend class axon;
 	friend class synapse;
 	//friend std::ostream & operator<< (std::ostream & ut, axon  );
 	friend std::ostream & operator<< (std::ostream & ut, axon* );

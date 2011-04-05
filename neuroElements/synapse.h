@@ -22,7 +22,7 @@ class synapse : public timeInterface{
 
 	inline void doTask();
 
-	void transmission();
+//	void transmission(); Flytta inn i doTask()
 
 	public:
 	//synapse() : timeInterface("synapse"), bInhibitorisk_effekt(false){} 		// SKAL VEKK
