@@ -10,15 +10,18 @@
 
 
 //Deklarasjoner:
-class synapse;
-class auron;
+class s_synapse;
+class i_auron; 		//XXX skal vekk.
+class s_auron;
 //class timeInterface;
 
 class axon : public timeInterface{
 	inline void doTask();
 
-	const auron* pElementAvAuron; // TODO ENDRE TIL pElementAvAuron, eller noke. Sjå kva eg har skreve i rapporten.
-	std::list<synapse*> pUtSynapser;
+	i_auron* pElementAvAuron; // TODO SKAL VEKK, når eg har gått over til i_auron -- klassestruktur. (under)
+	//const i_auron* pElementAvAuronInterface;
+
+	std::list<s_synapse*> pUtSynapser;
 
 	public:
 	/**************************************************
@@ -27,7 +30,8 @@ class axon : public timeInterface{
 	****        -timeInterface("axon")              ****
 	****                                           ****
 	**************************************************/
-	axon(const auron* pAuronArg);// : timeInterface("axon"), pElementAvAuron(pAuronArg){ //TODO tanke er at axon må tilhøre eit auron. Difor auronpeiker.
+	axon(i_auron* pAuronArg);// : timeInterface("axon"), pElementAvAuron(pAuronArg) 		//XXX Bare mens eg utvikler i_auron. Kan fjærne etterkvart..
+	//axon(const i_auron* p_iAuronArg);
 	~axon();
 
 	/* Feilmeldinger fordi eg ikkje har laga synapse enda. Kommenterer ut så lenge
@@ -47,9 +51,10 @@ class axon : public timeInterface{
 		}
 	}
 	*/
-	friend class auron;
-	friend class synapse;
-	friend void testFunksjon_slett(auron*);
+	friend class i_auron;
+	//friend class s_auron;
+	friend class s_synapse;
+	friend void testFunksjon_slett(i_auron*);
 	//friend std::ostream & operator<< (std::ostream & ut, axon );
 	friend std::ostream & operator<< (std::ostream & ut, axon* );
 	friend int main(int, char**); //TODO SLETT

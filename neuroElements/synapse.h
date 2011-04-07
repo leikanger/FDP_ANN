@@ -8,12 +8,13 @@
 
 //#include "../andreKildefiler/aktivitetsObj.h"
 class axon;
-class dendrite;
+class s_dendrite;
+class s_auron;
 
-class synapse : public timeInterface{
+class s_synapse : public timeInterface{
 
 	axon* pPreNodeAxon;
-	dendrite* pPostNodeDendrite;
+	s_dendrite* pPostNodeDendrite; //TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO  Skal være i_dendrite, slik at det er mulgi å bruke K_dendrite også..
 
 	const bool bInhibitorisk_effekt;
 	unsigned uSynaptiskVekt;
@@ -25,13 +26,11 @@ class synapse : public timeInterface{
 //	void transmission(); Flytta inn i doTask()
 
 	public:
-	//synapse() : timeInterface("synapse"), bInhibitorisk_effekt(false){} 		// SKAL VEKK
-
 	// Lag også axon.nySynapse(auron* pOutputAuron){  new synapse(this, pOutputAuron); } XXX
 
-	//synapse(axon* pPresynAxon_arg, dendrite* pPostsynDendrite_arg, bool bInhibEffekt_Arg =false, float fSynVekt_Arg =1) ;
-	synapse(auron*, auron*, float fSynVekt_Arg =1, bool bInhibEffekt_Arg =false) ;
-	~synapse(); //Sjå neuroElement.cpp
+	//synapse(axon* pPresynAxon_arg, dendrite* pPostsynDendrite_arg, bool bInhibEffekt_Arg =false, float fSynVekt_Arg =1) ; XXX Vekk med den? XXX 07.04.2011
+	s_synapse(s_auron*, s_auron*, float fSynVekt_Arg =1, bool bInhibEffekt_Arg =false) ;
+	~s_synapse(); //Sjå neuroElement.cpp
 	
 	int getSynVekt(){ return uSynaptiskVekt; }
 

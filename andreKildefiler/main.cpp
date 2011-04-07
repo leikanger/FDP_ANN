@@ -9,15 +9,15 @@
 //#include "../neuroElements/dendrite.h" //KAANSKJE DEN SKAL VÆRE MED? XXX
 
 void initialiserArbeidsKoe();
-void testFunksjon_slett(auron*);
+void testFunksjon_slett(i_auron*);
 void skrivUtArgumentKonvensjoner(std::string);
 void* taskSchedulerFunction(void*);
 
 //deklarasjoner
 extern std::list<timeInterface*> time_class::pTaskArbeidsKoe_List;
 extern unsigned long time_class::ulTidsiterasjoner;
-std::ostream & operator<<(std::ostream& ut, auron* pAuronArg );
-std::ostream & operator<< (std::ostream & ut, auron auronArg );
+std::ostream & operator<<(std::ostream& ut, i_auron* pAuronArg );
+std::ostream & operator<< (std::ostream & ut, i_auron auronArg );
 
 //extern std::list<timeInterface*> time_class::pTaskArbeidsKoe_List;
 
@@ -107,43 +107,68 @@ int main(int argc, char *argv[])
 	} //}1
 	
 	
-		
-
-
 	//TODO For at alle skal destrueres automatisk, legg alle peikere inn i std::vector, og destruer alle element i vector på slutten av main.
 
 
-	auron* paA1 = new auron("A1");
-	auron* paA2 = new auron("A2");
-	auron* paA3 = new auron("A3");
+	s_auron* A1 = new s_auron("A1");
+	s_auron* A2 = new s_auron("A2");
+	s_auron* A3 = new s_auron("A3");
+	s_auron* A4 = new s_auron("A4");
+	s_auron* A5 = new s_auron("A5");
+	s_auron* A6 = new s_auron("A6");
+	s_auron* A7 = new s_auron("A7");
+	s_auron* A8 = new s_auron("A8");
+	s_auron* A9 = new s_auron("A9");
 
-	auron* paB = new auron("B");
-	auron* paC = new auron("C");
-	auron* paD = new auron("D");
-	auron* paE = new auron("E", 50);
+	s_auron* E = new s_auron("E");
+	s_auron* F = new s_auron("F");
 
+	cout<<"new s_synapse(A,B);\n";
 
-	new synapse(paA1, paA2, 111);
-	new synapse(paA2, paA3, 111);
-	new synapse(paA3, paA1, 111);
+	new s_synapse(A1, A2, 1111);
+	new s_synapse(A8, A2, 111);
 
-	new synapse(paA1, paB, 11);
-	new synapse(paA2, paB, 19);
-	new synapse(paA3, paB, 19);
+	new s_synapse(A4, A2, 111);
+	new s_synapse(A6, A2, 111);
+
+	new s_synapse(A2, A3, 1111);
+	new s_synapse(A1, A3, 111);
+	new s_synapse(A4, A3, 211);
+	new s_synapse(A9, A3, 111);
+	new s_synapse(A8, A3, 111);
+
+	new s_synapse(A3, A4, 1111);
+	new s_synapse(A4, A5, 1111);
+	new s_synapse(A5, A6, 1111);
+	new s_synapse(A6, A7, 1111);
+	new s_synapse(A7, A8, 1111);
+	new s_synapse(A8, A9, 1111);
+	new s_synapse(A8, A9, 1111);
+	new s_synapse(A9, A1, 1111);
+	new s_synapse(A4, A1, 311);
+
+	new s_synapse(A1, E, 151);
+	new s_synapse(A2, E, 131);
+	new s_synapse(A3, E, 121);
+	new s_synapse(A3, E, 101);
+	new s_synapse(A3, E, 121);
+	new s_synapse(A5, E, 161);
+	new s_synapse(A6, E, 131);
+	new s_synapse(A8, E, 151);
+	new s_synapse(A9, E, 191);
+	new s_synapse(A1, E, 51);
 	
-	new synapse(paB, paC, 11);
-	
-	new synapse(paA1, paC, 14);
-	new synapse(paA2, paC, 16);
-	new synapse(paA3, paC, 15);
-	
-	new synapse(paA3, paD, 11);
-	new synapse(paB,  paD, 15);
-
-	
-
-	// Setter igang den neurale kretsen! -fyrer paA
-	paA1->doTask();
+	new s_synapse(A1, F, 251);
+	new s_synapse(A2, F, 131);
+	new s_synapse(A3, F, 221);
+	new s_synapse(A3, F, 201);
+	new s_synapse(A3, F, 121);
+	new s_synapse(A5, F, 161);
+	new s_synapse(A6, F, 231);
+	new s_synapse(A8, F, 251);
+	new s_synapse(A9, F, 191);
+	new s_synapse(A1, F, 51);
+	new s_synapse(E, F, 200);
 
 	cout<<"lengde på arbeidkø (i tillegg til [time_class] ): " <<time_class::pTaskArbeidsKoe_List.size()-1 <<endl;
 
@@ -156,33 +181,28 @@ int main(int argc, char *argv[])
 
 
 
-/****************** taskSchedulerFunction(0) ***************/
+	//Setter i gang ANN
+	A1->doTask();
+
+/******************************************* Starter void taskSchedulerFunction(void*); ****************************************************/
 	sleep(1);
 	taskSchedulerFunction(0);
+
+
+
 	
-
-
-
-
-
-
-	cout<<"\n\n\n\n\n\n\n\n\nSLETTER \t\t\tpaA\n\n";
-	delete paA1;
-	delete paA2;
-	delete paA3;
-	delete paB;
-	delete paC;
- 	delete paD;
-
-	delete paE;
-
-	/* <<aTest funker, men <<A.pOutputAxon funker ikkje (segfault). Må være feil med constructor..  Thats right! Brukte feil constructor pga. andre argument..*/
+delete A1;
+delete A2;
+delete A3;
+delete A4;
+delete A5;
+delete A6;
+delete A7;
+delete A8;
+delete A9;
+delete E;
+delete F;
 	
-	//cout<<*(A.pOutputAxon) <<endl;
-	
-	
-	/******************************************* Starter void taskSchedulerFunction(void*); ****************************************************/
-//	taskSchedulerFunction(0);
 
 
 	cout<<"\n\nWIN!\n";
@@ -190,7 +210,7 @@ int main(int argc, char *argv[])
 }
 
 
-void testFunksjon_slett(auron* pA) //XXX
+void testFunksjon_slett(i_auron* pA) //XXX
 { //{
 	//time_class::pTaskArbeidsKoe_List .push_back( pA->pOutputAxon );
 	//time_class::pTaskArbeidsKoe_List .push_back( pA );
@@ -226,10 +246,10 @@ void testFunksjon_slett(auron* pA) //XXX
 
 void skrivUtArgumentKonvensjoner(std::string programKall)
 { //{
-	cout<<"\n\nConventions for running auron.out: \n"
-		<<"\t"<<programKall <<"[-options] [number of iterations]\n"
-		<<"\t\tOptions: \n\t\t\t-i [n] \t number of iterations on simulation."
-		<<"\nHUGS Å LEGGE VED VALG OM [spiking ANN], [K ANN], [sammenligning], osv.\n\n\n\n"; 		//TODO
+	cout <<"\n\nConventions for running auron.out: \n"
+		 <<"\t"<<programKall <<"[-options] [number of iterations]\n"
+		 <<"\t\tOptions: \n\t\t\t-i [n] \t number of iterations on simulation."
+		 <<"\nHUGS Å LEGGE VED VALG OM [spiking ANN], [K ANN], [sammenligning], osv.\n\n\n\n"; 		//TODO
 
 } //}
 
@@ -303,7 +323,7 @@ void* taskSchedulerFunction(void* )
 /***************************
 *** Utskriftsprosedyrer: ***
 ***************************/
-std::ostream & operator<< (std::ostream & ut, auron auronArg )
+std::ostream & operator<< (std::ostream & ut, i_auron auronArg )
 { //{
 	ut<<"| " <<auronArg.getNavn() <<"  | verdi: " <<auronArg.getAktivityVar();// <<" \t|\tMed utsynapser:\n";
 	
@@ -334,13 +354,14 @@ std::ostream & operator<< (std::ostream & ut, axon* pAxonArg )
 
 ut<<"størrelse: " <<pAxonArg->pUtSynapser.size() <<endl;
 	// Utsynapser:
-	for( std::list<synapse*>::iterator iter = pAxonArg->pUtSynapser.begin(); iter != pAxonArg->pUtSynapser.end(); iter++ ){
+	for( std::list<s_synapse*>::iterator iter = pAxonArg->pUtSynapser.begin(); iter != pAxonArg->pUtSynapser.end(); iter++ ){
 	 	ut 	<<"\t\t\t|\t" <<(pAxonArg->pElementAvAuron)->sNavn <<" -> "    <<(*iter)->pPostNodeDendrite->pElementAvAuron->sNavn <<"\t\t|\n";
 	}
 
 
 	return ut;
 } //}
+
 /*
 std::ostream & operator<< (std::ostream & ut, axon axonArg )
 { //{

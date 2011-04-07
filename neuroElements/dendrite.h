@@ -21,11 +21,11 @@
 ** 		- dendritt må ha aktivitetsVariabel.
 **
 *****************************************************************/
-class dendrite : public timeInterface{
+class s_dendrite : public timeInterface{
 	inline void doTask();
 
-	auron* pElementAvAuron;
-	std::list<synapse*> pInnSynapser;
+	s_auron* pElementAvAuron;
+	std::list<s_synapse*> pInnSynapser;
 
 	inline void newInputSignal( int nNewSignal );
 	inline void calculateLeakage();
@@ -34,11 +34,14 @@ class dendrite : public timeInterface{
 
 	public:
 	//Constructor: 	
-	dendrite( auron* pPostSynAuron_Arg ); // : pElementAvAuron(pPostSynAuron_Arg)  		Definisjon i neuroElement.cpp
-	~dendrite();
+	s_dendrite( s_auron* pPostSynAuron_Arg ); // : pElementAvAuron(pPostSynAuron_Arg)  		Definisjon i neuroElement.cpp
+	~s_dendrite();
+
+
+	//TODO LEGG TIL dendrite::leggTilSynapse(synapse*) ! Gjør saker lettere, og bedre innkapsling!
 	
 	//Destructor:
-	/* kommenterer ut mens synapser ikkje er laga enda.. //{
+	/* kommenterer ut mens s_synapser ikkje er laga enda.. //{
 	~sDendritt()
 	{
 		// destruerer alle innsynapser:
@@ -51,9 +54,9 @@ class dendrite : public timeInterface{
 	}
 	*/ //}
 
-	friend class auron;
+	friend class s_auron;
 	friend class axon;
-	friend class synapse;
+	friend class s_synapse;
 	//friend std::ostream & operator<< (std::ostream & ut, axon  );
 	friend std::ostream & operator<< (std::ostream & ut, axon* );
 

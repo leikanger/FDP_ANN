@@ -12,7 +12,7 @@ using std::endl;
 
 // DEKLARASJONER:
 //extern unsigned long ulTidsiterasjoner;
-class auron;
+class i_auron;
 // Flytta vekk herfra:
 //extern std::list<timeInterface*> time_class::pTaskArbeidsKoe_List;
 //extern unsigned long time_class::ulTidsiterasjoner;
@@ -91,7 +91,7 @@ class time_class : public timeInterface {
 	// Viktig med inkapsling!
 
 	// funker ikkje: friend class timeInterface; XXX TODO test igjen.
-	friend class auron;
+	friend class i_auron;
 	friend class axon;
 	//friend void auron::doTask();
 	friend void initialiserArbeidsKoe();
@@ -99,7 +99,7 @@ class time_class : public timeInterface {
 	
 	friend int main(int, char**);
 
-	friend void testFunksjon_slett(auron*);
+	friend void testFunksjon_slett(i_auron*);
 };
 
 

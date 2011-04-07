@@ -7,7 +7,7 @@ CPPFLAGS=${CFLAGS}
 #	clear; echo "make all:\n\n"; g++ ${CFLAGS} andreKildefiler/main.cpp neuroElements/neuroElement.cpp -o auroNett.out
 
 auroNett.out: main.o neuroElement.o
-	clear; echo "make auroNett.out:\n\n"; g++ ${CFLAGS} main.o neuroElement.o -o auroNett.out
+	echo "\n\n\n\nmake auroNett.out:\n\n"; g++ ${CFLAGS} main.o neuroElement.o -o auroNett.out; echo "HURRA. ALT VEL!\n\n";
 
 neuroElement.o: andreKildefiler/tid.cpp andreKildefiler/time.h neuroElements/axon.h neuroElements/dendrite.h neuroElements/synapse.h
 	g++ ${CFLAGS} -c neuroElements/neuroElement.cpp -o neuroElement.o
