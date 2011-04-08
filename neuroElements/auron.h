@@ -111,7 +111,7 @@ class s_auron : public i_auron
 	unsigned long ulTimestampForrigeInput; 	 //Er begge naudsynt? sjå gjennom!
 	unsigned long ulTimestampForrigeFyring;  //Er begge naudsynt? sjø gjennom!
 
-	inline void doTask(); 		//{ cout<<"s_auron.doTask(): Kaller i_auron::doTask() :\t"; i_auron::doTask();}
+	inline void doTask();
 	
 	public:
 	s_auron(std::string sNavn_Arg ="unnamed", int nStartDepol = 0); 	

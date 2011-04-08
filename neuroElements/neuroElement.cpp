@@ -57,18 +57,17 @@ i_auron::~i_auron()
 	//}
 } //}
 /*** s_auron ***/
-s_auron::s_auron(std::string sNavn_Arg /*="unnamed"*/, int nStartDepol /*=0*/) : i_auron(sNavn_Arg, nStartDepol){
+s_auron::s_auron(std::string sNavn_Arg /*="unnamed"*/, int nStartDepol /*=0*/) : i_auron(sNavn_Arg, nStartDepol)
+{ //{
 	ulTimestampForrigeFyring = time_class::getTid();
 	ulTimestampForrigeInput  = time_class::getTid();
 	// Osv.
 	
 	//pOutputAxon = new axon(this); LIGGER i class i_auron
  	pInputDendrite = new s_dendrite(this); //	Skal ligge i s_auron og k_auron
-
-
-} 	
+} //} 	
 s_auron::~s_auron()
-{
+{ //{
 	cout<<"DESTRUCTOR: s_auron::~s_auron() : \t" <<sNavn <<"\t * * * * * * * * * * * * * * * * * * * * * * * * * \n";
 	
 	//delete pOutputAxon;  // OBS Flytta til i_auron.
@@ -83,22 +82,22 @@ s_auron::~s_auron()
 	
 	//Etter ~s_auron() kalles ~i_auron()
 
-	 
-}
+} //}
 
 
 
 /**
-***  s_synapse
+***  synapse
 *****************/
-s_synapse::s_synapse(s_auron* pPresynAuron_arg, s_auron* pPostsynAuron_arg, float fSynVekt_Arg /*=1*/, bool bInhibEffekt_Arg /*=false*/) 
-			: 	timeInterface("s_synapse"), pPreNodeAxon(pPresynAuron_arg->pOutputAxon), pPostNodeDendrite(pPostsynAuron_arg->pInputDendrite), bInhibitorisk_effekt(bInhibEffekt_Arg), uSynaptiskVekt(fSynVekt_Arg)
+i_synapse::i_synapse(float uSynVekt_Arg, bool bInhibEffekt_Arg, std::string sKlasseNavn ="synapse") : timeInterface(sKlasseNavn), bInhibitorisk_effekt(bInhibEffekt_Arg), uSynaptiskVekt(uSynVekt_Arg)
+{
+	// TODO TODO TODO FIKS DENNE! XXX
+	
+}
+/* s_synapse */
+s_synapse::s_synapse(s_auron* pPresynAuron_arg, s_auron* pPostsynAuron_arg, unsigned uSynVekt_Arg /*=1*/, bool bInhibEffekt_Arg /*=false*/) 
+			: 	pPreNodeAxon(pPresynAuron_arg->pOutputAxon), pPostNodeDendrite(pPostsynAuron_arg->pInputDendrite), i_synapse(uSynVekt_Arg, bInhibEffekt_Arg, "s_synapse")
 {//{	
-	// XXX 07.04 SEGFAULTEN FRA pElementAvAuron -- kall? 
-	cout<<"OK starter test\n";
-	//cout<<pPostNodeDendrite->pElementAvAuron->sNavn <<endl; 		XXX HER ER SEGFAULT!
-	cout<<pPostsynAuron_arg->sNavn <<endl;
-	cout<<"OK-jeah\n";
 	cout<<"Kaller s_synapse::s_synapse(" <<pPreNodeAxon->pElementAvAuron->sNavn <<".pOutputAxon, " <<pPostNodeDendrite->pElementAvAuron->sNavn <<".pInputDendrite, ...)\n";
 
 	pPreNodeAxon->pUtSynapser.push_back(this);

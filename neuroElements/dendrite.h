@@ -14,6 +14,8 @@
 //class synapse;
 //class auron;
 //class timeInterface;
+class s_synapse;
+class s_auron;
 
 /*****************************************************************
 ** class dendritt 			-  	Notater:

@@ -10,15 +10,15 @@
 
 
 //Deklarasjoner:
+//class i_synapse;
 class s_synapse;
-class i_auron; 		//XXX skal vekk.
-class s_auron;
-//class timeInterface;
+//class i_auron; 		//XXX skal vekk.
+//class s_auron;
 
 class axon : public timeInterface{
 	inline void doTask();
 
-	i_auron* pElementAvAuron; // TODO SKAL VEKK, når eg har gått over til i_auron -- klassestruktur. (under)
+	i_auron* pElementAvAuron;
 	//const i_auron* pElementAvAuronInterface;
 
 	std::list<s_synapse*> pUtSynapser;
@@ -34,23 +34,6 @@ class axon : public timeInterface{
 	//axon(const i_auron* p_iAuronArg);
 	~axon();
 
-	/* Feilmeldinger fordi eg ikkje har laga synapse enda. Kommenterer ut så lenge
-	~axon() //destructor
-	{
-		synapse* pTempSyn;
-		
-		while( !pUtSynapser.empty() )
-		{
-	 	 	//Mellomlagrer peiker til siste synapse
-			pTempSyn = pUtSynapser.back();
-
-			cout<<"~axon: fjerner utsyn fra axon tilhørende " <<pTempSyn->pPreNode->sNavn <<" til neuron " <<pTempSyn->pPostNode->sNavn <<endl;
-
-			pUtSynapser.pop_back(); // Denne funskjonen kaller også destructor: ~synapse
-			// ~synapse tar hånd om å fjærne synapse fra postsynaptisk neurons dendritt. TODO
-		}
-	}
-	*/
 	friend class i_auron;
 	//friend class s_auron;
 	friend class s_synapse;
