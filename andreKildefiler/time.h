@@ -12,7 +12,7 @@ using std::endl;
 
 // DEKLARASJONER:
 //extern unsigned long ulTidsiterasjoner;
-class i_auron;
+class s_auron;
 // Flytta vekk herfra:
 //extern std::list<timeInterface*> time_class::pTaskArbeidsKoe_List;
 //extern unsigned long time_class::ulTidsiterasjoner;
@@ -64,7 +64,7 @@ class time_class : public timeInterface {
 
 	
 	protected:
-	inline void doTask(){ 	//overlagring av timeInterface::doTask() - som med axon, auron, dendritt, synapse osv.
+	inline void doTask(){ 	//overlagring av timeInterface::doTask() - som med de andre klassene som arver timeInterface..
 		// Legger til egenpeiker på slutt av pNesteJobb_ArbeidsKoe
 		pTaskArbeidsKoe_List.push_back(this);	
 
@@ -92,14 +92,15 @@ class time_class : public timeInterface {
 
 	// funker ikkje: friend class timeInterface; XXX TODO test igjen.
 	friend class i_auron;
-	friend class axon;
-	//friend void auron::doTask();
+	friend class i_axon; 		// Usikker om dette funker. Alternativt skriv inn kvar klasse (som under)
+	//friend class s_axon;
+
 	friend void initialiserArbeidsKoe();
 	friend void* taskSchedulerFunction(void*);
 	
 	friend int main(int, char**);
 
-	friend void testFunksjon_slett(i_auron*);
+	friend void testFunksjon_slett(s_auron*);
 };
 
 

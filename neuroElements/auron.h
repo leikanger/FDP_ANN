@@ -25,11 +25,16 @@ using std::cout;
 
 // klasse deklarasjoner:
 class s_dendrite;
-class axon;
-class spiking_aktivitetsObj;
+class i_axon;
+class s_axon;
 
 
+/* TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+	
+		Lag ei std::list<s_auron*> s_auron::pAlleAuron; som inneholder alle auron. På slutten av main() kan eg kjøre while(!s_auron::pAlleAuron.empty(){ delete s_auron::pAlleAuron->begin(); }
+		(og legge til auron (i auron::pAlleAuron) i auron's constructor..)
 
+   TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO */
 
 
 
@@ -38,10 +43,14 @@ class spiking_aktivitetsObj;
  */
 class i_auron : public timeInterface
 { 			
-//	protected: gjorde private: 29.03
-	//Deler av auronet:
-	axon* pOutputAxon; 			
- 	s_dendrite* pInputDendrite; 
+	//Deler av auronet: (Ligger som s_axon og s_dendrite i s_auron. Samme for K_auron..) TODO SKal ligge der også ?
+	i_axon* pOutputAxon; 			// Trenger å ha dei meir spesifikk for contruction av bl.a. synapse - s_synapse legger til pElementAvAuron->pInputDendrite (som må være av typen ?? XXX prøver igjen..
+ 	i_dendrite* pInputDendrite; 
+
+	// Treng eg desse i i_auron? Bare for SANN? Vettafaen!
+	unsigned long ulTimestampForrigeInput; 	 //Er begge naudsynt? sjå gjennom!
+	unsigned long ulTimestampForrigeFyring;  //Er begge naudsynt? sjø gjennom!
+
 
 	// aktivitetsobjekt: Om dette er KANN eller SANN er avhengig av kva nAktivitetsVariabel skal bety (kappa eller depol..).
 	int nAktivitetsVariabel;
@@ -52,7 +61,8 @@ class i_auron : public timeInterface
 
 	std::ofstream aktivitetsVar_loggFil;
  	
-	const void loggAktivitetsVar_i_AktivitetsVarLoggFil(){
+	const void skrivAktivitetsVarLogg(){
+	//const void loggAktivitetsVar_i_AktivitetsVarLoggFil(){
 		aktivitetsVar_loggFil<<time_class::getTid() <<"\t" <<nAktivitetsVariabel <<";#refraction time until now.\n";
 	}
 
@@ -64,17 +74,11 @@ class i_auron : public timeInterface
 	
 
 	protected:
-	virtual inline void doTask();
+	virtual inline void doTask() =0;
 
 
 
 	public:
-	/*auron() 					: timeInterface("auron"), ao_AuronetsAktivitet(this), sNavn("unnamed") {
-		pOutputAxon = new axon(this); 						// TODdO XdXX Husk destructor. Husk å også destruere dette axon (fra det frie lageret). 
-	 	pInputDendrite = new dendrite(this); 				// TOdDO XXdX Husk destructor. Husk å også destruere dette axon (fra det frie lageret). 
-
-	} //X XX  Utesta før aktivitetsObj er i orden.
-	*/
 	i_auron(std::string sNavn_Arg ="unnamed", int nStartDepol = 0); 		//: timeInterface("auron"), ao_AuronetsAktivitet(this), sNavn(sNavn_Arg) {
 	~i_auron();
 
@@ -91,13 +95,15 @@ class i_auron : public timeInterface
 
 	friend class s_auron;
 	//friend class K_auron;
-	friend class axon;
+	friend class i_axon; //XXX VEKK med den?
+	friend class s_axon;
+	friend class i_synapse;
 	friend class s_synapse;
+	friend class i_dendrite;
 	friend class s_dendrite;
-	friend void testFunksjon_slett(i_auron*);
-	friend std::ostream & operator<< (std::ostream& , i_auron);
-	//friend std::ostream & operator<< (std::ostream & ut, axon  );
-	friend std::ostream & operator<< (std::ostream & ut, axon* );
+	friend void testFunksjon_slett(s_auron*);
+	friend std::ostream & operator<< (std::ostream& , s_auron);
+	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
 	friend int main(int, char**); //TODO SLETT
 }; 
@@ -108,23 +114,26 @@ class i_auron : public timeInterface
 
 class s_auron : public i_auron
 { //{
-	unsigned long ulTimestampForrigeInput; 	 //Er begge naudsynt? sjå gjennom!
-	unsigned long ulTimestampForrigeFyring;  //Er begge naudsynt? sjø gjennom!
+	//Deler av auronet:
+	// XXX XXX XXX XXX XXX Fører dette til at eg overskriver i_axon* pOutputAxon, eller lager den bare en ny variabel av klasse s_axon? Det er kanskje ikkje så viktig, siden s_axon kan kalle alle funk. i i_axon (interface for s_axon)
+	//s_axon* pOutputAxon; 			//Blir slik ved at constructor lagrer en s_axon inn i i_axon arva fra i_auron.., men  overlagrer for å spesifisere at det er av type s_axon (for feilsjekk andre plasser..)
+ 	//s_dendrite* pInputDendrite;  // XXX Blir bare DRIT (segfault..)
 
 	inline void doTask();
-	
+
+	//bool bBlokkerInput_refractionTime; FLYTTA TIL s_dendrite
+
 	public:
 	s_auron(std::string sNavn_Arg ="unnamed", int nStartDepol = 0); 	
 	~s_auron();
 
 //{friend
-	friend class axon;
+	friend class s_axon;
 	friend class s_synapse;
 	friend class s_dendrite;
-	friend void testFunksjon_slett(i_auron*);
-	friend std::ostream & operator<< (std::ostream& , i_auron);
-	//friend std::ostream & operator<< (std::ostream & ut, axon  );
-	friend std::ostream & operator<< (std::ostream & ut, axon* );
+	friend void testFunksjon_slett(s_auron*);
+	friend std::ostream & operator<< (std::ostream& , s_auron);
+	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
 	friend int main(int, char**); //TODO SLETT
 //}

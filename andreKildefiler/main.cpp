@@ -9,7 +9,7 @@
 //#include "../neuroElements/dendrite.h" //KAANSKJE DEN SKAL VÆRE MED? XXX
 
 void initialiserArbeidsKoe();
-void testFunksjon_slett(i_auron*);
+void testFunksjon_slett(s_auron*);
 void skrivUtArgumentKonvensjoner(std::string);
 void* taskSchedulerFunction(void*);
 
@@ -17,7 +17,7 @@ void* taskSchedulerFunction(void*);
 extern std::list<timeInterface*> time_class::pTaskArbeidsKoe_List;
 extern unsigned long time_class::ulTidsiterasjoner;
 std::ostream & operator<<(std::ostream& ut, i_auron* pAuronArg );
-std::ostream & operator<< (std::ostream & ut, i_auron auronArg );
+std::ostream & operator<< (std::ostream & ut, s_auron auronArg );
 
 //extern std::list<timeInterface*> time_class::pTaskArbeidsKoe_List;
 
@@ -46,7 +46,8 @@ int main(int argc, char *argv[])
 	// Initierer arbeidskø (time_class::pTaskArbeidsKoe_List)
 	initialiserArbeidsKoe();
 
-
+	//Renser opp i ./datafiler_for_utskrift/
+	system("rm ./datafiler_for_utskrift/logg_*");
 
 	//Leser inn argumenter: 
 	if(argc > 1 ) //{1 	  //	 (argc>1 betyr at det står meir enn bare programkall)
@@ -127,7 +128,7 @@ int main(int argc, char *argv[])
 
 	new s_synapse(A1, A2, 1111);
 	new s_synapse(A8, A2, 111);
-
+	
 	new s_synapse(A4, A2, 111);
 	new s_synapse(A6, A2, 111);
 
@@ -210,7 +211,7 @@ delete F;
 }
 
 
-void testFunksjon_slett(i_auron* pA) //XXX
+void testFunksjon_slett(s_auron* pA) //XXX
 { //{
 	//time_class::pTaskArbeidsKoe_List .push_back( pA->pOutputAxon );
 	//time_class::pTaskArbeidsKoe_List .push_back( pA );
@@ -323,7 +324,7 @@ void* taskSchedulerFunction(void* )
 /***************************
 *** Utskriftsprosedyrer: ***
 ***************************/
-std::ostream & operator<< (std::ostream & ut, i_auron auronArg )
+std::ostream & operator<< (std::ostream & ut, s_auron auronArg )
 { //{
 	ut<<"| " <<auronArg.getNavn() <<"  | verdi: " <<auronArg.getAktivityVar();// <<" \t|\tMed utsynapser:\n";
 	
@@ -348,13 +349,12 @@ std::ostream & operator<<(std::ostream& ut, auron* pAuronArg )
 	return ut;
 }*/
 
-std::ostream & operator<< (std::ostream & ut, axon* pAxonArg )
+std::ostream & operator<< (std::ostream & ut, s_axon* pAxonArg ) //XXX Skal gjøres til i_axon* istaden for s_axon* som argument! XXX
 { //{
 	ut<<"Utsynapser fra axon tilhørende neuron " <<(pAxonArg->pElementAvAuron)->sNavn <<endl; 
 
-ut<<"størrelse: " <<pAxonArg->pUtSynapser.size() <<endl;
 	// Utsynapser:
-	for( std::list<s_synapse*>::iterator iter = pAxonArg->pUtSynapser.begin(); iter != pAxonArg->pUtSynapser.end(); iter++ ){
+	for( std::list<i_synapse*>::iterator iter = pAxonArg->pUtSynapser.begin(); iter != pAxonArg->pUtSynapser.end(); iter++ ){
 	 	ut 	<<"\t\t\t|\t" <<(pAxonArg->pElementAvAuron)->sNavn <<" -> "    <<(*iter)->pPostNodeDendrite->pElementAvAuron->sNavn <<"\t\t|\n";
 	}
 
@@ -362,18 +362,3 @@ ut<<"størrelse: " <<pAxonArg->pUtSynapser.size() <<endl;
 	return ut;
 } //}
 
-/*
-std::ostream & operator<< (std::ostream & ut, axon axonArg )
-{ //{
-	ut<<"Utsynapser fra axon tilhørende neuron " <<(axonArg.pElementAvAuron)->sNavn <<endl; 
-
-	// Utsynapser:
-	for( std::list<synapse*>::iterator iter = axonArg.pUtSynapser.begin(); iter != axonArg.pUtSynapser.end(); iter++ ){
-	 	ut 	<<"\t\t\t|\t" <<(axonArg.pElementAvAuron)->sNavn <<" -> "    <<(*iter)->pPostNodeDendrite->pElementAvAuron->sNavn <<endl;
-		
-	}
-
-
-	return ut;
-} //}
-*/
