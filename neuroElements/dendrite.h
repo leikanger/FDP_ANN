@@ -25,18 +25,16 @@ class s_auron;
 **
 *****************************************************************/
 class i_dendrite : public timeInterface{
- 	inline void doTask() =0;
-
 	i_auron* pElementAvAuron;
 	std::list<i_synapse*> pInnSynapser;
 
+ 	virtual inline void doTask() =0;
 	virtual inline void newInputSignal( int ) =0;
-
-	virtual inline void axonTilbakemelding();
-	
+	virtual inline void feedbackToDendrite() =0;
 
 	public:
 	i_dendrite(i_auron* pElementAvAuron_arg, std::string sNavn /*="dendrite"*/);
+	
 
 	friend int main(int, char**);
 	friend std::ostream & operator<< (std::ostream & ut, s_axon* pAxonArg );
@@ -44,7 +42,7 @@ class i_dendrite : public timeInterface{
 	friend class i_synapse;
 	friend class i_axon;
 	friend class i_auron;
-	friend class i_dendrite;
+	//friend class i_dendrite;
 
 	friend class s_synapse;
 	friend class s_axon;
@@ -55,7 +53,7 @@ class i_dendrite : public timeInterface{
 
 class s_dendrite : public i_dendrite{
 	inline void doTask();
-	inline void axonTilbakemelding();
+	inline void feedbackToDendrite();
 
 //	s_auron* pElementAvAuron;
 //	std::list<s_synapse*> pInnSynapser;
@@ -63,7 +61,7 @@ class s_dendrite : public i_dendrite{
 	inline void newInputSignal( int nNewSignal );
 	inline void calculateLeakage(); 		//Bare for SANN
 
-	bool bBlokkerInput_refractionTime; 		//Bare for SANN 	//Blokkere input når refraction period eller når depol er over terskel.
+	bool bBlockInput_refractionTime; 		//Bare for SANN 	//Blokkere input når refraction period eller når depol er over terskel.
 												// XXX Flytta til s_auron.
 
 	public:

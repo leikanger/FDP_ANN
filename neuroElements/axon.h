@@ -32,16 +32,13 @@ class i_axon : public timeInterface{
 	
 	
 	
-	friend class i_auron;
-	//friend class s_auron;
-	friend class s_synapse;
 	friend void testFunksjon_slett(s_auron*);
 	//friend std::ostream & operator<< (std::ostream & ut, axon );
 	friend std::ostream & operator<< (std::ostream & ut, s_axon* ); //XXX XXX denne skal ha argument (..., i_axon* ); XXX
 	friend int main(int, char**); //TODO SLETT
 
 	friend class i_synapse;
-	friend class i_axon;
+//	friend class i_axon;
 	friend class i_auron;
 	friend class i_dendrite;
 

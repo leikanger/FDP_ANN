@@ -15,9 +15,10 @@ void* taskSchedulerFunction(void*);
 
 //deklarasjoner
 extern std::list<timeInterface*> time_class::pTaskArbeidsKoe_List;
+extern std::list<i_auron*> i_auron::pAllAurons;
 extern unsigned long time_class::ulTidsiterasjoner;
 std::ostream & operator<<(std::ostream& ut, i_auron* pAuronArg );
-std::ostream & operator<< (std::ostream & ut, s_auron auronArg );
+//std::ostream & operator<< (std::ostream & ut, s_auron* pAuronArg );
 
 //extern std::list<timeInterface*> time_class::pTaskArbeidsKoe_List;
 
@@ -46,8 +47,10 @@ int main(int argc, char *argv[])
 	// Initierer arbeidskø (time_class::pTaskArbeidsKoe_List)
 	initialiserArbeidsKoe();
 
-	//Renser opp i ./datafiler_for_utskrift/
-	system("rm ./datafiler_for_utskrift/logg_*");
+	// Dersom ./datafiles_for_evaluation/ ikkje finnes, lages den. Dersm den finnes gjør ikkje kallet noke:
+	system("mkdir datafiles_for_evaluation");
+	//Renser opp i ./datafiles_for_evaluation/
+	system("rm ./datafiles_for_evaluation/log_*.oct");
 
 	//Leser inn argumenter: 
 	if(argc > 1 ) //{1 	  //	 (argc>1 betyr at det står meir enn bare programkall)
@@ -173,6 +176,7 @@ int main(int argc, char *argv[])
 
 	cout<<"lengde på arbeidkø (i tillegg til [time_class] ): " <<time_class::pTaskArbeidsKoe_List.size()-1 <<endl;
 
+ 	//cout<<A1; exit(0);
 
 //for å lage gjenkjennelig start på utskrifta:
 	for(int x = 0; x<20; x++){
@@ -185,13 +189,29 @@ int main(int argc, char *argv[])
 	//Setter i gang ANN
 	A1->doTask();
 
+
+
+
+
+
 /******************************************* Starter void taskSchedulerFunction(void*); ****************************************************/
 	sleep(1);
 	taskSchedulerFunction(0);
 
 
+cout<<"JAJAJAJAJAJA\n\n\n\n\n";
+delete A1;
+cout<<"JAJAJAJAJAJA\n\n\n\n\n";
 
-	
+/****************************************** Kaller destructor for alle gjenværande udestruerte auron ***************************************/
+	// Sletter alle auron i i_auron::pAllAurons
+	while( ! i_auron::pAllAurons.empty() )
+	{
+		cout<<"Calls destructor for auron " <<i_auron::pAllAurons.front()->sNavn <<endl;
+		// remove element from pAllAurons.
+	 	delete (*i_auron::pAllAurons.begin());
+	}
+	/*
 delete A1;
 delete A2;
 delete A3;
@@ -203,7 +223,7 @@ delete A8;
 delete A9;
 delete E;
 delete F;
-	
+	*/
 
 
 	cout<<"\n\nWIN!\n";
@@ -324,9 +344,9 @@ void* taskSchedulerFunction(void* )
 /***************************
 *** Utskriftsprosedyrer: ***
 ***************************/
-std::ostream & operator<< (std::ostream & ut, s_auron auronArg )
+std::ostream & operator<< (std::ostream & ut, i_auron* pAuronArg )
 { //{
-	ut<<"| " <<auronArg.getNavn() <<"  | verdi: " <<auronArg.getAktivityVar();// <<" \t|\tMed utsynapser:\n";
+	ut<<"| " <<pAuronArg->getNavn() <<"  | verdi: " <<pAuronArg->getAktivityVar();// <<" \t|\tMed utsynapser:\n";
 	
 	// Innsynapser:
 	//for( std::vector<synapse*>::iterator iter = neuroArg.pInnSynapser.begin(); iter != neuroArg.pInnSynapser.end(); iter++ ){
@@ -342,12 +362,6 @@ std::ostream & operator<< (std::ostream & ut, s_auron auronArg )
 
 	return ut;
 } //}
-/* Når eg fjærna denne, vart eg kvitt helvetes-std-feilmeldinger. Trur ikkje denne skal brukes. Slett om nokre veker. No: 05.04.2011
-std::ostream & operator<<(std::ostream& ut, auron* pAuronArg )
-{
-	ut<<(*pAuronArg);
-	return ut;
-}*/
 
 std::ostream & operator<< (std::ostream & ut, s_axon* pAxonArg ) //XXX Skal gjøres til i_axon* istaden for s_axon* som argument! XXX
 { //{

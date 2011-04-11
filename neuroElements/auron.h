@@ -1,5 +1,6 @@
 
 #include <fstream> //file streams
+//#include <list>
 
 /*
  * auron.h
@@ -47,7 +48,7 @@ class i_auron : public timeInterface
 	i_axon* pOutputAxon; 			// Trenger å ha dei meir spesifikk for contruction av bl.a. synapse - s_synapse legger til pElementAvAuron->pInputDendrite (som må være av typen ?? XXX prøver igjen..
  	i_dendrite* pInputDendrite; 
 
-	// Treng eg desse i i_auron? Bare for SANN? Vettafaen!
+	// Treng eg desse i i_auron? Bare for SANN? Vettafaen! XXX Kan kanskje ligge i s_auron.
 	unsigned long ulTimestampForrigeInput; 	 //Er begge naudsynt? sjå gjennom!
 	unsigned long ulTimestampForrigeFyring;  //Er begge naudsynt? sjø gjennom!
 
@@ -59,11 +60,11 @@ class i_auron : public timeInterface
 	//også her kan eg bruke \kappa for å finne nivået i kvart neuron..
 
 
-	std::ofstream aktivitetsVar_loggFil;
+	std::ofstream activityVar_logFile;
  	
 	const void skrivAktivitetsVarLogg(){
 	//const void loggAktivitetsVar_i_AktivitetsVarLoggFil(){
-		aktivitetsVar_loggFil<<time_class::getTid() <<"\t" <<nAktivitetsVariabel <<";#refraction time until now.\n";
+		activityVar_logFile<<time_class::getTid() <<"\t" <<nAktivitetsVariabel <<";#refraction time until now.\n";
 	}
 
 /*** XXX BARE FOR SANN *****/
@@ -76,6 +77,8 @@ class i_auron : public timeInterface
 	protected:
 	virtual inline void doTask() =0;
 
+	//container som inneholder alle auron som har vore til ila. programkjøringa:
+	static std::list<i_auron*> pAllAurons; 							// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
 
 
 	public:
@@ -95,7 +98,7 @@ class i_auron : public timeInterface
 
 	friend class s_auron;
 	//friend class K_auron;
-	friend class i_axon; //XXX VEKK med den?
+	friend class i_axon; // VEKK med den?
 	friend class s_axon;
 	friend class i_synapse;
 	friend class s_synapse;
@@ -121,7 +124,12 @@ class s_auron : public i_auron
 
 	inline void doTask();
 
-	//bool bBlokkerInput_refractionTime; FLYTTA TIL s_dendrite
+	//bool bBlockInput_refractionTime; FLYTTA TIL s_dendrite
+
+
+	protected:
+	//container som inneholder alle auron som har vore til ila. programkjøringa:
+	//static std::list<s_auron*> pAllAurons; 							// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
 
 	public:
 	s_auron(std::string sNavn_Arg ="unnamed", int nStartDepol = 0); 	

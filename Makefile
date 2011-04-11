@@ -16,9 +16,8 @@ main.o: andreKildefiler/main.cpp andreKildefiler/main.h andreKildefiler/time.h a
 	g++ ${CFLAGS} -c andreKildefiler/main.cpp 
 
 
-
-visBareErrors: main.o neuroElement.o
-	make c 2>&1 | grep error #Funker om du skriver dette rett i shell!
+altI_en: andreKildefiler/*.cpp andreKildefiler/*.h neuroElements/*.cpp neuroElements/*.h
+	echo "\n\n\n\nmake altI_en:\n\n"; g++ ${CFLAGS} andreKildefiler/main.cpp neuroElements/neuroElement.cpp -o auroNett.out; echo "HURRA, HURRA, HURRA\nHURRA, HURRA, HURRA\nHURRA, HURRA, HURRA. ALT VEL!\n\n";
 
 c:
 	make clean; clear; echo "\nHAR FJÆNA ALLE .out FILENE. Kjører make\n\n"; make auroNett.out
