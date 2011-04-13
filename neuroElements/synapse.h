@@ -12,6 +12,7 @@ class s_axon;
 class i_dendrite;
 class s_dendrite;
 class s_auron;
+class K_auron;
 
 
 // <<interface>>
@@ -57,7 +58,7 @@ class i_synapse : public timeInterface{
 
 class s_synapse : public i_synapse{
 
-	virtual void doTask();
+	inline void doTask();
 
 	public:
 	s_synapse(s_auron*, s_auron*, unsigned uSynVekt_Arg =1, bool bInhibEffekt_Arg =false) ;
@@ -67,5 +68,19 @@ class s_synapse : public i_synapse{
 };
 
 
+
+class K_synapse : public i_synapse{
+	inline void doTask();
+	
+	unsigned forrigeUtregnaPresynPeriode;
+	// TEST: & : inline unsigned& regnutPresynPeriode();
+	inline unsigned regnutPresynPeriode();
+
+	public:
+	K_synapse(K_auron*, K_auron*, unsigned uSynVekt_Arg =1, bool bInhibEffekt_Arg =false) ;
+	~K_synapse();
+
+	friend int main(int, char**);
+};
 
 #endif

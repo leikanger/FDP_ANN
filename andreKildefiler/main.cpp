@@ -9,18 +9,17 @@
 //#include "../neuroElements/dendrite.h" //KAANSKJE DEN SKAL VÆRE MED? XXX
 
 void initialiserArbeidsKoe();
-void testFunksjon_slett(s_auron*);
 void skrivUtArgumentKonvensjoner(std::string);
 void* taskSchedulerFunction(void*);
 
 //deklarasjoner
-extern std::list<timeInterface*> time_class::pTaskArbeidsKoe_List;
+extern std::list<timeInterface*> time_class::pWorkTaskQue;
 extern std::list<i_auron*> i_auron::pAllAurons;
 extern unsigned long time_class::ulTidsiterasjoner;
 std::ostream & operator<<(std::ostream& ut, i_auron* pAuronArg );
 //std::ostream & operator<< (std::ostream & ut, s_auron* pAuronArg );
 
-//extern std::list<timeInterface*> time_class::pTaskArbeidsKoe_List;
+//extern std::list<timeInterface*> time_class::pWorkTaskQue;
 
 // Foreløpig testvariabel: 		Global variabel som skal lese inn fra argv**. 	
 // XXX Gå over til funk-som-global-variabel!   Og referer til stroustrup i rapport.
@@ -44,13 +43,16 @@ unsigned long ulAntallTidsiterasjonerTESTING_SLETT;
 
 int main(int argc, char *argv[])
 {
-	// Initierer arbeidskø (time_class::pTaskArbeidsKoe_List)
+	// Initierer arbeidskø (time_class::pWorkTaskQue)
 	initialiserArbeidsKoe();
 
 	// Dersom ./datafiles_for_evaluation/ ikkje finnes, lages den. Dersm den finnes gjør ikkje kallet noke:
-	system("mkdir datafiles_for_evaluation");
+	if( system("mkdir datafiles_for_evaluation") == -1 ){
+		cout<<"Could not make directory for log files [./datafiles_for_evaluation/]. For logging node values, please make this directory manually in the current directory."; 
+	}
 	//Renser opp i ./datafiles_for_evaluation/
-	system("rm ./datafiles_for_evaluation/log_*.oct");
+	if( system("rm ./datafiles_for_evaluation/log_*.oct") == -1)
+		cout<<"Could not remove old log files. Please do this manually to avoid accidendtally plotting old results.\n";
 
 	//Leser inn argumenter: 
 	if(argc > 1 ) //{1 	  //	 (argc>1 betyr at det står meir enn bare programkall)
@@ -114,6 +116,7 @@ int main(int argc, char *argv[])
 	//TODO For at alle skal destrueres automatisk, legg alle peikere inn i std::vector, og destruer alle element i vector på slutten av main.
 
 
+/*  //{ SANN: TEST-oppsett. Lager mange neuron..
 	s_auron* A1 = new s_auron("A1");
 	s_auron* A2 = new s_auron("A2");
 	s_auron* A3 = new s_auron("A3");
@@ -174,20 +177,26 @@ int main(int argc, char *argv[])
 	new s_synapse(A1, F, 51);
 	new s_synapse(E, F, 200);
 
-	cout<<"lengde på arbeidkø (i tillegg til [time_class] ): " <<time_class::pTaskArbeidsKoe_List.size()-1 <<endl;
+	//Setter i gang ANN
+	A1->doTask();
+/**/ //}
 
- 	//cout<<A1; exit(0);
 
-//for å lage gjenkjennelig start på utskrifta:
-	for(int x = 0; x<20; x++){
-		cout<<"STARTER LOOP\n";
-	}
+	K_auron* A1 = new K_auron("K01", 50*FYRINGSTERSKEL);
+	K_auron* B  = new K_auron("K_B", 50*FYRINGSTERSKEL);
+
+	new K_synapse(A1, B, 1111);
+	new K_synapse(B, A1, 1111);
+
+
+	cout<<"lengde på arbeidkø (i tillegg til [time_class] ): " <<time_class::pWorkTaskQue.size()-1 <<endl;
+
+
+
+
 	cout<<"******************************************\n*** BEGYNNER KJØRING AV ANN: ***\n******************************************\n\n";
 
 
-
-	//Setter i gang ANN
-	A1->doTask();
 
 
 
@@ -199,9 +208,6 @@ int main(int argc, char *argv[])
 	taskSchedulerFunction(0);
 
 
-cout<<"JAJAJAJAJAJA\n\n\n\n\n";
-delete A1;
-cout<<"JAJAJAJAJAJA\n\n\n\n\n";
 
 /****************************************** Kaller destructor for alle gjenværande udestruerte auron ***************************************/
 	// Sletter alle auron i i_auron::pAllAurons
@@ -211,59 +217,13 @@ cout<<"JAJAJAJAJAJA\n\n\n\n\n";
 		// remove element from pAllAurons.
 	 	delete (*i_auron::pAllAurons.begin());
 	}
-	/*
-delete A1;
-delete A2;
-delete A3;
-delete A4;
-delete A5;
-delete A6;
-delete A7;
-delete A8;
-delete A9;
-delete E;
-delete F;
-	*/
+
 
 
 	cout<<"\n\nWIN!\n";
 	return 0;
 }
 
-
-void testFunksjon_slett(s_auron* pA) //XXX
-{ //{
-	//time_class::pTaskArbeidsKoe_List .push_back( pA->pOutputAxon );
-	//time_class::pTaskArbeidsKoe_List .push_back( pA );
-
-//	pA->ao_AuronetsAktivitet.updateDepol();
-//	cout<<pA <<" sender inn 100.\n";
-//	pA->ao_AuronetsAktivitet.incomingSignal(100);
-
-//	time_class::ulTidsiterasjoner++;
-//	pA->ao_AuronetsAktivitet.updateDepol();
-//	cout<<"\n\nA:\t" <<*pA <<endl;
-
-
-	(pA->pOutputAxon)->doTask();
-
-	cout<<"Neste.\n";
-	cout<<(pA->pOutputAxon) <<endl;
-
-	//taskSchedulerFunction(0);
-	
-	/*
-	cout<<"Første fyring i testFunksjon_slett():\n\n";
-	pA->fyr();
-	
-	cout<<"Itererer time:\n\n";
-	time_class::u lTidsiterasjoner++;
-
-	cout<<"Andre fyring i testFunksjon_slett():\n\n";
-	pA->fyr();
-*/
-
-} //}
 
 void skrivUtArgumentKonvensjoner(std::string programKall)
 { //{
@@ -290,9 +250,9 @@ void initialiserArbeidsKoe()
 	// Lager instans av time, og legger den i det frie lageret.
 	time_class* pHovedskille = new time_class();
 	// Legger til denne peikeren i arbeidskøa (som ligger som static-element i class time) :
- 	time_class::pTaskArbeidsKoe_List 	.push_back( pHovedskille );
+ 	time_class::pWorkTaskQue 	.push_back( pHovedskille );
 
-	// No ligger peikeren pHovedskille som einaste element i pTaskArbeidsKoe_List. Kvar gang denne kjører doTask() vil den ikkje fjærne seg fra arbeidsliste, men flytte seg bakerst i køa isteden.
+	// No ligger peikeren pHovedskille som einaste element i pWorkTaskQue. Kvar gang denne kjører doTask() vil den ikkje fjærne seg fra arbeidsliste, men flytte seg bakerst i køa isteden.
 
 	// static bInitialisertAllerede vil eksistere kvar gang denne funksjonen kalles. Setter dermed bInitialisertAllerede til true for å forhindre at fleire time legges til arbeidsKoe.
 	bInitialisertAllerede = true;
@@ -318,18 +278,18 @@ void* taskSchedulerFunction(void* )
 	//while(/*En eller anna avsluttings-bool =*/true)
 	{
 			/*FEILSJEKK (kan takast vekk)*/
-			//cout<<"feilsjekk: Antall element i pTaskArbeidsKoe_List :  " <<time_class::pTaskArbeidsKoe_List.size() <<endl;
-			if(time_class::pTaskArbeidsKoe_List.empty()){ cout<<"\n\n\nFEIL. time_class::pTaskArbeidsKoe_List er tom. Skal aldri skje. \nFeilmelding: [time.h taskSchedulerFunction::c01]\n\n\n"; exit(-1);}
+			//cout<<"feilsjekk: Antall element i pWorkTaskQue :  " <<time_class::pWorkTaskQue.size() <<endl;
+			if(time_class::pWorkTaskQue.empty()){ cout<<"\n\n\nFEIL. time_class::pWorkTaskQue er tom. Skal aldri skje. \nFeilmelding: [time.h taskSchedulerFunction::c01]\n\n\n"; exit(-1);}
 
 			// DEBUG: 	Skriv ut klassenavn på element:
-			cout<<time_class::pTaskArbeidsKoe_List.front() ->klasseNavn <<"\t:\t\t"; 		
+			cout<<time_class::pWorkTaskQue.front() ->klasseNavn <<"\t:\t\t"; 		
 	
 
 			// Setter igang utføring av neste jobb i lista:
-			time_class::pTaskArbeidsKoe_List.front() ->doTask(); 		//Dette er i orden, siden pTaskArbeidsKoe_List er av type list<timeInterface*> og alle arvinger av timeInterface har overlagra funksjonen doTask().
+			time_class::pWorkTaskQue.front() ->doTask(); 		//Dette er i orden, siden pWorkTaskQue er av type list<timeInterface*> og alle arvinger av timeInterface har overlagra funksjonen doTask().
 
-			// Tar vekk jobben fra pTaskArbeidsKoe_List:
-			time_class::pTaskArbeidsKoe_List.pop_front();
+			// Tar vekk jobben fra pWorkTaskQue:
+			time_class::pWorkTaskQue.pop_front();
 			
 			//Evt annet som skal gjøres kvart timessteg. Type sjekke etter andre events, legge til fleire synapser, etc.
 

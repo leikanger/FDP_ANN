@@ -18,7 +18,7 @@
 ***********************/
 
 // i_auron
-i_auron::i_auron(std::string sNavn_Arg /*="unnamed"*/, int nStartDepol /*=0*/) : timeInterface("i_auron"), nAktivitetsVariabel(nStartDepol), sNavn(sNavn_Arg)
+i_auron::i_auron(std::string sNavn_Arg /*="unnamed"*/, int nStartAktVar /*=0*/) : timeInterface("auron"), nAktivitetsVariabel(nStartAktVar), sNavn(sNavn_Arg)
 { //{
 	cout<<"CONSTRUCTOR: Lager auron med navn " <<sNavn <<endl;
 
@@ -86,6 +86,29 @@ s_auron::~s_auron()
 } //}
 
 
+K_auron::K_auron(std::string sNavn_Arg /*="unnamed"*/, int nStartKappa /*= FYRINGSTERSKEL*/) : i_auron(sNavn_Arg, nStartKappa)
+{
+	ulTimestampForrigeFyring = time_class::getTid();
+	//ulTimestampForrigeInput  = time_class::getTid();
+
+	// Sjå auron.h
+	bEndraKappaDennePerioden = false;
+	
+	// Legger til auron* i std::list<i_auron*> pAllAurons;
+	pAllAurons.push_back( this );
+
+	
+
+	//pOutputAxon og pInputDendrite
+	pOutputAxon = new K_axon(this);
+ 	pInputDendrite = new K_dendrite(this); //	Skal ligge i s_auron og k_auron
+
+}
+K_auron::~K_auron()
+{
+	
+}
+
 
 /**
 ***  synapse
@@ -108,26 +131,7 @@ s_synapse::s_synapse(s_auron* pPresynAuron_arg, s_auron* pPostsynAuron_arg, unsi
 			:  i_synapse(pPresynAuron_arg->pOutputAxon, pPostsynAuron_arg->pInputDendrite , uSynVekt_Arg, bInhibEffekt_Arg, "s_synapse") 
 {//{	
 
-/*
-cout<<"contructor for s_synapse::s_synapse(...)\n\n";
-pPreNodeAxon->pElementAvAuron->sNavn = "je"; 			//XXX gir segfault!! XXX
-cout<<"Ok1\n";
-std::string testS=pPreNodeAxon->pElementAvAuron->sNavn; //XXX GIR SEGFAULT!! XXX
-cout<<"Ok2\n";
-cout<<"skriver ut testS" <<endl;
-cout<<testS <<endl;
-
-cout<<"\n\nHER prøver å kalle [cout<<pPreNodeAxon->pElementAvAuron->sNavn;] :\n\n";
-cout<<pPreNodeAxon->pElementAvAuron->sNavn; //XXX GIR SEGFAULT!! XXX
-cout<<"HER2\n"; 
-cout<<pPostNodeDendrite->pElementAvAuron->sNavn <<".pInputDendrite, ...)\n";
-cout<<"HER3\n";*/
-
-//XXX Her blir segfault laga:
 	cout<<"Kaller s_synapse::s_synapse(" <<pPreNodeAxon->pElementAvAuron->sNavn <<".pOutputAxon, " <<pPostNodeDendrite->pElementAvAuron->sNavn <<".pInputDendrite, ...)\n";
-
-cout<<"HERHER\n";
-
 
 	pPreNodeAxon->pUtSynapser.push_back(this);
 	pPostNodeDendrite->pInnSynapser.push_back(this);
@@ -158,7 +162,7 @@ cout<<"HERHER\n";
 
 } //}
 s_synapse::~s_synapse()
-{ //{ ... }    --DESTRUCTOR  	TODO TEST: denne er utesta..
+{ //{ ... }    --DESTRUCTOR
 	bool bPreOk  = false;
 	bool bPostOk = false;
 
@@ -220,13 +224,122 @@ s_synapse::~s_synapse()
 
 } //}
 
+//XXX HER: nytt kappa element:
+K_synapse::K_synapse(K_auron* pPresynAuron_arg, K_auron* pPostsynAuron_arg, unsigned uSynVekt_Arg /*=1*/, bool bInhibEffekt_Arg /*=false*/ )
+ :  i_synapse(pPresynAuron_arg->pOutputAxon, pPostsynAuron_arg->pInputDendrite , uSynVekt_Arg, bInhibEffekt_Arg, "s_synapse") 
+{
+	cout<<"Kaller K_synapse::K_synapse(" <<pPreNodeAxon->pElementAvAuron->sNavn <<".pOutputAxon, " <<pPostNodeDendrite->pElementAvAuron->sNavn <<".pInputDendrite, ...)\n";
+
+	pPreNodeAxon->pUtSynapser.push_back(this);
+	pPostNodeDendrite->pInnSynapser.push_back(this);
+	
+
+	cout 	<<"\tCONSTRUCTOR : K_synapse::K_synapse(a*, a*) \tEtterpå får vi:\n" 
+			<<(pPreNodeAxon) <<endl;
+
+
+	// lag ei .oct - fil, og gjør klar for å kjøres i octave:
+	//{ Utskrift til logg. LOGG-initiering
+	std::ostringstream tempFilAdr;
+	tempFilAdr<<"./datafiles_for_evaluation/log_K_synapse_" <<pPresynAuron_arg->sNavn <<"-"  <<pPostsynAuron_arg->sNavn ;
+	if(bInhibitorisk_effekt){ tempFilAdr<<"_inhi"; }
+	else{ 			  tempFilAdr<<"_eksi"; }
+	tempFilAdr<<".oct";
+
+	std::string tempStr( tempFilAdr.str() );
+
+	// trenger c-style string for open():
+	synWeight_loggFil.open( tempStr.c_str() );
+	synWeight_loggFil<<"data=[\n";
+	synWeight_loggFil.flush();
+
+	//}
+}
+K_synapse::~K_synapse()
+{ // XXX TODO UTESTA! 			HAR IKKEJ SETT GJENNOM, engang. TODAY: 12.04.2011 		TODO TODO
+	bool bPreOk  = false;
+	bool bPostOk = false;
+
+
+cout<<"\t\tDESTRUCTOR: K_synapse::~<K_synapse() : \t";
+
+
+	//TODO Sjekk ut std::find() istedenfor. Stroustrup anbefaler å bruke dette!.
+	if( !bPreOk ){ 	//Redundant test. Kanskje eg skal skrive while(!bPreOk)?
+		//fjærner seg sjølv fra prenode:
+		for( std::list<i_synapse*>::iterator iter = pPreNodeAxon->pUtSynapser.begin(); iter != pPreNodeAxon->pUtSynapser.end() ; iter++ ){
+			if( *iter == this ){
+				cout<<"\t~( [" <<pPreNodeAxon->pElementAvAuron->sNavn <<"] -> "; 	// utskrift del 1
+				(pPreNodeAxon->pUtSynapser).erase( iter );
+				bPreOk = true;
+				break;
+			}
+		}
+	}
+	if( !bPostOk ){
+		//fjærner seg sjølv fra postnode:
+		for( std::list<i_synapse*>::iterator iter = pPostNodeDendrite->pInnSynapser.begin(); iter != pPostNodeDendrite->pInnSynapser.end() ; iter++ ){
+			if( *iter == this ){ 
+				cout<<"[" <<pPostNodeDendrite->pElementAvAuron->sNavn <<"] )\t"; 										// utskrift del 2
+				(pPostNodeDendrite->pInnSynapser).erase( iter );
+				bPostOk = true;
+				break;
+			}
+		}
+	}
+
+	if( (!bPreOk) || (!bPostOk) ){
+		/// FEIL:
+		std::cerr<<"\n\n\n\n\nFEIL FEIL FEIL!\nSjekk neuroEnhet.cpp #asdf250. Feil i s_synapse destruksjon. (~s_synapse )\n";
+		std::cerr<<"I test om eg vart sletta  fra presyn. neuron og postsyn. neuron: failed\t\t" 
+			<<"bPreOk (" <<pPreNodeAxon->pElementAvAuron->sNavn <<"):" <<bPreOk <<"  ->  bPostOk (" <<pPostNodeDendrite->pElementAvAuron->sNavn <<"): " <<bPostOk 
+			<<"\n(Eg er ikkje sletta fra det aktuelle neuronet (dei med verdi 0)\n";
+		std::cerr<<"Eg ligger mellom (neuron: presyn - postsyn): " <<pPreNodeAxon->pElementAvAuron->sNavn <<" - " <<pPostNodeDendrite->pElementAvAuron->sNavn <<endl;
+		exit(-9);	
+	}
+	//cout<<"\tO.K.  -  syn. " <<pPreNodeAxon->pElementAvAuron->sNavn <<" til " <<pPostNodeDendrite->pElementAvAuron->sNavn <<" er ikkje lenger\n";
+	cout<<endl;
+
+
+	//{ Rett slutt på utskriftsfil-logg:
+
+	// no er data slik: [tid, synWeight ] i s_synapse-logg
+	synWeight_loggFil<<"];\n"
+					<<"plot( data([1:end],1), data([1:end],2), \";Synaptic weight;\");\n"
+
+					<<"title \"Synaptic weight for s_synapse: " <<pPreNodeAxon->pElementAvAuron->sNavn <<" -> " <<pPostNodeDendrite->pElementAvAuron->sNavn <<"\"\n"
+					<<"xlabel Time\n" <<"ylabel syn.w.\n"
+					//<<"akser=[0 data(end,1) 0 1400 ]; axis(akser);\n"
+					//<<"print(\'eps_" <<pPreNodeAxon->pElementAvAuron->sNavn <<"->" <<pPostNodeDendrite->pElementAvAuron->sNavn <<".eps\', \'-deps\');\"\n"
+					<<"sleep(9); "
+					<<"print(\'eps__s_synapse_" <<pPreNodeAxon->pElementAvAuron->sNavn <<"->" <<pPostNodeDendrite->pElementAvAuron->sNavn <<".eps\', \'-deps\');" 	;
+	synWeight_loggFil.close();
+	//}
+
+	 
+}
+
+
+
+
+
 /**
 ***  axon
 ****************/
 i_axon::i_axon( i_auron* pAuronArg, std::string sKlasseNavn ="dendrite") : timeInterface(sKlasseNavn), pElementAvAuron(pAuronArg)
 { //{
 } //}
-s_axon::s_axon(s_auron* pAuronArg) : i_axon(pAuronArg, "axon")
+i_axon::~i_axon()
+{
+	// pUtSynapser inneholder bare peikere, så pUtSynapser.clear() vil ikkje føre til destruksjon av synapsene.
+	// 		Sletter synapsene eksplisitt med delete-operatoren på alle element som list<synapse*> pUtSynapser) peiker på.
+	while( !pUtSynapser.empty() ){
+		delete (*pUtSynapser.begin()); //Kaller destruktoren til første gjenværende synapse. Dette fører også til at synapsa fjærnes fra pUtSynapser (og dendrite.pInnSynapser)
+	}
+	//TO DO   TO DO    TO DO Denne skal ligge i i_axon når pUtSynapser er endra fra <s_synapse*> til <i_synapse*>. TODO TODO  TODO
+
+}
+s_axon::s_axon(s_auron* pAuronArg) : i_axon(pAuronArg, "s_axon")
 { //{ 
 	cout<<"\tlager axon\n";//for \tauron " <<pAuronArg->sNavn <<endl;		
 } //}
@@ -234,15 +347,16 @@ s_axon::~s_axon()
 { //{
 	cout<<"\tDESTRUCTOR:  s_axon::~s_axon() for auron \t" <<pElementAvAuron->sNavn <<"\n";
 
-	// pUtSynapser inneholder bare peikere, så pUtSynapser.clear() vil ikkje føre til destruksjon av synapsene.
-	// 		Sletter synapsene eksplisitt med delete-operatoren på alle element som list<synapse*> pUtSynapser) peiker på.
-	while( !pUtSynapser.empty() ){
-		delete (*pUtSynapser.begin()); //Kaller destruktoren til første gjenværende synapse. Dette fører også til at synapsa fjærnes fra pUtSynapser (og dendrite.pInnSynapser)
-	}
-	//TODO TODO TODO Denne skal ligge i i_axon når pUtSynapser er endra fra <s_synapse*> til <i_synapse*>. TODO TODO  TODO
-
 } //}
 
+K_axon::K_axon( K_auron* pAuronArg) : i_axon(pAuronArg, "K_axon" )
+{
+	cout<<"\tlager axon\n";
+}
+K_axon::~K_axon()
+{
+	 
+}
 /**
 *** 	s_dendrite
 **************************/
@@ -251,6 +365,13 @@ i_dendrite::i_dendrite(i_auron* pElementAvAuron_arg, std::string sNavn ="dendrit
 { //{ 
 	pElementAvAuron = pElementAvAuron_arg;
 } //}
+i_dendrite::~i_dendrite()
+{
+	// Destruerer alle innsynapser.
+	while( !pInnSynapser.empty() ){
+	 	delete (*pInnSynapser.begin() );
+	}
+}
 /* s_dendrite */
 s_dendrite::s_dendrite( s_auron* pPostSynAuron_Arg ) : i_dendrite(pPostSynAuron_Arg, "s_dendrite")//, pElementAvAuron(pPostSynAuron_Arg)
 { //{
@@ -261,12 +382,23 @@ s_dendrite::s_dendrite( s_auron* pPostSynAuron_Arg ) : i_dendrite(pPostSynAuron_
 s_dendrite::~s_dendrite()
 { //{
 	cout<<"\tDestruerer s_dendrite for auron \t" <<pElementAvAuron->sNavn <<"\n";
-
-	// Destruerer alle innsynapser.
-	while( !pInnSynapser.empty() ){
-	 	delete (*pInnSynapser.begin() );
-	}
 } //}
+K_dendrite::K_dendrite( K_auron* pPostSynAuron_Arg ) : i_dendrite(pPostSynAuron_Arg, "K_dendrite" )
+{
+	cout<<"\tLager K_dendrite\n";
+}
+K_dendrite::~K_dendrite()
+{
+	cout<<"\tDestruerer K_dendrite for auron \t" <<pElementAvAuron->sNavn <<"\n";
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -277,8 +409,26 @@ s_dendrite::~s_dendrite()
 ******  		ANDRE FUNKSJONER:           			******
 ****** 													******
 *************************************************************/
-inline void s_dendrite::feedbackToDendrite() // var: axonTilbakemelding()
+
+
+
+/******************* SYNAPSE ********************/
+
+// TEST:XXX:inline unsigned& K_synapse::regnutPresynPeriode()
+inline unsigned K_synapse::regnutPresynPeriode()
 {
+	int kappa_pre = pPreNodeAxon->pElementAvAuron->nAktivitetsVariabel;
+	forrigeUtregnaPresynPeriode = -1/ALPHA * log( (FYRINGSTERSKEL - kappa_pre ) / kappa_pre );
+	cout<<forrigeUtregnaPresynPeriode <<endl;
+	return forrigeUtregnaPresynPeriode;
+}
+
+
+/******************* DENDRITE *******************/
+
+
+inline void s_dendrite::feedbackToDendrite() // var: axonTilbakemelding()
+{ //{
 	 //Tilbakemelding fra axonet forteller oss at refraction time er over.
 
 	 //Skriver til logg etter refraction-period.
@@ -286,6 +436,10 @@ inline void s_dendrite::feedbackToDendrite() // var: axonTilbakemelding()
 
 	 //Avsetter bBlockInput_refractionTime - flagg:
 	 bBlockInput_refractionTime = false;
+} //}
+inline void K_dendrite::feedbackToDendrite()
+{
+	pElementAvAuron->skrivAktivitetsVarLogg();
 }
 inline void s_dendrite::newInputSignal( int nNewSignal_arg )
 { //{
@@ -324,8 +478,13 @@ inline void s_dendrite::newInputSignal( int nNewSignal_arg )
 	pElementAvAuron->activityVar_logFile 	<<time_class::getTid() <<"\t" <<pElementAvAuron->nAktivitetsVariabel <<"; \t #Depolarization\n" ;
 	pElementAvAuron->activityVar_logFile.flush();
 } //}
-
-/** TODO Bare for SANN:  ***/
+inline void K_dendrite::newInputSignal( int nNewSignal_arg )
+{
+	//HER XxX xXx casting (eksplisitt typekonvertering) fra i_auron til K_auron for å kunne accessere K_auron::bEndraKappaDennePerioden.
+	static_cast<K_auron*>(pElementAvAuron)->newKappaDueToNew_inputLevel( nNewSignal_arg );
+	cout<<"Bla,bla,bla.. K_dendrite::newInputSignal(int), jeah\n"; 
+}
+/** Bare for SANN:  ***/
 inline void s_dendrite::calculateLeakage()
 { //{
 	/*
@@ -354,6 +513,30 @@ inline void s_dendrite::calculateLeakage()
 } //}
 
 
+/*********************** auron *************************************/
+
+
+/*ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT */
+const unsigned long K_auron::estimateFiringTime()
+{
+	 
+}
+void K_auron::newKappaDueToNew_inputLevel(int nNewKappaValue_arg )
+{
+/* TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO*/
+	bEndraKappaDennePerioden = true;
+	
+	// add change to neurons kappa value: (the input signal is the change of kappa from one synapse).
+	nAktivitetsVariabel += nNewKappaValue_arg;
+
+	unsigned long ulEstimatedFiringTime_temp = estimateFiringTime();
+	
+/* TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO*/
+	
+}
+/*ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER */ 
+
+
 
 
 
@@ -362,29 +545,8 @@ inline void s_dendrite::calculateLeakage()
 ******  		doTask() -- samla på en plass. 			******
 ****** 													******
 *************************************************************/
-//inline void i_auron::doTask()
-//{ //{ ... } UTKOMMENTERT. gjordt reint virtuell.
-/*	
-	// ************************** ???
-	// ** Genialt! Gjennomfør lekkasje kvar gang auron::doTask() kalles: Kvar gang eit A.P. er bestillt, gjennomføres lekkasje.
-	// ************************ /// ???
-		//Skal bl.a. oppdatere DA-nivå i dendritter, osv.
-		//oppdaterNeuron() 
-	//  Foreløpig ligger det i dendrite.calculateLeakage() som kalles fra synapse::transmission() som kalles fra synapse::doTask()
 
-
-	// Evt legg til dendrite i tillegg, for å kjøre syn.plast. 
-
-
-	// Registrerer fyringstid (for feisjekk (over) osv.) XXX SKAL DETTE BARE VÆRE I SANN-NEURON?
-	//ulTimestampForrigeFyring = time_class::ulTidsiterasjoner;
-*/
-	// Skriver til log for aktivitetsVar:
-	//aktivitetsVar_loggFil 	<<time_class::getTid() <<"\t" <<nAktivitetsVariabel <<"; \t #Activity variable\n" ;
-	//aktivitetsVar_loggFil.flush();
-		
-
-//} //}
+/****************************** auron *******************************************/ //{
 inline void s_auron::doTask()
 { //{
 
@@ -395,7 +557,6 @@ inline void s_auron::doTask()
 	time_class::leggTilTask( pOutputAxon );
 
 
-	
 	if( ulTimestampForrigeFyring == time_class::getTid() )
 	{
 		cout<<"\n\n************************\nFeil?\nTo fyringer på en iterasjon? \nFeilmelding au#103 @ auron.h\n************************\n\n";
@@ -411,16 +572,29 @@ inline void s_auron::doTask()
 	//loggAktivitetsVar_i_AktivitetsVarLoggFil(); endra navn til:
 	skrivAktivitetsVarLogg();
 
-
-	// Skriver til log for aktivitetsVar:
-	activityVar_logFile 	<<time_class::getTid() <<"\t" <<nAktivitetsVariabel <<"; \t #Activity variable\n" ;
-	activityVar_logFile.flush();
 } //}
-//XXX inline void K_auron::doTask() osv.
+inline void K_auron::doTask()
+{ 
+	 
+	cout<<"\t" <<sNavn <<".doTask()\tFYRER Action Potential for neuron " <<sNavn <<".\t\t| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | \ttid: " <<time_class::getTid() <<"\n";
+
+	//Axon hillock: send aksjonspotensial 	-- innkapsling gir at a xon skal ta hånd om all output. // bestiller at a xon skal fyre NESTE tidsiterasjon. Simulerer tidsdelay i a xonet.
+	time_class::leggTilTask( pOutputAxon );
+
+	// Resetter bEndraKappaDennePerioden. Blir satt til true når auron får nytt input.
+	bEndraKappaDennePerioden = false;
+	
+	skrivAktivitetsVarLogg();
+
+}
+
+
+//} *************************** slutt auron ***************************************
+/****************************** synapse *****************************************/ //{
 
 
 inline void s_synapse::doTask()
-{ //{ .. }
+{ //{2 .. }
 
 	// FØR  VAR DET :  inline void synapse::transmission()
 	cout<<"Overføring i s_synapse.\n";
@@ -449,7 +623,28 @@ inline void s_synapse::doTask()
 
 	// Logg for aktivitetsVar for postsyn auron skjer i pPostNodeDendrite->newInputSignal(-);
 
-} //}
+} //}2
+inline void K_synapse::doTask()
+{
+	cout<<"overføring i K_synapse.\n";
+
+
+	// K_ij = w_ij / p(K_j)
+
+	if(bInhibitorisk_effekt)
+	{
+		//pPostNodeDendrite->newInputSignal( -uSynaptiskVekt * pPreNodeAxon->pElementAvAuron->getPeriode() );
+		pPostNodeDendrite->newInputSignal( -uSynaptiskVekt * regnutPresynPeriode() );
+
+	}else{
+		//pPostNodeDendrite->newInputSignal( uSynaptiskVekt * pPreNodeAxon->pElementAvAuron->nAktivitetsVariabel );
+		pPostNodeDendrite->newInputSignal( uSynaptiskVekt * regnutPresynPeriode() );
+	}
+	 
+}
+//} *************************** SLUTT synapse *************************************
+/****************************** axon ********************************************/ //{
+
 inline void i_axon::doTask()
 { //{ // initierAksjonspotensial()
 	cout<<"Legger inn alle outputsynapser i arbeidskø. Mdl. av auron: " <<pElementAvAuron->sNavn <<" - - - - - - - - - - - - - - - \n";
@@ -458,7 +653,7 @@ inline void i_axon::doTask()
  	for( std::list<i_synapse*>::iterator iter = pUtSynapser.begin(); iter != pUtSynapser.end(); iter++ )
 	{ // Legger alle pUtSynapser inn i arbeidskø: (FIFO-kø)
 		
-		//time_class::pTaskArbeidsKoe_List.push_back( (*iter) );
+		//time_class::pWorkTaskQue.push_back( (*iter) );
 		// Legger til ut-synapser i time_class::arbeidskø
 		time_class::leggTilTask( *iter );
 	}
@@ -467,24 +662,33 @@ inline void i_axon::doTask()
 	pElementAvAuron->skrivAktivitetsVarLogg();
 } //}
 inline void s_axon::doTask()
-{
+{ //{
 	i_axon::doTask();
 
 	// Avblokkerer dendritt. Opner den for meir input. Foreløpig er dette måten 'refraction time' funker på.. (etter 2 ms - dendrite og auron overføring..)
 	pElementAvAuron->pInputDendrite->feedbackToDendrite();
 
-}
+} //}
+inline void K_axon::doTask()
+{
+	i_axon::doTask();
 
+	// kanskje:
+	// pElementAvAuron->pInputDendrite->feedbackToDendrite();
+}
+//} ************************** SLUTT axon *****************************************
+/****************************** dendrite ****************************************/ //{
 inline void s_dendrite::doTask()
 { //{ 
 	// Kva skal dendrite::doTask() gjøre? 
 	//cout<<pElementAvAuron->sNavn <<"->[dendrite]::doTask(). Postsyn. depol (" <<pElementAvAuron->sNavn <<") etter overføring: " <<pElementAvAuron->nAktivitetsVariabel <<".\n";
-
 	time_class::leggTilTask( pElementAvAuron );
-
-
 } //}
-
+inline void K_dendrite::doTask()
+{
+	time_class::leggTilTask( pElementAvAuron );
+}
+//} **************************** SLUTT dendrite ***********************************
 
 
 

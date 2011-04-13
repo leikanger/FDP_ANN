@@ -12,10 +12,6 @@ using std::endl;
 
 // DEKLARASJONER:
 //extern unsigned long ulTidsiterasjoner;
-class s_auron;
-// Flytta vekk herfra:
-//extern std::list<timeInterface*> time_class::pTaskArbeidsKoe_List;
-//extern unsigned long time_class::ulTidsiterasjoner;
 
 
 /****************************************
@@ -27,6 +23,7 @@ class timeInterface
 	timeInterface(std::string s) : klasseNavn(s){}
 	timeInterface() 				{} 				//For mens eg itererer i utviklinga.  Trur ikkje eg skal ha denne etterpå..
 
+	// SKAL VÆRE private ? XXX XXX XXX
 	virtual void doTask() =0;
 
 	//for debugging:
@@ -60,13 +57,17 @@ Kvar gang det er overføring:
 class time_class : public timeInterface {
 	static unsigned long ulTidsiterasjoner;
 	
-	static std::list<timeInterface*> pTaskArbeidsKoe_List;
+	static std::list<timeInterface*> pWorkTaskQue;
+	static std::set<timeInterface*> pCalculatationTaskQue;
+	// std::set er en container der key og value er det samme. Unique elements!
+
+	static std::multimap<unsigned long, timeInterface*> pEstimatedTaskTime; //XXX HER NYNYNY NY XXX
 
 	
 	protected:
 	inline void doTask(){ 	//overlagring av timeInterface::doTask() - som med de andre klassene som arver timeInterface..
 		// Legger til egenpeiker på slutt av pNesteJobb_ArbeidsKoe
-		pTaskArbeidsKoe_List.push_back(this);	
+		pWorkTaskQue.push_back(this);	
 
 		//itererer time:
 		ulTidsiterasjoner++;
@@ -84,7 +85,7 @@ class time_class : public timeInterface {
 
 	static void leggTilTask( timeInterface* pArg )
 	{
-	 	pTaskArbeidsKoe_List.push_back( pArg );
+	 	pWorkTaskQue.push_back( pArg );
 	}
 	static unsigned long getTid(){ return ulTidsiterasjoner; }
 	//Noke slikt: XXX 	friend schedulerFunksjon;
@@ -99,8 +100,6 @@ class time_class : public timeInterface {
 	friend void* taskSchedulerFunction(void*);
 	
 	friend int main(int, char**);
-
-	friend void testFunksjon_slett(s_auron*);
 };
 
 

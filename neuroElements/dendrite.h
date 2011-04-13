@@ -34,7 +34,7 @@ class i_dendrite : public timeInterface{
 
 	public:
 	i_dendrite(i_auron* pElementAvAuron_arg, std::string sNavn /*="dendrite"*/);
-	
+	~i_dendrite();
 
 	friend int main(int, char**);
 	friend std::ostream & operator<< (std::ostream & ut, s_axon* pAxonArg );
@@ -48,6 +48,11 @@ class i_dendrite : public timeInterface{
 	friend class s_axon;
 	friend class s_auron;
 	friend class s_dendrite;
+
+	friend class K_synapse;
+	friend class K_axon;
+	friend class K_auron;
+	friend class K_dendrite;
 };
 
 
@@ -95,5 +100,15 @@ class s_dendrite : public i_dendrite{
 	friend int main(int, char**); //TODO SLETT
 };
 
+class K_dendrite : public i_dendrite{
+ 	inline void doTask();
+	inline void feedbackToDendrite();
+
+	inline void newInputSignal(int);
+
+	public:
+	K_dendrite( K_auron* );
+	~K_dendrite();
+};
 
 #endif

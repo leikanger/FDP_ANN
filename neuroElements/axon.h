@@ -14,7 +14,10 @@ class i_synapse;
 class s_synapse;
 class i_auron;
 class s_auron;
+class K_auron;
+
 class s_axon;
+class K_axon;
 
 /* <<interface>> */
 class i_axon : public timeInterface{
@@ -29,6 +32,7 @@ class i_axon : public timeInterface{
 
 	public:
 	i_axon(i_auron* pAuronArg, std::string sKlasseNavn /*="dendrite"*/);
+	~i_axon();
 	
 	
 	
@@ -38,6 +42,7 @@ class i_axon : public timeInterface{
 	friend int main(int, char**); //TODO SLETT
 
 	friend class i_synapse;
+	friend class K_synapse;
 //	friend class i_axon;
 	friend class i_auron;
 	friend class i_dendrite;
@@ -46,6 +51,8 @@ class i_axon : public timeInterface{
 	friend class s_axon;
 	friend class s_auron;
 	friend class s_dendrite;
+
+	friend class K_auron;
 };
 
 class s_axon : public i_axon{
@@ -74,4 +81,11 @@ class s_axon : public i_axon{
 	friend int main(int, char**); //TODO SLETT
 };
 
+class K_axon : public i_axon{
+	inline void doTask();
+
+	public:
+	K_axon(K_auron*);
+	~K_axon();
+};
 #endif

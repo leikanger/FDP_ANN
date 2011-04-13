@@ -3,6 +3,8 @@
 #include <string>
 //#include <vector>
 #include <list>
+#include <map>
+#include <set>
 
 #include <stdlib.h> 	//- for rand()
 #include <cmath> 		//- for pow() funksjoner
@@ -14,8 +16,8 @@
 //Defines:
 #define DEFAULT_ANTALL_TIDSITERASJONER 100
 
-#define alpha 0.96
-#define LEKKASJEFAKTOR_FOR_DEPOL alpha
+#define ALPHA 0.96
+#define LEKKASJEFAKTOR_FOR_DEPOL ALPHA
 
 
 #define FYRINGSTERSKEL 1000
