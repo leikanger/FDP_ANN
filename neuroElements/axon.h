@@ -21,7 +21,8 @@ class K_axon;
 
 /* <<interface>> */
 class i_axon : public timeInterface{
-//	std::list<i_synapse*> pUtSynapser; 				//TODO TODO TODO TODO TODO TODO ENDRE TIL i_synapse 		i_synapse! 	XXX
+	// XXX XXX XXX Utsetter doCalculations() for alle axon: (definerer den til å gjøre ingenting her for å unngå at klassene under blir abstract..)
+	virtual void doCalculations() {}
 	
 	i_auron* pElementAvAuron; 		 // Flytta til i_axon
 	std::list<i_synapse*> pUtSynapser; // Flytta til i_axon

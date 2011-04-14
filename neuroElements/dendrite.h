@@ -29,6 +29,9 @@ class i_dendrite : public timeInterface{
 	std::list<i_synapse*> pInnSynapser;
 
  	virtual inline void doTask() =0;
+	// XXX XXX XXX Utsetter doCalculations() for alle dendrite: (definerer den til å gjøre ingenting her for å unngå at klassene under blir abstract..)
+	virtual void doCalculations() {}
+
 	virtual inline void newInputSignal( int ) =0;
 	virtual inline void feedbackToDendrite() =0;
 

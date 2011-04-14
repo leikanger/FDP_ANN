@@ -4,7 +4,9 @@
 //#include <vector>
 #include <list>
 #include <map>
-#include <set>
+#include <vector>
+//#include <set>
+
 
 #include <stdlib.h> 	//- for rand()
 #include <cmath> 		//- for pow() funksjoner

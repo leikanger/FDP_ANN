@@ -14,10 +14,12 @@ void* taskSchedulerFunction(void*);
 
 //deklarasjoner
 extern std::list<timeInterface*> time_class::pWorkTaskQue;
+extern std::list<timeInterface*> time_class::pCalculatationTaskQue;
 extern std::list<i_auron*> i_auron::pAllAurons;
 extern unsigned long time_class::ulTidsiterasjoner;
 std::ostream & operator<<(std::ostream& ut, i_auron* pAuronArg );
-//std::ostream & operator<< (std::ostream & ut, s_auron* pAuronArg );
+
+
 
 //extern std::list<timeInterface*> time_class::pWorkTaskQue;
 
@@ -115,8 +117,8 @@ int main(int argc, char *argv[])
 	
 	//TODO For at alle skal destrueres automatisk, legg alle peikere inn i std::vector, og destruer alle element i vector på slutten av main.
 
-
-/*  //{ SANN: TEST-oppsett. Lager mange neuron..
+  /* SANN: test-oppsett. 		SANN  		* /
+ 	//{ SANN: TEST-oppsett. Lager mange neuron..
 	s_auron* A1 = new s_auron("A1");
 	s_auron* A2 = new s_auron("A2");
 	s_auron* A3 = new s_auron("A3");
@@ -181,13 +183,15 @@ int main(int argc, char *argv[])
 	A1->doTask();
 /**/ //}
 
+  /* KANN: test-oppsett. 		KANN  		*/
+ 	//{ KANN: TEST-oppsett. Lager mange neuron..
 
-	K_auron* A1 = new K_auron("K01", 50*FYRINGSTERSKEL);
-	K_auron* B  = new K_auron("K_B", 50*FYRINGSTERSKEL);
+	K_auron* A1 = new K_auron("K01", 5*FYRINGSTERSKEL);
+	K_auron* B  = new K_auron("K_B", 5*FYRINGSTERSKEL);
 
 	new K_synapse(A1, B, 1111);
 	new K_synapse(B, A1, 1111);
-
+	//} /**/
 
 	cout<<"lengde på arbeidkø (i tillegg til [time_class] ): " <<time_class::pWorkTaskQue.size()-1 <<endl;
 
@@ -201,11 +205,10 @@ int main(int argc, char *argv[])
 
 
 
-
-
 /******************************************* Starter void taskSchedulerFunction(void*); ****************************************************/
 	sleep(1);
 	taskSchedulerFunction(0);
+
 
 
 

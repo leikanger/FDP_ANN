@@ -22,6 +22,8 @@ i_auron::i_auron(std::string sNavn_Arg /*="unnamed"*/, int nStartAktVar /*=0*/) 
 { //{
 	cout<<"CONSTRUCTOR: Lager auron med navn " <<sNavn <<endl;
 
+	// XXX XXX XXX XXX XXX Kan den være her, eller må den være i kvar underklasse?
+	time_class::pCalculatationTaskQue.push_back(this);
 	// lag ei .oct - fil, og gjør klar for å kjøres i octave: TODO må flytte denne inn i s_auron og k_auron for å få med dette i navnet (egene log-navn for s_auron og k_auron)
 	//{ Utskrift til logg. LOGG-initiering
 	std::ostringstream tempFilAdr;
@@ -86,10 +88,14 @@ s_auron::~s_auron()
 } //}
 
 
-K_auron::K_auron(std::string sNavn_Arg /*="unnamed"*/, int nStartKappa /*= FYRINGSTERSKEL*/) : i_auron(sNavn_Arg, nStartKappa)
+K_auron::K_auron(std::string sNavn_Arg /*="unnamed"*/, int nStartKappa /*= FYRINGSTERSKEL*/, unsigned uStartDepol_prosent /*=0*/) : i_auron(sNavn_Arg, nStartKappa)
 {
 	ulTimestampForrigeFyring = time_class::getTid();
 	//ulTimestampForrigeInput  = time_class::getTid();
+
+	ulStartOfTimewindow = time_class::getTid();
+	nDepolAtStartOfTimeWindow = uStartDepol_prosent * FYRINGSTERSKEL;
+
 
 	// Sjå auron.h
 	bEndraKappaDennePerioden = false;
@@ -366,12 +372,12 @@ i_dendrite::i_dendrite(i_auron* pElementAvAuron_arg, std::string sNavn ="dendrit
 	pElementAvAuron = pElementAvAuron_arg;
 } //}
 i_dendrite::~i_dendrite()
-{
+{ //{
 	// Destruerer alle innsynapser.
 	while( !pInnSynapser.empty() ){
 	 	delete (*pInnSynapser.begin() );
 	}
-}
+} //}
 /* s_dendrite */
 s_dendrite::s_dendrite( s_auron* pPostSynAuron_Arg ) : i_dendrite(pPostSynAuron_Arg, "s_dendrite")//, pElementAvAuron(pPostSynAuron_Arg)
 { //{
@@ -414,7 +420,8 @@ K_dendrite::~K_dendrite()
 
 /******************* SYNAPSE ********************/
 
-// TEST:XXX:inline unsigned& K_synapse::regnutPresynPeriode()
+// TEST:XXX:inline unsigned& K_synapse::regnutPresynPeriode() XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX 
+// VEKK VEKK VEKK :
 inline unsigned K_synapse::regnutPresynPeriode()
 {
 	int kappa_pre = pPreNodeAxon->pElementAvAuron->nAktivitetsVariabel;
@@ -427,6 +434,7 @@ inline unsigned K_synapse::regnutPresynPeriode()
 /******************* DENDRITE *******************/
 
 
+// TODO Ta bort feedbackToDendrite(). Har bestemt meg for å heller caste i_auron til K_auron osv. Internt i noden (dendrite, auron, axon)
 inline void s_dendrite::feedbackToDendrite() // var: axonTilbakemelding()
 { //{
 	 //Tilbakemelding fra axonet forteller oss at refraction time er over.
@@ -516,22 +524,18 @@ inline void s_dendrite::calculateLeakage()
 /*********************** auron *************************************/
 
 
-/*ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT */
-const unsigned long K_auron::estimateFiringTime()
+/*ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT ROT 
+*/
+void K_auron::newKappaDueToNew_inputLevel(int nChangeInKappaValue_arg )
 {
-	 
-}
-void K_auron::newKappaDueToNew_inputLevel(int nNewKappaValue_arg )
-{
-/* TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO*/
 	bEndraKappaDennePerioden = true;
 	
 	// add change to neurons kappa value: (the input signal is the change of kappa from one synapse).
-	nAktivitetsVariabel += nNewKappaValue_arg;
+	nAktivitetsVariabel += nChangeInKappaValue_arg; 
 
+/*
 	unsigned long ulEstimatedFiringTime_temp = estimateFiringTime();
-	
-/* TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO*/
+*/
 	
 }
 /*ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER |  ROT : TIL HER */ 
@@ -690,10 +694,26 @@ inline void K_dendrite::doTask()
 }
 //} **************************** SLUTT dendrite ***********************************
 
+/******************************************************************
+****** 														*******
+****** 			doCalculations() -- samla på en plass 		*******
+****** 														*******
+******************************************************************/
 
+void K_auron::doCalculations()
+{
+	cout<<"doCalculations() for K_auron " <<sNavn <<endl;
 
+	// Skal estimere firingTime, og endre oppføringa i pEstimatedTaskTime.
+	// Det har blitt ny kappa, så nytt estimat av fyringstid må beregnes:
+	nDepolAtStartOfTimeWindow = nAktivitetsVariabel + (nDepolAtStartOfTimeWindow - nAktivitetsVariabel)*exp(-ALPHA*(time_class::getTid()-ulStartOfTimewindow));
+#define FAKTOR_FOR_AA_FAA_RETT_TID 100
+ 	unsigned long ulEstimatedTimeToAP =  (FAKTOR_FOR_AA_FAA_RETT_TID / ALPHA) * log( (float)(nDepolAtStartOfTimeWindow - nAktivitetsVariabel) / (float)(FYRINGSTERSKEL - nAktivitetsVariabel) );
 
+	//cout<<"K == " <<nAktivitetsVariabel <<", T == " <<FYRINGSTERSKEL <<", alpha == " <<ALPHA <<", V_0 == " <<nDepolAtStartOfTimeWindow <<endl;
 
+	cout<<"ulEstimatedTimeToAP == " <<ulEstimatedTimeToAP <<endl;
+	cout<<"[no-tid] + ulEstimatedTimeToAP == " <<ulEstimatedTimeToAP+time_class::getTid() <<endl;
 
-
+}
 

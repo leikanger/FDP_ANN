@@ -112,7 +112,7 @@ class i_auron : public timeInterface
 	friend class s_dendrite;
 	friend class K_dendrite;
 
-	friend std::ostream & operator<< (std::ostream& , s_auron);
+	//friend std::ostream & operator<< (std::ostream& , s_auron);
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
 	friend int main(int, char**); //TODO SLETT
@@ -127,6 +127,7 @@ class s_auron : public i_auron
 	//Deler av auronet:
 
 	inline void doTask();
+	inline void doCalculations() { } 		//XXX UTSETTER. Foreløpig gjør denne ingenting (anna enn å gjøre at s_auron ikkje er abstract)
 
 
 	public:
@@ -138,7 +139,7 @@ class s_auron : public i_auron
 	friend class s_synapse;
 	friend class s_dendrite;
 	friend void testFunksjon_slett(s_auron*);
-	friend std::ostream & operator<< (std::ostream& , s_auron);
+	//friend std::ostream & operator<< (std::ostream& , s_auron*);
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
 	friend int main(int, char**); //TODO SLETT
@@ -154,16 +155,19 @@ class K_auron : public i_auron
 	std::multimap<unsigned long, timeInterface>::iterator p_iterAuronsPositionInEstimatedTaskTime;
 
 	inline void doTask();
+	inline void doCalculations();
+
+	unsigned long ulStartOfTimewindow;
+	int nDepolAtStartOfTimeWindow;
 
 	// todo TODO TODO TODO For KANN trenger eg en bEndraKappaDennePerioden, som blir satt til false kvar fyring av auronet. XXX
 	bool bEndraKappaDennePerioden;
 
 	// returnerer tidspunkt for fyring med nye kappa.
-	const unsigned long estimateFiringTime();
 	void newKappaDueToNew_inputLevel(int);
 
 	public:
-	K_auron(std::string sNavn_Arg ="unnamed", int nStartKappa = FYRINGSTERSKEL); 	
+	K_auron(std::string sNavn_Arg ="unnamed", int nStartKappa = FYRINGSTERSKEL, unsigned uStartDepol_prosent =0); 	
 	~K_auron();
 
 //{friend
@@ -171,7 +175,7 @@ class K_auron : public i_auron
 	friend class K_synapse;
 	friend class K_dendrite;
 	friend void testFunksjon_slett(s_auron*);
-	friend std::ostream & operator<< (std::ostream& , s_auron);
+	//friend std::ostream & operator<< (std::ostream& , s_auron);
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
 	friend int main(int, char**); //TODO SLETT
