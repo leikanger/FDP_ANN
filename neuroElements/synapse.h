@@ -75,7 +75,7 @@ class s_synapse : public i_synapse{
 class K_synapse : public i_synapse{
 	inline void doTask();
 	
-	unsigned forrigePresynPeriode;
+	unsigned forrigeUtregnaPresynPeriode;
 	// TEST: & : inline unsigned& regnutPresynPeriode();
 	// Optimalisering? XXX ha denne i presyn istedenfor. Det er en presyn, men mange synapser..
 	// Beste er kanskje å regne ut ved AP, og lagre i axon. Kan hentes av synapsene derretter..

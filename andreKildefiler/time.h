@@ -184,7 +184,7 @@ class time_class : public timeInterface {
 			std::list<timeInterface*>::iterator listIter = (*ll_iter)->begin();
 			for( ; listIter != (*ll_iter)->end(); listIter++ )
 			{
-		 		cout<<"\tElement [" <<nYtreIter <<", " <<nIndreIter++ <<"]: " /*XXX XXX TESTER:*/<<(*listIter)->sClassName <<" scheduled til om " <<nYtreIter <<" tidsIterasjoner (ikkje medregna neste iter..)\n";
+		 		cout<<"\tElement [" <<nYtreIter <<", " <<nIndreIter++ <<"]: " /*XXX XXX TESTER:*/<<(*listIter)->sClassName <<" scheduled til om " <<nYtreIter <<" tidsIterasjoner\n";
 			}
 	
 			nYtreIter++;
