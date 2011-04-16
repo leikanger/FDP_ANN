@@ -434,6 +434,7 @@ inline unsigned K_synapse::regnutPresynPeriode()
 /******************* DENDRITE *******************/
 
 
+// TPDP TODO TODO FJÆRN feedbackToDendrite()  (fra i_dendrite..)
 // TODO Ta bort feedbackToDendrite(). Har bestemt meg for å heller caste i_auron til K_auron osv. Internt i noden (dendrite, auron, axon)
 inline void s_dendrite::feedbackToDendrite() // var: axonTilbakemelding()
 { //{
@@ -630,7 +631,7 @@ inline void s_synapse::doTask()
 } //}2
 inline void K_synapse::doTask()
 {
-	cout<<"overføring i K_synapse.\n";
+	cout<<"overføring av ny kappa i K_synapse.\n";
 
 
 	// K_ij = w_ij / p(K_j)
@@ -696,13 +697,13 @@ inline void K_dendrite::doTask()
 
 /******************************************************************
 ****** 														*******
-****** 			doCalculations() -- samla på en plass 		*******
+****** 			doCalculation() -- samla på en plass 		*******
 ****** 														*******
 ******************************************************************/
 
-void K_auron::doCalculations()
+void K_auron::doCalculation()
 {
-	cout<<"doCalculations() for K_auron " <<sNavn <<endl;
+	cout<<"    \tK_auron " <<sNavn <<".doCalculation()\t\t" <<sNavn <<".doCalculation()\n";
 
 	// Skal estimere firingTime, og endre oppføringa i pEstimatedTaskTime.
 	// Det har blitt ny kappa, så nytt estimat av fyringstid må beregnes:

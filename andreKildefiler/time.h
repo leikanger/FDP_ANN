@@ -24,15 +24,15 @@ class i_auron;
 class timeInterface
 {
 	public:
-	timeInterface(std::string s) : klasseNavn(s){}
+	timeInterface(std::string s) : sClassName(s){}
 	timeInterface() 				{} 				//For mens eg itererer i utviklinga.  Trur ikkje eg skal ha denne etterpå..
 
 	// SKAL VÆRE private ? XXX XXX XXX
 	virtual void doTask() =0;
-	virtual void doCalculations() =0;
+	virtual void doCalculation() =0;
 
 	//for debugging:
-	std::string klasseNavn;
+	std::string sClassName;
 };
 
 
@@ -41,17 +41,6 @@ class timeInterface
 
 
 
-/**************************TODO : ************
-
-Ordne slik at alle element som legges inn sjekker om andre identiske element eksisterer. I så fall skal de andre fjærnes.
-Typisk om en dendrite legges inn etter ei synapses overføring, så legges samme dendritt til for omregning etter ei til overføring samme timesiterasjon. I dette fallet skal bare en av de ligge i lista. (samme hvilken?)
-	NEINEINEI: Det som bare skal skje en gang er lekkasjen. Begge overføringer skal selvfølgelig inn!
-
-Kvar gang det er overføring:
-	- kjøre depol.-lekkasje dersom det er en eller fleire iter siden forrige gang.
-	- plusse på ny depol.endring.
-
-**********************************************/
 
 
 /*********************************************************************************
@@ -64,15 +53,19 @@ class time_class : public timeInterface {
 	
 	// TODO Endre neste til std::que ? XXX Sjå stroustrup s.576
 	static std::list<timeInterface*> pWorkTaskQue;
-	// Kanskje bedre å gå over til vector, og gå gjennom lista og sjå etter duplikat i time_class::doCalculations()
+	// Kanskje bedre å gå over til vector, og gå gjennom lista og sjå etter duplikat i time_class::doCalculation()
 	static std::list<timeInterface*> pCalculatationTaskQue;
 	// std::set er en container der key og value er det samme. Unique elements!
 
-	static std::multimap<unsigned long, timeInterface*> pEstimatedTaskTime; //XXX HER NYNYNY NY XXX
+	//liste bestående av list<timeInterface*>* (merk: består av list-PEIKERE. Dette for å kunne bruke [new list<>] i tillegg av tidspunkt.. 	//XXX HER NYNYNY NY XXX
+	// Eller kanskje ikkje.. :
+	static std::list< std::list<timeInterface*>* > pEstimatedTaskTime;
+
 
 	
 	protected:
-	inline void doTask(){ 	//overlagring av timeInterface::doTask() - som med de andre klassene som arver timeInterface..
+	inline void doTask()
+	{ 	//{ overlagring av timeInterface::doTask() - som med de andre klassene som arver timeInterface..
 		// Legger til egenpeiker på slutt av pNesteJobb_ArbeidsKoe
 		pWorkTaskQue.push_back(this);	
 
@@ -80,8 +73,7 @@ class time_class : public timeInterface {
 		if(pCalculatationTaskQue.empty()) cout<<"TOM pCalculatationTaskQue!\n"; // BARE debugging! XXX Fjærn tilslutt..
 		
 		// gjennomfører planlagte kalkulasjoner:
-		doCalculations();
-
+		doCalculation();
 
 		//itererer time:
 		ulTidsiterasjoner++;
@@ -89,12 +81,14 @@ class time_class : public timeInterface {
 		// utskrift:
 		cout<<"\n\tAUKER TID: \t" <<ulTidsiterasjoner-1 <<" => " <<ulTidsiterasjoner <<" * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * "
 			<<ulTidsiterasjoner <<" * \n\n";
-	}
-	inline void doCalculations()
-	{
+	}//}
+	inline void doCalculation()
+	{ //{
 		// Organiserer liste slik at kvar oppføring er unik:
 		for( std::list<timeInterface*>::iterator iter = pCalculatationTaskQue.begin(); iter != pCalculatationTaskQue.end(); iter++ )
 		{
+			// TODO gjør det heller slik: while( ! pCalculatationTaskQue.empty() ){ ... }
+
 			// Testet. Virker som det funker no.
 			std::list<timeInterface*>::iterator iter2 = iter; 
 			iter2++;
@@ -113,12 +107,89 @@ class time_class : public timeInterface {
 	
 		while( !pCalculatationTaskQue.empty() ){
 			// Kaller pCalculatationTaskQue.from()->pCalculatationTaskQue();
-			pCalculatationTaskQue.front()->doCalculations();
+			pCalculatationTaskQue.front()->doCalculation();
 			pCalculatationTaskQue.pop_front();
 		
 		}
+	} //}
+
+
+/***************************************************************************
+*
+* 		TODO for dette opplegget:
+* 			- lag bidirectional peiker. Peiker til rett timeInterface her, og peiker til rett iterator (hit) i timeInterface elementet. TODO Det er dermed kanskje best å returnere iterator fra funksjonen under.
+* 			- når timeInterface-elementet får nytt estimat, skal elementet flyttes (fjærnes, så legges inn ELLER bare flyttes den relative avstanden (kanskje best))
+* 				Det er fundamentalt at det bare er en timeInterface peiker tilstede i lista (ellers får vi ekstra fyringer = overflødig arbeid..) 
+** 				[LØSNING: lag en funksjon som også tar inn en {list< list<timeInterface*>* >::iterator}, og denne vil bare flytte elementet 			]
+** 				[ 			og når elementet blir gjennomført, flyttes elementet (?) til plass gitt av no+periode (dvs. med bare periode som argument. 	]
+** 				[ 			Dersom elementet skal fjærnes (f.eks. for s_auron), så kan vi lagre NULL i peikeren (?) 									]
+* 			- Bli sikker på korleis indekseringa er under. 1 indeksert? 0-indeksert? Trur det skal være antall tidsiterasjoner etter NESTE tidsiter. Også viktig for å få rett funksjonalitet!
+*
+* 		Så: implementere i time_class::doTask() at den skal gjøre alle jobbene i [neste-tids-iter]-list i pEstimatedTaskTime (for så å ta vekk denne [neste-tidIter]-list i pEstimatedTaskTime.
+* 			- kvart element skal sjølv være ansvarlig for å flytte seg i pEstimatedTaskTime etter AP.
+*
+****************************************************************************/
+
+
+	// MERK: uRelativeTime_arg er 1 indeksert. TODO gjør den 0-indeksert (antall iterasjoner etter neste)
+	static inline void addTaskIn_pEstimatedTaskTime( timeInterface* pTI_arg, unsigned uRelativeTime_arg )
+	{
+		// Dersom estimert tid er utafor lista av estimert tid: auk lista.
+		//if( uRelativeTime_arg > pEstimatedTaskTime.size() )
+		int nDiff = uRelativeTime_arg - pEstimatedTaskTime.size()  ; // Begynner neste tidsiter: grunn til "+1"
+		if( nDiff >= 0 ) //Mangler ledd. Legg til rett antall.
+		{
+			for(int i=0; i <= nDiff; i++){
+				pEstimatedTaskTime.push_back( new std::list<timeInterface*> );
+			}
+		}
+
+
+		
+		std::list< std::list<timeInterface*>* >::iterator estTimeIter;
+
+		// Finne rett plassering, og legge til task der:
+		/* TODO TODO BRA IDE, men utesta.
+*/		if( uRelativeTime_arg < (pEstimatedTaskTime.size())/2 ){ // plusser på en (/2) for å få rett avrunding..
+			cout<<"SØKER FRA BEGYNNELSEN\t(uRelativeTime_arg = " <<uRelativeTime_arg <<"\t, size() = " <<pEstimatedTaskTime.size() <<")\n";
+
+			//Søk fra begynnelsen.
+			estTimeIter = pEstimatedTaskTime.begin();
+			for(unsigned u=0; u <= uRelativeTime_arg; u++)
+				estTimeIter++;
+		}else{
+			cout<<"SØKER FRA SLUTTEN    \t(uRelativeTime_arg = " <<uRelativeTime_arg <<"\t, size() = " <<pEstimatedTaskTime.size() <<")\n";
+
+			//Søk fra slutten:
+			estTimeIter = (pEstimatedTaskTime.end())--;
+			for(unsigned u = pEstimatedTaskTime.size(); u >= uRelativeTime_arg; u--)
+				estTimeIter--;
+		}/**/
+
+		// legg til element i denne vektorenPEIKEREN:
+		(*estTimeIter)->push_back( pTI_arg );
 	}
+
+	static void TEST_skrivUt_pEstimatedTaskTime()
+	{
+		int nYtreIter = 1;
+		int nIndreIter;
+		// itererer gjennom ytre liste:
+		for(std::list< std::list<timeInterface*>* >::iterator ll_iter = pEstimatedTaskTime.begin(); 	ll_iter != pEstimatedTaskTime.end() ; 	ll_iter++ )
+		{
+			cout<<"Neste ytreIter: " <<nYtreIter <<std::endl;
 	
+			nIndreIter = 1;
+			//itererer gjennom indre vector:
+			std::list<timeInterface*>::iterator listIter = (*ll_iter)->begin();
+			for( ; listIter != (*ll_iter)->end(); listIter++ )
+			{
+		 		cout<<"\tElement [" <<nYtreIter <<", " <<nIndreIter++ <<"]: " /*XXX XXX TESTER:*/<<(*listIter)->sClassName <<" scheduled til om " <<nYtreIter <<" tidsIterasjoner (ikkje medregna neste iter..)\n";
+			}
+	
+			nYtreIter++;
+		}
+	}
 
 	public:
 	time_class() : timeInterface("time"){}
@@ -128,7 +199,7 @@ class time_class : public timeInterface {
 	{
 	 	pWorkTaskQue.push_back( pArg );
 	}
-	static unsigned long getTid(){ return ulTidsiterasjoner; }
+	static const unsigned long getTid(){ return ulTidsiterasjoner; }
 	//Noke slikt: XXX 	friend schedulerFunksjon;
 	// Viktig med inkapsling!
 

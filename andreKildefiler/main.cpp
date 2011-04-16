@@ -13,8 +13,10 @@ void skrivUtArgumentKonvensjoner(std::string);
 void* taskSchedulerFunction(void*);
 
 //deklarasjoner
-extern std::list<timeInterface*> time_class::pWorkTaskQue;
-extern std::list<timeInterface*> time_class::pCalculatationTaskQue;
+extern std::list<timeInterface*> 				time_class::pWorkTaskQue;
+extern std::list<timeInterface*> 				time_class::pCalculatationTaskQue;
+extern std::list< std::list<timeInterface*>* > 	time_class::pEstimatedTaskTime;
+
 extern std::list<i_auron*> i_auron::pAllAurons;
 extern unsigned long time_class::ulTidsiterasjoner;
 std::ostream & operator<<(std::ostream& ut, i_auron* pAuronArg );
@@ -197,6 +199,36 @@ int main(int argc, char *argv[])
 
 
 
+	cout<<"\n\n\nTEST: pEstimatedTaskTime; \n\n\n";
+
+	s_auron* sTest1 = new s_auron;
+	s_auron* sTest2 = new s_auron;
+	s_auron* sTest3 = new s_auron;
+	s_dendrite* sTd1 = new s_dendrite(sTest1);
+
+	time_class::addTaskIn_pEstimatedTaskTime( sTest2, 1 );
+	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 2 );
+	time_class::addTaskIn_pEstimatedTaskTime( sTest3, 2 );
+	time_class::addTaskIn_pEstimatedTaskTime( sTd1, 3 );
+	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 3 );
+	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 3 );
+	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 6 );
+
+	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 10 );
+	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 8 );
+	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 5 );
+	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 9 );
+	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 22 );
+	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 10 );
+	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 11 );
+	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 12 );
+	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 29 );
+
+
+	cout<<"\n\nSkriver ut pEstimatedTaskTime: \n\n";
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+exit(0);
 
 	cout<<"******************************************\n*** BEGYNNER KJØRING AV ANN: ***\n******************************************\n\n";
 
@@ -285,7 +317,7 @@ void* taskSchedulerFunction(void* )
 			if(time_class::pWorkTaskQue.empty()){ cout<<"\n\n\nFEIL. time_class::pWorkTaskQue er tom. Skal aldri skje. \nFeilmelding: [time.h taskSchedulerFunction::c01]\n\n\n"; exit(-1);}
 
 			// DEBUG: 	Skriv ut klassenavn på element:
-			cout<<time_class::pWorkTaskQue.front() ->klasseNavn <<"\t:\t\t"; 		
+			cout<<time_class::pWorkTaskQue.front() ->sClassName <<"\t:\t*\t*\t*\n"; 		
 	
 
 			// Setter igang utføring av neste jobb i lista:

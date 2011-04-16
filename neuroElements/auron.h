@@ -43,7 +43,7 @@ class s_axon;
  * 	Skriver først auron for spiking ANN
  */
 class i_auron : public timeInterface
-{ 			
+{ 	//{		
 	//Deler av auronet: (Ligger som s_axon og s_dendrite i s_auron. Samme for K_auron..) TODO SKal ligge der også ?
 	i_axon* pOutputAxon; 			// Trenger å ha dei meir spesifikk for contruction av bl.a. synapse - s_synapse legger til pElementAvAuron->pInputDendrite (som må være av typen ?? XXX prøver igjen..
  	i_dendrite* pInputDendrite; 
@@ -116,7 +116,7 @@ class i_auron : public timeInterface
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
 	friend int main(int, char**); //TODO SLETT
-}; 
+};  //}
 
 
 
@@ -127,7 +127,7 @@ class s_auron : public i_auron
 	//Deler av auronet:
 
 	inline void doTask();
-	inline void doCalculations() { } 		//XXX UTSETTER. Foreløpig gjør denne ingenting (anna enn å gjøre at s_auron ikkje er abstract)
+	inline void doCalculation() { } 		//XXX UTSETTER. Foreløpig gjør denne ingenting (anna enn å gjøre at s_auron ikkje er abstract)
 
 
 	public:
@@ -148,14 +148,12 @@ class s_auron : public i_auron
 }; //}
 
 
-
 class K_auron : public i_auron
 { //{
 	
-	std::multimap<unsigned long, timeInterface>::iterator p_iterAuronsPositionInEstimatedTaskTime;
 
 	inline void doTask();
-	inline void doCalculations();
+	inline void doCalculation();
 
 	unsigned long ulStartOfTimewindow;
 	int nDepolAtStartOfTimeWindow;

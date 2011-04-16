@@ -22,8 +22,8 @@ class i_synapse : public timeInterface{
 
 	virtual inline void doTask() =0; //XXX Reint virtuell klasse!
 	
-	// XXX XXX XXX Utsetter doCalculations() for alle synapser: (definerer den til å gjøre ingenting her for å unngå at klassene under blir abstract..)
-	virtual void doCalculations() {}
+	// XXX XXX XXX Utsetter doCalculation() for alle synapser: (definerer den til å gjøre ingenting her for å unngå at klassene under blir abstract..)
+	virtual void doCalculation() {}
 	
 	protected:
 	const bool bInhibitorisk_effekt;
@@ -75,7 +75,7 @@ class s_synapse : public i_synapse{
 class K_synapse : public i_synapse{
 	inline void doTask();
 	
-	unsigned forrigeUtregnaPresynPeriode;
+	unsigned forrigePresynPeriode;
 	// TEST: & : inline unsigned& regnutPresynPeriode();
 	// Optimalisering? XXX ha denne i presyn istedenfor. Det er en presyn, men mange synapser..
 	// Beste er kanskje å regne ut ved AP, og lagre i axon. Kan hentes av synapsene derretter..
