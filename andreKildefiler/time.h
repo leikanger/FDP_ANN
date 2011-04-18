@@ -66,15 +66,41 @@ class time_class : public timeInterface {
 	protected:
 	inline void doTask()
 	{ 	//{ overlagring av timeInterface::doTask() - som med de andre klassene som arver timeInterface..
-		// Legger til egenpeiker på slutt av pNesteJobb_ArbeidsKoe
-		pWorkTaskQue.push_back(this);	
 
 		// Bare debugging--utskrift:
-		if(pCalculatationTaskQue.empty()) cout<<"TOM pCalculatationTaskQue!\n"; // BARE debugging! XXX Fjærn tilslutt..
-		
+		if(pCalculatationTaskQue.empty()) cout<<"TOM pCalculatationTaskQue\n"; // BARE debugging! XXX Fjærn tilslutt..
+
 		// gjennomfører planlagte kalkulasjoner:
 		doCalculation();
 
+	
+		// Sjekk etter (og gjennomfør) tasks i pEstimatedTaskTime for neste tidsiter: ***************
+		while( ! pEstimatedTaskTime.front()->empty() ) // Fjør alle element i første element av pEstimatedTaskTime.
+		{
+cout<<"(pEstimatedTaskTime.size = " <<pEstimatedTaskTime.front()->size() <<")";
+			cout<<"\t.. legger til timeInterface* i pWorkTaskQue ..\n";
+			pWorkTaskQue.push_back( (pEstimatedTaskTime.front())->front() ); //Legger til første element av første liste i pWorkTaskQue
+			(pEstimatedTaskTime.front()) ->pop_front(); 			//Fjærn første element (av første lista).
+		}
+		
+		// Organiserer pEstimatedTaskTime. Fjærner første ledd:
+		pEstimatedTaskTime.pop_front(); //Fjærn heile lista med estimerte oppgaver for neste time_iteration.
+
+		// Undersøker om lengden på lista er kortere enn MIN_LENGDE_PAA_pEstimatedTaskTime:
+		cout<<"pEstimatedTaskTime.Size() = " <<pEstimatedTaskTime.size() <<endl;
+
+		if(pEstimatedTaskTime.size() < MIN_LENGDE_PAA_pEstimatedTaskTime )
+		{
+	 		//Legger til fleire element:
+			for( int i=0; i<MIN_LENGDE_PAA_pEstimatedTaskTime; i++)
+				pEstimatedTaskTime.push_back( new std::list<timeInterface*> );
+		}
+			
+		// pEstimatedTaskTime opplegg ************* 	****** 		********* 		*************
+
+
+		// Legger til egenpeiker på slutt av pNesteJobb_ArbeidsKoe
+		pWorkTaskQue.push_back(this);	
 		//itererer time:
 		ulTidsiterasjoner++;
 		
@@ -84,10 +110,14 @@ class time_class : public timeInterface {
 	}//}
 	inline void doCalculation()
 	{ //{
+		/**************************************************************************************
+		*** Gjennomføere kalkulering på alle kalkuleringsoppgaver (pCalculatationTaskQue) 	***
+		**************************************************************************************/
+
 		// Organiserer liste slik at kvar oppføring er unik:
 		for( std::list<timeInterface*>::iterator iter = pCalculatationTaskQue.begin(); iter != pCalculatationTaskQue.end(); iter++ )
 		{
-			// TODO gjør det heller slik: while( ! pCalculatationTaskQue.empty() ){ ... }
+			// ???: gjør det heller slik: while( ! pCalculatationTaskQue.empty() ){ ... }
 
 			// Testet. Virker som det funker no.
 			std::list<timeInterface*>::iterator iter2 = iter; 
@@ -106,7 +136,7 @@ class time_class : public timeInterface {
 		}
 	
 		while( !pCalculatationTaskQue.empty() ){
-			// Kaller pCalculatationTaskQue.from()->pCalculatationTaskQue();
+			// Kaller pCalculatationTaskQue.front()->pCalculatationTaskQue();
 			pCalculatationTaskQue.front()->doCalculation();
 			pCalculatationTaskQue.pop_front();
 		
@@ -133,12 +163,13 @@ class time_class : public timeInterface {
 
 	// MERK: uRelativeTime_arg er 1 indeksert. TODO gjør den 0-indeksert (antall iterasjoner etter neste)
 	static inline void addTaskIn_pEstimatedTaskTime( timeInterface* pTI_arg, unsigned uRelativeTime_arg )
-	{
+	{ //{2
 		// Dersom estimert tid er utafor lista av estimert tid: auk lista.
 		//if( uRelativeTime_arg > pEstimatedTaskTime.size() )
 		int nDiff = uRelativeTime_arg - pEstimatedTaskTime.size()  ; // Begynner neste tidsiter: grunn til "+1"
 		if( nDiff >= 0 ) //Mangler ledd. Legg til rett antall.
 		{
+			cout<<"Mangler ledd. Legger til de manglende ledda. Mangler " <<nDiff <<" ledd.\n";
 			for(int i=0; i <= nDiff; i++){
 				pEstimatedTaskTime.push_back( new std::list<timeInterface*> );
 			}
@@ -168,10 +199,10 @@ class time_class : public timeInterface {
 
 		// legg til element i denne vektorenPEIKEREN:
 		(*estTimeIter)->push_back( pTI_arg );
-	}
+	} //}2
 
 	static void TEST_skrivUt_pEstimatedTaskTime()
-	{
+	{ //{2
 		int nYtreIter = 1;
 		int nIndreIter;
 		// itererer gjennom ytre liste:
@@ -189,7 +220,7 @@ class time_class : public timeInterface {
 	
 			nYtreIter++;
 		}
-	}
+	} //}2
 
 	public:
 	time_class() : timeInterface("time"){}
@@ -203,7 +234,8 @@ class time_class : public timeInterface {
 	//Noke slikt: XXX 	friend schedulerFunksjon;
 	// Viktig med inkapsling!
 
-	// funker ikkje: friend class timeInterface; XXX TODO test igjen.
+	// funker ikkje: friend class timeInterface; XX X test igjen. Har gjort det. Funker ikkje..
+	friend class K_auron;
 	friend class i_auron;
 	friend class i_axon; 		// Usikker om dette funker. Alternativt skriv inn kvar klasse (som under)
 	//friend class s_axon;

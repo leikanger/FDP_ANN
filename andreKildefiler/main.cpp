@@ -51,11 +51,11 @@ int main(int argc, char *argv[])
 	initialiserArbeidsKoe();
 
 	// Dersom ./datafiles_for_evaluation/ ikkje finnes, lages den. Dersm den finnes gjør ikkje kallet noke:
-	if( system("mkdir datafiles_for_evaluation") == -1 ){
-		cout<<"Could not make directory for log files [./datafiles_for_evaluation/]. For logging node values, please make this directory manually in the current directory."; 
+	if( system("mkdir datafiles_for_evaluation") == 256 ){
+		cout<<"Could not make directory for log files [./datafiles_for_evaluation/]. Directory probably already exist.\n\tIn case this directory does not exist, please make this directory manually in the current directory.\n\n"; 
 	}
 	//Renser opp i ./datafiles_for_evaluation/
-	if( system("rm ./datafiles_for_evaluation/log_*.oct") == -1)
+	if( system("rm ./datafiles_for_evaluation/log_*.oct") == 256)
 		cout<<"Could not remove old log files. Please do this manually to avoid accidendtally plotting old results.\n";
 
 	//Leser inn argumenter: 
@@ -188,17 +188,19 @@ int main(int argc, char *argv[])
   /* KANN: test-oppsett. 		KANN  		*/
  	//{ KANN: TEST-oppsett. Lager mange neuron..
 
-	K_auron* A1 = new K_auron("K01", 5*FYRINGSTERSKEL);
-	K_auron* B  = new K_auron("K_B", 5*FYRINGSTERSKEL);
+	cout<<"\n\nLAGER KANN\n\n";
 
-	new K_synapse(A1, B, 1111);
+	K_auron* A1 = new K_auron("K01", 2*FYRINGSTERSKEL);
+	K_auron* B  = new K_auron("K_B", 2*FYRINGSTERSKEL);
+
+	new K_synapse(A1, B, 0.5);
 	new K_synapse(B, A1, 1111);
 	//} /**/
 
 	cout<<"lengde på arbeidkø (i tillegg til [time_class] ): " <<time_class::pWorkTaskQue.size()-1 <<endl;
 
 
-
+/* //{4
 	cout<<"\n\n\nTEST: pEstimatedTaskTime; \n\n\n";
 
 	s_auron* sTest1 = new s_auron;
@@ -229,7 +231,7 @@ int main(int argc, char *argv[])
 	time_class::TEST_skrivUt_pEstimatedTaskTime();
 
 exit(0);
-
+*/ //}4
 	cout<<"******************************************\n*** BEGYNNER KJØRING AV ANN: ***\n******************************************\n\n";
 
 

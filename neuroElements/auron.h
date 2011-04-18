@@ -118,10 +118,6 @@ class i_auron : public timeInterface
 	friend int main(int, char**); //TODO SLETT
 };  //}
 
-
-
-
-
 class s_auron : public i_auron
 { //{
 	//Deler av auronet:
@@ -147,9 +143,8 @@ class s_auron : public i_auron
 
 }; //}
 
-
 class K_auron : public i_auron
-{ //{
+{ // {
 	
 
 	inline void doTask();
@@ -157,6 +152,10 @@ class K_auron : public i_auron
 
 	unsigned long ulStartOfTimewindow;
 	int nDepolAtStartOfTimeWindow;
+
+	unsigned uLastCalculatedPeriod_inverse;
+	int nChangeInPeriodInverse;
+
 
 	// todo TODO TODO TODO For KANN trenger eg en bEndraKappaDennePerioden, som blir satt til false kvar fyring av auronet. XXX
 	bool bEndraKappaDennePerioden;
@@ -168,7 +167,7 @@ class K_auron : public i_auron
 	K_auron(std::string sNavn_Arg ="unnamed", int nStartKappa = FYRINGSTERSKEL, unsigned uStartDepol_prosent =0); 	
 	~K_auron();
 
-//{friend
+//{2 friend
 	friend class K_axon;
 	friend class K_synapse;
 	friend class K_dendrite;
@@ -177,9 +176,9 @@ class K_auron : public i_auron
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
 	friend int main(int, char**); //TODO SLETT
-//}
+//}2
 
-}; //}
+}; // }
 
 
 
