@@ -30,14 +30,6 @@ class i_axon;
 class s_axon;
 
 
-/* TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-	
-		Lag ei std::list<s_auron*> s_auron::pAlleAuron; som inneholder alle auron. På slutten av main() kan eg kjøre while(!s_auron::pAlleAuron.empty(){ delete s_auron::pAlleAuron->begin(); }
-		(og legge til auron (i auron::pAlleAuron) i auron's constructor..)
-
-   TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO */
-
-
 
 /*
  * 	Skriver først auron for spiking ANN
@@ -186,3 +178,4 @@ class K_auron : public i_auron
 
 
 #endif /* AURON_H_ */
+// vim:fdm=marker:fmr=//{,//}

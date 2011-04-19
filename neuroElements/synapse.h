@@ -91,3 +91,4 @@ class K_synapse : public i_synapse{
 };
 
 #endif
+// vim:fdm=marker:fmr=//{,//}

@@ -795,3 +795,4 @@ void K_auron::doCalculation()
 
 }
 
+// vim:fdm=marker:fmr=//{,//}

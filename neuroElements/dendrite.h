@@ -115,3 +115,4 @@ class K_dendrite : public i_dendrite{
 };
 
 #endif
+// vim:fdm=marker:fmr=//{,//}

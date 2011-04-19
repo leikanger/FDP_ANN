@@ -65,7 +65,7 @@ class time_class : public timeInterface {
 	
 	protected:
 	inline void doTask()
-	{ 	//{ overlagring av timeInterface::doTask() - som med de andre klassene som arver timeInterface..
+	{ 	//{ 
 
 		// Bare debugging--utskrift:
 		if(pCalculatationTaskQue.empty()) cout<<"TOM pCalculatationTaskQue\n"; // BARE debugging! XXX Fjærn tilslutt..
@@ -254,3 +254,4 @@ cout<<"(pEstimatedTaskTime.size = " <<pEstimatedTaskTime.front()->size() <<")";
 
 
 #endif
+// vim:fdm=marker:fmr=//{,//}

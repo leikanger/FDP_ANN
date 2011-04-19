@@ -90,3 +90,4 @@ class K_axon : public i_axon{
 	~K_axon();
 };
 #endif
+// vim:fdm=marker:fmr=//{,//}

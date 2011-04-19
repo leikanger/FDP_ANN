@@ -72,3 +72,4 @@ using std::endl;
 
 
 #endif
+// vim:fdm=marker:fmr=//{,//}

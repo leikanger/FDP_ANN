@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
 	//TODO For at alle skal destrueres automatisk, legg alle peikere inn i std::vector, og destruer alle element i vector på slutten av main.
 
   /* SANN: test-oppsett. 		SANN  		* /
- 	//{ SANN: TEST-oppsett. Lager mange neuron..
+ 	//{4 SANN: TEST-oppsett. Lager mange neuron..
 	s_auron* A1 = new s_auron("A1");
 	s_auron* A2 = new s_auron("A2");
 	s_auron* A3 = new s_auron("A3");
@@ -183,10 +183,10 @@ int main(int argc, char *argv[])
 
 	//Setter i gang ANN
 	A1->doTask();
-/**/ //}
+/**/ //}4
 
   /* KANN: test-oppsett. 		KANN  		*/
- 	//{ KANN: TEST-oppsett. Lager mange neuron..
+ 	//{4 KANN: TEST-oppsett. Lager mange neuron..
 
 	cout<<"\n\nLAGER KANN\n\n";
 
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
 
 	new K_synapse(A1, B, 0.5);
 	new K_synapse(B, A1, 1111);
-	//} /**/
+	//}4 /**/
 
 	cout<<"lengde på arbeidkø (i tillegg til [time_class] ): " <<time_class::pWorkTaskQue.size()-1 <<endl;
 
@@ -316,10 +316,13 @@ void* taskSchedulerFunction(void* )
 	{
 			/*FEILSJEKK (kan takast vekk)*/
 			//cout<<"feilsjekk: Antall element i pWorkTaskQue :  " <<time_class::pWorkTaskQue.size() <<endl;
-			if(time_class::pWorkTaskQue.empty()){ cout<<"\n\n\nFEIL. time_class::pWorkTaskQue er tom. Skal aldri skje. \nFeilmelding: [time.h taskSchedulerFunction::c01]\n\n\n"; exit(-1);}
+			if(time_class::pWorkTaskQue.empty()){ 
+				cout<<"\n\n\nFEIL. time_class::pWorkTaskQue er tom. Skal aldri skje. \nFeilmelding: [taskSchedulerFunction::c01]\n\n\n"; 
+				exit(-1);
+			}
 
 			// DEBUG: 	Skriv ut klassenavn på element:
-			cout<<time_class::pWorkTaskQue.front() ->sClassName <<"\t:\t*\t*\t*\n"; 		
+ 			//cout<<time_class::pWorkTaskQue.front() ->sClassName <<"\t:\t*\t*\t*\n"; 		
 	
 
 			// Setter igang utføring av neste jobb i lista:
@@ -373,3 +376,4 @@ std::ostream & operator<< (std::ostream & ut, s_axon* pAxonArg ) //XXX Skal gjø
 	return ut;
 } //}
 
+// vim:fdm=marker:fmr=//{,//}
