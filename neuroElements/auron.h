@@ -58,12 +58,12 @@ class i_auron : public timeInterface
 	//også her kan eg bruke \kappa for å finne nivået i kvart neuron..
 
 
-	std::ofstream activityVar_logFile;
+	std::ofstream depol_logFile;
  	
-	const void skrivAktivitetsVarLogg(){
+	virtual const void skrivAktivitetsVarLogg(){
 	//const void loggAktivitetsVar_i_AktivitetsVarLoggFil(){
-	 	activityVar_logFile 	<<time_class::getTid() <<"\t" <<nAktivitetsVariabel <<"; \t #Activity variable\n" ;
-	 	activityVar_logFile.flush();
+	 	depol_logFile 	<<time_class::getTid() <<"\t" <<nAktivitetsVariabel <<"; \t #Activity variable\n" ;
+	 	depol_logFile.flush();
 	}
 	
 
@@ -115,7 +115,7 @@ class s_auron : public i_auron
 	//Deler av auronet:
 
 	inline void doTask();
-	inline void doCalculation() { } 		//XXX UTSETTER. Foreløpig gjør denne ingenting (anna enn å gjøre at s_auron ikkje er abstract)
+	inline void doCalculation() { cout<<"s_auron::doCalculation()\n";} 		//XXX UTSETTER. Foreløpig gjør denne ingenting (anna enn å gjøre at s_auron ikkje er abstract)
 
 
 	public:
@@ -145,15 +145,20 @@ class K_auron : public i_auron
 	unsigned long ulStartOfTimewindow;
 	int nDepolAtStartOfTimeWindow;
 
-	unsigned uLastCalculatedPeriod_inverse;
-	int nChangeInPeriodInverse;
+	unsigned uLastCalculatedPeriodInverse_promille;
+	int nChangeInPeriodInverse_promille;
 
 
 	// todo TODO TODO TODO For KANN trenger eg en bEndraKappaDennePerioden, som blir satt til false kvar fyring av auronet. XXX
 	bool bEndraKappaDennePerioden;
 
-	// returnerer tidspunkt for fyring med nye kappa.
-	void newKappaDueToNew_inputLevel(int);
+
+	//Overlager denne, siden eg må regne ut depol. TODO TODO TODO TODO OTDO OTOD TODD TODO TODO TODO
+	/*const void skrivAktivitetsVarLogg(){
+		// XXX XXX GÅR UT FRA AT DENNE KALLES ETTER NYTT TIDSVINDU!
+	 	depol_logFile <<time_class::getTid() <<"\t" <<nDepolAtStartOfTimeWindow <<"; \t #depol\n" ;
+	 	depol_logFile.flush();
+	}*/
 
 	public:
 	K_auron(std::string sNavn_Arg ="unnamed", int nStartKappa = FYRINGSTERSKEL, unsigned uStartDepol_prosent =0); 	

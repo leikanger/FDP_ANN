@@ -27,7 +27,10 @@ class i_synapse : public timeInterface{
 	
 	protected:
 	const bool bInhibitorisk_effekt;
-	unsigned uSynaptiskVekt;
+	float fSynapticWeight;
+	unsigned uSynapticWeight_promille;
+	int nSynapticWeightChange_promille;
+
 
 	std::ofstream synWeight_loggFil;
 
@@ -48,7 +51,7 @@ class i_synapse : public timeInterface{
 	//~i_synapse();  TRUR IKKJE DENNE TRENGS. Ingen peikere i i_synapse ?
 	// KANSKJE EG SKAL HA UTSKRIFT HER? --avslutting av loggen for synapsen..  TODO
 	
-	int getSynVekt(){ return uSynaptiskVekt; }
+	int getSynVekt(){ return fSynapticWeight; }
 
 	friend int make(int, char**);
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );

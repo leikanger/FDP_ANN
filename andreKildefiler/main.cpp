@@ -183,25 +183,25 @@ int main(int argc, char *argv[])
 
 	//Setter i gang ANN
 	A1->doTask();
-/**/ //}4
+//}4 /**/ 
 
   /* KANN: test-oppsett. 		KANN  		*/
  	//{4 KANN: TEST-oppsett. Lager mange neuron..
 
 	cout<<"\n\nLAGER KANN\n\n";
 
-	K_auron* A1 = new K_auron("K01", 2*FYRINGSTERSKEL);
-	K_auron* B  = new K_auron("K_B", 2*FYRINGSTERSKEL);
+	K_auron* K4 = new K_auron("K_4", 4*FYRINGSTERSKEL);
+	K_auron* K2 = new K_auron("K_2", 2*FYRINGSTERSKEL);
 
-	new K_synapse(A1, B, 0.5);
-	new K_synapse(B, A1, 1111);
+	new K_synapse(K4, K2, 50);
+	new K_synapse(K2, K4, 1111);
 	//}4 /**/
 
-	cout<<"lengde på arbeidkø (i tillegg til [time_class] ): " <<time_class::pWorkTaskQue.size()-1 <<endl;
-
-
-/* //{4
+  /*  pEstimatedTaskTime 	Test 			* /
+//{4 pEstimertTaskTime test-oppsett.
 	cout<<"\n\n\nTEST: pEstimatedTaskTime; \n\n\n";
+
+	time_class tid;
 
 	s_auron* sTest1 = new s_auron;
 	s_auron* sTest2 = new s_auron;
@@ -224,14 +224,35 @@ int main(int argc, char *argv[])
 	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 10 );
 	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 11 );
 	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 12 );
-	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 29 );
+	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 55 );
 
 
 	cout<<"\n\nSkriver ut pEstimatedTaskTime: \n\n";
 	time_class::TEST_skrivUt_pEstimatedTaskTime();
+for(int i=0; i<5; i++) {
+	tid.doTask();
+	cout<<"\n\nSkriver ut pEstimatedTaskTime: \n\n";
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
+}
 
 exit(0);
-*/ //}4
+/**/ //}4
+
+/*
+cout<<"TESTER NOKE:\n";
+#define OUTPUT(x) cout<<x
+OUTPUT("jess. OUTPUT(arg)\n");
+OUTPUT("Endrer OUTPUT() til å være tom:\n");
+#define OUTPUT2(x) 
+OUTPUT2("NOPE, OUTPUT2(arg)\n");
+OUTPUT("\nSkulle skrevet noke. Jess! Det gjorde det ikkje!\n");
+*/
+
+
+
+	cout<<"lengde på arbeidkø (i tillegg til [time_class] ): " <<time_class::pWorkTaskQue.size()-1 <<endl;
+
+
 	cout<<"******************************************\n*** BEGYNNER KJØRING AV ANN: ***\n******************************************\n\n";
 
 
@@ -245,7 +266,8 @@ exit(0);
 
 
 
-
+	cout<<"\n\n*************************************************************************** AVLUTTER "
+		<<"******************************************************************************************\n\n\n";
 /****************************************** Kaller destructor for alle gjenværande udestruerte auron ***************************************/
 	// Sletter alle auron i i_auron::pAllAurons
 	while( ! i_auron::pAllAurons.empty() )
@@ -254,7 +276,7 @@ exit(0);
 		// remove element from pAllAurons.
 	 	delete (*i_auron::pAllAurons.begin());
 	}
-
+/********************************************************************************************************************************************/
 
 
 	cout<<"\n\nWIN!\n";

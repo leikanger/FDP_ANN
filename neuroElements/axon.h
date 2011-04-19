@@ -43,10 +43,14 @@ class i_axon : public timeInterface{
 	friend int main(int, char**); //TODO SLETT
 
 	friend class i_synapse;
-	friend class K_synapse;
 //	friend class i_axon;
 	friend class i_auron;
 	friend class i_dendrite;
+
+	friend class K_auron;
+	friend class K_synapse;
+	friend class K_axon;
+	
 
 	friend class s_synapse;
 	friend class s_axon;
