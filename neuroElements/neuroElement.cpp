@@ -9,45 +9,51 @@
 
 
 //Bedre oppdeling: (uferdig (ustarta)
+
+/********************************
+** Contructors and destructors **
+********************************/
 //{1 		* 	interface-class
 
-//{2  ** auron
+//{2  ***  i_auron
 //}
-//{2  ** axon
+//{2  ***  i_ axon
 //}
-//{2  ** synapse
+//{2  ***  i_synapse
 //}
-//{2  ** dendrite
+//{2  ***  i_dendrite
 //}
-
 
 //}1
 //{1 		* 	SANN
 
-//{2  ** auron
+//{2  ***  S_auron
 //}
-//{2  ** axon
+//{2  ***  S_ axon
 //}
-//{2  ** synapse
+//{2  ***  S_synapse
 //}
-//{2  ** dendrite
+//{2  ***  S_dendrite
 //}
-
 
 //}1
 //{1 		* 	KANN
 
-//{2  ** auron
+//{2  ***  K_auron
 //}
-//{2  ** axon
+//{2  ***  K_ axon
 //}
-//{2  ** synapse
+//{2  ***  K_synapse
 //}
-//{2  ** dendrite
+//{2  ***  K_dendrite
 //}
 
 
 //}1
+
+
+
+
 
 
 
@@ -472,38 +478,6 @@ K_dendrite::~K_dendrite()
 
 
 
-/******************* SYNAPSE ********************/
-//{1
-// TEST:XXX:inline unsigned& K_synapse::regnutPresynPeriode() XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX 
-// VEKK VEKK VEKK :
-inline unsigned K_synapse::regnutPresynPeriode()
-{
-	int kappa_pre = pPreNodeAxon->pElementAvAuron->nAktivitetsVariabel;
-	forrigeUtregnaPresynPeriode = -1/ALPHA * log( (FYRINGSTERSKEL - kappa_pre ) / kappa_pre );
-//	cout<<forrigeUtregnaPresynPeriode <<endl;
-	return forrigeUtregnaPresynPeriode;
-}
-
-//}1
-/******************* DENDRITE *******************/
-//{1
-
-// TPDP TODO TODO FJÆRN feedbackToDendrite()  (fra i_dendrite..)
-// TODO Ta bort feedbackToDendrite(). Har bestemt meg for å heller caste i_auron til K_auron osv. Internt i noden (dendrite, auron, axon)
-inline void s_dendrite::feedbackToDendrite() // var: axonTilbakemelding()
-{ //{
-	 //Tilbakemelding fra axonet forteller oss at refraction time er over.
-
-	 //Skriver til logg etter refraction-period.
-	 pElementAvAuron->skrivAktivitetsVarLogg();
-
-	 //Avsetter bBlockInput_refractionTime - flagg:
-	 bBlockInput_refractionTime = false;
-} //}
-inline void K_dendrite::feedbackToDendrite()
-{
-	pElementAvAuron->skrivAktivitetsVarLogg();
-}
 inline void s_dendrite::newInputSignal( int nNewSignal_arg )
 { //{
 
@@ -542,7 +516,7 @@ inline void s_dendrite::newInputSignal( int nNewSignal_arg )
 	pElementAvAuron->depol_logFile.flush();
 } //}
 inline void K_dendrite::newInputSignal( int nNewSignal_arg )
-{
+{ //{1
 	//cout<<"\n\n \t\t\t\tK_dendrite::newInputSignal( " <<nNewSignal_arg <<" )\t--arg er i promille: gir K_ij=" <<(double)nNewSignal_arg/1000 <<endl;
 
 	//HER XxX xXx casting (eksplisitt typekonvertering) fra i_auron til K_auron for å kunne accessere K_auron::bEndraKappaDennePerioden.
@@ -551,10 +525,11 @@ inline void K_dendrite::newInputSignal( int nNewSignal_arg )
 	// Skriver til log for aktivitetsVar:
 	pElementAvAuron->depol_logFile 	<<time_class::getTid() <<"\t" <<pElementAvAuron->nAktivitetsVariabel <<"; \t #Depolarization\n" ;
 	pElementAvAuron->depol_logFile.flush();
-}
-/** Bare for SANN:  ***/
+} //}1
+
+
 inline void s_dendrite::calculateLeakage()
-{ //{
+{ //{1 /** Bare for SANN:  ***/
 	/*
 	* 	Har testa verdiane i octave. Loggen følgte lå på kurva for [initDepol]*LEKKASJEFAKTOR_FOR_DEPOL^x, selv om eg bare sjekka calculateLeakage() for siste ledd 
 	* 		(f.eks. etter 30 iterasjoner uten noko input anna enn init-verdien for depool. for auronet). Hurra!
@@ -578,10 +553,8 @@ inline void s_dendrite::calculateLeakage()
 		//ulTimestampForrigeOppdatering = time_class::getTid(); 
 	}
 	// Dersom den allerede har regna ut lekkasje: ikkje gjør det igjen. Returner.
-} //}
+} //}1
 
-//}1
-/*********************** auron *************************************/
 
 
 
@@ -591,9 +564,25 @@ inline void s_dendrite::calculateLeakage()
 ****** 													******
 *************************************************************/
 
-/****************************** auron *******************************************/ //{
+ //{1   *  i_axon::doTask()
+inline void i_axon::doTask()
+{
+ 	cout<<"i_axon::doTask()\tLegger inn alle outputsynapser i arbeidskø. Mdl. av auron: " <<pElementAvAuron->sNavn <<" - - - - - - - - - - - - - - - \n";
+
+	// For meir nøyaktig simulering av tid kan alle synaper få verdi for 'time lag' før fyring. No fokuserer eg heller på effektivitet. 
+ 	for( std::list<i_synapse*>::iterator iter = pUtSynapser.begin(); iter != pUtSynapser.end(); iter++ )
+	{ // Legger alle pUtSynapser inn i arbeidskø: (FIFO-kø)
+		
+		//time_class::pWorkTaskQue.push_back( (*iter) );
+		// Legger til ut-synapser i time_class::arbeidskø
+		time_class::leggTilTask( *iter );
+	}
+
+} //}1
+
+//{1 		* 	SANN
 inline void s_auron::doTask()
-{ //{
+{ //{ ** AURON
 
 
 	cout<<"\t" <<sNavn <<".doTask()\tFYRER Action Potential for neuron " <<sNavn <<".\t\t| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | \ttid: " <<time_class::getTid() <<"\n";
@@ -618,8 +607,60 @@ inline void s_auron::doTask()
 	skrivAktivitetsVarLogg();
 
 } //}
+inline void s_axon::doTask()
+{ //{ ** AXON
+	i_axon::doTask();
+
+	// Avblokkerer dendritt. Opner den for meir input. Foreløpig er dette måten 'refraction time' funker på.. (etter 2 ms-dendrite og auron overføring..)
+	 static_cast<s_dendrite*>(pElementAvAuron->pInputDendrite)->bBlockInput_refractionTime = false;
+
+	 //Skriver til logg etter refraction-period.
+	 pElementAvAuron->skrivAktivitetsVarLogg();
+
+} //}
+inline void s_synapse::doTask()
+{ //{2 ** SYNAPSE
+
+	// FØR  VAR DET :  inline void synapse::transmission()
+	cout<<"Overføring i s_synapse.\n";
+
+	// Dersom synapsen har inhibitorisk effekt: send inhibitorisk signal (subtraksjon). Ellers: eksiter postsyn. auron.
+	// Dendrite lagrer tidspunk for overføring.
+	if( bInhibitorisk_effekt ){
+ 		pPostNodeDendrite->newInputSignal(  -fSynapticWeight );
+	}else{
+		pPostNodeDendrite->newInputSignal(   fSynapticWeight ); //TODO gjør uSynapticWeight_promille om til uSynapticWeight_promille
+	}
+//( dendrite legges til i arbeidskø dersom den kommer over fyringsterskel.) --Dette er feilaktig, men meir effektivt.
+		
+
+
+	// XXX Kalkulere syn.p.?
+
+
+
+	// TODO: synaptisk plastisitet: HER.
+	//{ Loggfører syn.weight
+	synWeight_loggFil 	<<"\t" <<time_class::getTid() <<"\t" <<fSynapticWeight
+						<<" ;   \t#Synpaptic weight\n" ;
+	synWeight_loggFil.flush();
+			//} 
+
+	// Logg for aktivitetsVar for postsyn auron skjer i pPostNodeDendrite->newInputSignal(-);
+
+} //}2
+inline void s_dendrite::doTask()
+{ //{ DENDRITE
+	// Kva skal dendrite::doTask() gjøre? 
+	//cout<<pElementAvAuron->sNavn <<"->[dendrite]::doTask(). Postsyn. depol (" <<pElementAvAuron->sNavn <<") etter overføring: " <<pElementAvAuron->nAktivitetsVariabel <<".\n";
+	time_class::leggTilTask( pElementAvAuron );
+} //}
+//}1            *       slutt SANN
+
+//{1 		* 	KANN
+
 inline void K_auron::doTask()
-{ 
+{ //{ ** AURON
 	 
 	cout<<"| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\t"
 		<<sNavn <<".doTask()\tFYRER Action Potential for neuron " <<sNavn <<".\t\t| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | \ttid: " <<time_class::getTid() <<"\n\n";
@@ -655,45 +696,19 @@ cout<<"HER. uLastCalculatedPeriodInverse_promille = " <<uLastCalculatedPeriodInv
 	
 	skrivAktivitetsVarLogg();
 
-}
+} //}
+inline void K_axon::doTask()
+{ //{ ** AXON
+	// Legg heller til en i pEstimatedTaskTime, og kall i_axon::doTask() direkte fra K_auron.
+	i_axon::doTask();
 
-//} *************************** slutt auron ***************************************
-/****************************** synapse *****************************************/ //{
-
-
-inline void s_synapse::doTask()
-{ //{2 .. }
-
-	// FØR  VAR DET :  inline void synapse::transmission()
-	cout<<"Overføring i s_synapse.\n";
-
-	// Dersom synapsen har inhibitorisk effekt: send inhibitorisk signal (subtraksjon). Ellers: eksiter postsyn. auron.
-	// Dendrite lagrer tidspunk for overføring.
-	if( bInhibitorisk_effekt ){
- 		pPostNodeDendrite->newInputSignal(  -fSynapticWeight );
-	}else{
-		pPostNodeDendrite->newInputSignal(   fSynapticWeight ); //TODO gjør uSynapticWeight_promille om til uSynapticWeight_promille
-	}
-//( dendrite legges til i arbeidskø dersom den kommer over fyringsterskel.) --Dette er feilaktig, men meir effektivt.
-		
-
-
-	// XXX Kalkulere syn.p.?
-
-
-
-	// TODO: synaptisk plastisitet: HER.
-	//{ Loggfører syn.weight
-	synWeight_loggFil 	<<"\t" <<time_class::getTid() <<"\t" <<fSynapticWeight
-						<<" ;   \t#Synpaptic weight\n" ;
-	synWeight_loggFil.flush();
-			//} 
-
-	// Logg for aktivitetsVar for postsyn auron skjer i pPostNodeDendrite->newInputSignal(-);
-
-} //}2
+	
+	//pElementAvAuron->loggAktivitetsVar_i_AktivitetsVarLoggFil(); ENDRA TIL:
+	pElementAvAuron->skrivAktivitetsVarLogg();
+} //}
 inline void K_synapse::doTask()
-{ 	// K_ij = w_ij / p(K_j) Differansen Delta K_ij blir sendt som argument til pPostNodeDendrite->newInputSignal( argument );
+{ //{ ** SYNAPSE
+	// K_ij = w_ij / p(K_j) Differansen Delta K_ij blir sendt som argument til pPostNodeDendrite->newInputSignal( argument );
 	// 	denne er gitt som Delta K_ij = Delta w_ij / Delta p(K_j)
 
 	
@@ -714,60 +729,17 @@ inline void K_synapse::doTask()
 			pPostNodeDendrite->newInputSignal( nSynapticWeightChange_promille * static_cast<K_auron*>(pPreNodeAxon->pElementAvAuron)->nChangeInPeriodInverse_promille ); 
 		}
 	}
-}
-//} *************************** SLUTT synapse *************************************
-/****************************** axon ********************************************/ //{
-
-inline void i_axon::doTask()
-{ //{ // initierAksjonspotensial()
- 	cout<<"i_axon::doTask()\tLegger inn alle outputsynapser i arbeidskø. Mdl. av auron: " <<pElementAvAuron->sNavn <<" - - - - - - - - - - - - - - - \n";
-
-	// For meir nøyaktig simulering av tid kan alle synaper få verdi for 'time lag' før fyring. No fokuserer eg heller på effektivitet. 
- 	for( std::list<i_synapse*>::iterator iter = pUtSynapser.begin(); iter != pUtSynapser.end(); iter++ )
-	{ // Legger alle pUtSynapser inn i arbeidskø: (FIFO-kø)
-		
-		//time_class::pWorkTaskQue.push_back( (*iter) );
-		// Legger til ut-synapser i time_class::arbeidskø
-		time_class::leggTilTask( *iter );
-	}
-
-} //}
-inline void s_axon::doTask()
-{ //{
-	i_axon::doTask();
-
-	// Avblokkerer dendritt. Opner den for meir input. Foreløpig er dette måten 'refraction time' funker på.. (etter 2 ms - dendrite og auron overføring..)
-	pElementAvAuron->pInputDendrite->feedbackToDendrite();
-
-	//pElementAvAuron->loggAktivitetsVar_i_AktivitetsVarLoggFil(); ENDRA TIL:
-	pElementAvAuron->skrivAktivitetsVarLogg();
-} //}
-inline void K_axon::doTask()
-{
-	// Legg heller til en i pEstimatedTaskTime, og kall i_axon::doTask() direkte fra K_auron.
-	i_axon::doTask();
-
-	
-	//pElementAvAuron->loggAktivitetsVar_i_AktivitetsVarLoggFil(); ENDRA TIL:
-	pElementAvAuron->skrivAktivitetsVarLogg();
-}
-//} ************************** SLUTT axon *****************************************
-/****************************** dendrite ****************************************/ //{
-inline void s_dendrite::doTask()
-{ //{ 
-	// Kva skal dendrite::doTask() gjøre? 
-	//cout<<pElementAvAuron->sNavn <<"->[dendrite]::doTask(). Postsyn. depol (" <<pElementAvAuron->sNavn <<") etter overføring: " <<pElementAvAuron->nAktivitetsVariabel <<".\n";
-	time_class::leggTilTask( pElementAvAuron );
 } //}
 inline void K_dendrite::doTask()
-{
+{ //{ XX DENDRITE (ikkje i bruk)
 	// TODO Trur ikkje denne skal være med lenger. Legger til brutal feilsjekk: exit(-1);
 	cout<<"\n\nBrutal feilsjekk @ K_dendrite::doTask() : exit(-1);\n\n";
 
 	exit(-1);
 	time_class::leggTilTask( pElementAvAuron );
-}
-//} **************************** SLUTT dendrite ***********************************
+} //}
+
+//}1            *       KANN slutt
 
 
 /******************************************************************
@@ -777,7 +749,7 @@ inline void K_dendrite::doTask()
 ******************************************************************/
 
 void K_auron::doCalculation()
-{
+{ //{
  	cout<<"dC():\tK_auron " <<sNavn <<".doCalculation()\t\t" <<sNavn <<".doCalculation()\n";
 
 	// Skal estimere firingTime, og endre oppføringa i pEstimatedTaskTime.
@@ -803,6 +775,6 @@ void K_auron::doCalculation()
 //	cout<<"LEGGER til task i pEstimatedTaskTime";
 	time_class::addTaskIn_pEstimatedTaskTime( this, ulEstimatedTimeToAP);
 
-}
+} //}
 
 // vim:fdm=marker:fmr=//{,//}

@@ -33,7 +33,7 @@ class i_dendrite : public timeInterface{
 	virtual void doCalculation() {}
 
 	virtual inline void newInputSignal( int ) =0;
-	virtual inline void feedbackToDendrite() =0;
+	//virtual inline void feedbackToDendrite() =0;
 
 	public:
 	i_dendrite(i_auron* pElementAvAuron_arg, std::string sNavn /*="dendrite"*/);
