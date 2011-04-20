@@ -104,7 +104,6 @@ class i_auron : public timeInterface
 	friend class s_dendrite;
 	friend class K_dendrite;
 
-	//friend std::ostream & operator<< (std::ostream& , s_auron);
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
 	friend int main(int, char**); //TODO SLETT
@@ -127,7 +126,6 @@ class s_auron : public i_auron
 	friend class s_synapse;
 	friend class s_dendrite;
 	friend void testFunksjon_slett(s_auron*);
-	//friend std::ostream & operator<< (std::ostream& , s_auron*);
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
 	friend int main(int, char**); //TODO SLETT
@@ -145,6 +143,7 @@ class K_auron : public i_auron
 	unsigned long ulStartOfTimewindow;
 	int nDepolAtStartOfTimeWindow;
 
+	unsigned uLastCalculatedPeriod_promille;
 	unsigned uLastCalculatedPeriodInverse_promille;
 	int nChangeInPeriodInverse_promille;
 
@@ -169,7 +168,6 @@ class K_auron : public i_auron
 	friend class K_synapse;
 	friend class K_dendrite;
 	friend void testFunksjon_slett(s_auron*);
-	//friend std::ostream & operator<< (std::ostream& , s_auron);
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
 	friend int main(int, char**); //TODO SLETT

@@ -24,12 +24,14 @@ class i_auron;
 class timeInterface
 {
 	public:
-	timeInterface(std::string s) : sClassName(s){}
+	timeInterface(std::string s) : ulEstimatedTaskTime_for_object(0), sClassName(s){}
 	timeInterface() 				{} 				//For mens eg itererer i utviklinga.  Trur ikkje eg skal ha denne etterpå..
 
 	// SKAL VÆRE private ? XXX XXX XXX
 	virtual void doTask() =0;
 	virtual void doCalculation() =0;
+
+	unsigned long ulEstimatedTaskTime_for_object; //Brukes for når man skal flytte ledd i pEstimatedTaskTime. Veldig viktig for KANN!
 
 	//for debugging:
 	std::string sClassName;
@@ -75,30 +77,39 @@ class time_class : public timeInterface {
 	
 
 
-		// Sjekk etter (og gjennomfør) tasks i pEstimatedTaskTime for neste tidsiter: *************** *******************************
+
+		// pEstimatedTaskTime opplegg ************* 	****** 		********* 		*************  ************************************
 
 		if( ! pEstimatedTaskTime.front()->empty() ){
-			cout<<"Planlagt oppgave i tid: " <<time_class::getTid() <<endl;
-			cout<<"Skriver ut pEstimatedTaskTime, før:\n";
-			TEST_skrivUt_pEstimatedTaskTime();
-			cout<<"\n\n";
+			cout<<"Planlagt oppgave i tid: " <<time_class::getTid() <<"\n\n";
 		}
-		while( ! pEstimatedTaskTime.front()->empty() ) // Fjør alle element i første element av pEstimatedTaskTime.
+		
+		timeInterface* pTI_temp;
+		while( ! (pEstimatedTaskTime.front())->empty() ) // Kjør alle element i FØRSTE element av pEstimatedTaskTime.
 		{
 
-// 			cout<<"pEstimatedTaskTime er ikkje .empty()\t" <<"(pEstimatedTaskTime->front()).size = " <<pEstimatedTaskTime.front()->size() 
-//			 	<<"\t.. legger til timeInterface* i pWorkTaskQue, av type " <<(pEstimatedTaskTime.front())->front()->sClassName <<endl;
-
+			// pTI_temp peiker får verdien til første timeInterface*-element i pEstimatedTaskTime.front()->front():
+			pTI_temp = (pEstimatedTaskTime.front())->front();
 //cout<<"H1 før segfault i SANN\n";
-			cout<<"pEstimatedTaskTime fører til at eg legger til " <<pEstimatedTaskTime.front()->front()->sClassName <<" i pWorkTaskQue\n";
-			pWorkTaskQue.push_back( (pEstimatedTaskTime.front())->front() ); //Legger til første element av første liste i pWorkTaskQue
+			cout<<"pEstimatedTaskTime fører til at eg legger til " <<pTI_temp->sClassName <<" i pWorkTaskQue\n";
+			pWorkTaskQue.push_back( pTI_temp ); //Legger til første element av første liste i pWorkTaskQue
+			// legg elementet i pEstimatedTaskTime om [periode] tid
+			
+			// fjærner element fra { pEstimatedTaskTime.[dette tidssteget] }
 			(pEstimatedTaskTime.front()) ->pop_front(); 			//Fjærn første element (av første lista).
+
+			// Legger til element om [periode] tidsiterasjoner. TODO TODO 													XXX SJEKK AT DETTE ER GJORDT
+			// NEI: dette er bare for regelmessige oppgaver. M.a.o klassespesifikt. Gjøres i klassene! 		For K_auron:
+			//time_class::addTask_in_pEstimatedTaskTime( pTI_temp, pTI_temp->uLastCalculatedPeriod_promille );
+
 		
 //cout<<"H2\n";
 		}
 		
 		// Organiserer pEstimatedTaskTime. Fjærner første ledd:
+			// free minnet fra førte element (ligger nemmelig i frie lageret)
 		delete pEstimatedTaskTime.front();  // XXX XXX XXX Blir dette rett? XXX (laga den med new std::list<timeInterface*> (den er bare en peiker til list<> i frie lageret..))
+			// pop element (ta vekk fra liste)
 		pEstimatedTaskTime.pop_front(); //Fjærn heile lista med estimerte oppgaver for neste time_iteration.
 
 		// Undersøker om lengden på lista er kortere enn MIN_LENGDE_PAA_pEstimatedTaskTime:
@@ -107,9 +118,6 @@ class time_class : public timeInterface {
 		// Legger inn MIN_LENGDE_PAA_pEstimatedTaskTime antall element.
 		if(pEstimatedTaskTime.size() < MIN_LENGDE_PAA_pEstimatedTaskTime )
 		{
-			//cout<<"legg til fleire element\n";
-
-	 		//Legger til fleire element:
 			for( int i=0; i<MIN_LENGDE_PAA_pEstimatedTaskTime; i++)
 				pEstimatedTaskTime.push_back( new std::list<timeInterface*> );
 		}
@@ -125,8 +133,9 @@ class time_class : public timeInterface {
 		
 		// utskrift:
 		if(ulTidsiterasjoner%100 == 0)		
-			cout<<"\tAUKER TID: \t" <<ulTidsiterasjoner-1 <<" => " <<ulTidsiterasjoner <<" * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * "
-				<<ulTidsiterasjoner <<" * \n";
+			cout<<"\t_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n"
+		 		<<"\t* * * * TID: \t  =  " <<ulTidsiterasjoner <<" * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * = "
+				<<ulTidsiterasjoner <<"\n";
 	}//}
 	inline void doCalculation()
 	{ //{
@@ -185,15 +194,10 @@ class time_class : public timeInterface {
 ****************************************************************************/
 
 
-	// MERK: uRelativeTime_arg er 1 indeksert. TODO gjør den 0-indeksert (antall iterasjoner etter neste)
-	static inline void addTaskIn_pEstimatedTaskTime( timeInterface* pTI_arg, unsigned uRelativeTime_arg )
-	{ //{2
-
-		// XXX TEST: uRelativeTime_arg = 5;
-
+	static inline std::list< std::list<timeInterface*>* >::iterator   get_iteration_in_pEstimatedTaskTime( unsigned uTimeDifference_arg )
+	{
 		// Dersom estimert tid er utafor lista av estimert tid: auk lista.
-		//if( uRelativeTime_arg > pEstimatedTaskTime.size() )
-		int nDiff = uRelativeTime_arg - pEstimatedTaskTime.size()  ; // Begynner neste tidsiter: grunn til "+1"
+		int nDiff = uTimeDifference_arg - pEstimatedTaskTime.size()  ;
 		if( nDiff >= 0 ) //Mangler ledd. Legg til rett antall.
 		{
 //			cout<<"Mangler ledd. Legger til de manglende ledda. Mangler " <<nDiff <<" ledd.\n";
@@ -202,32 +206,135 @@ class time_class : public timeInterface {
 			}
 		}
 
-
-		
 		std::list< std::list<timeInterface*>* >::iterator estTimeIter;
 
-		// Finne rett plassering, og legge til task der:
-		if( uRelativeTime_arg < (pEstimatedTaskTime.size())/2 ){ // plusser på en (/2) for å få rett avrunding..
-//			cout<<"SØKER FRA BEGYNNELSEN\t(uRelativeTime_arg = " <<uRelativeTime_arg <<"\t, size() = " <<pEstimatedTaskTime.size() <<")\n";
-
+		// Finne rett plassering (skal returneres)
+		if( uTimeDifference_arg < (pEstimatedTaskTime.size())/2 ){ // plusser på en (/2) for å få rett avrunding..
 			//Søk fra begynnelsen.
 			estTimeIter = pEstimatedTaskTime.begin();
-			for(unsigned u=0; u <= uRelativeTime_arg; u++)
-				estTimeIter++;
-		}else{
-//			cout<<"SØKER FRA SLUTTEN    \t(uRelativeTime_arg = " <<uRelativeTime_arg <<"\t, size() = " <<pEstimatedTaskTime.size() <<")\n";
+/*
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+Veit ikkje om for() er bra under. Trur det er broblemer med index. Var (fra 0;<=;++) blei (fra 1; < ; ++)
 
+Meir: Veit ikkje om den som søker fra oppsida er rett heller. No er eg jævla sliten!
+
+*/
+			for(unsigned u=1; u < uTimeDifference_arg; u++)
+				estTimeIter++;
+// gjorde <= om til < . Veit ikkje om det blir rett. TEST ZZZ XXX XXX XXX XXX XXX
+		}else if(uTimeDifference_arg <= pEstimatedTaskTime.size() ){ 
 			//Søk fra slutten:
-			estTimeIter = (pEstimatedTaskTime.end())--;
-			for(unsigned u = pEstimatedTaskTime.size(); u >= uRelativeTime_arg; u--)
+			estTimeIter = (pEstimatedTaskTime.end());
+			for(unsigned u = pEstimatedTaskTime.size(); u >= uTimeDifference_arg; u--)
 				estTimeIter--;
-		}/**/
+		}else{ cout<<"ERROR! exit(-123); \nFeilmelding: asdf13@time.h\n"; 
+			exit(-123);
+		}
+
+		//returnerer peiker til rett element
+		return estTimeIter;
+	}
+
+	// MERK: uRelativeTime_arg er 1 indeksert. TODO gjør den 0-indeksert (antall iterasjoner etter neste)
+	static inline void addTask_in_pEstimatedTaskTime( timeInterface* pTI_arg, unsigned uRelativeTime_arg )
+	{ //{2
+		cout<<"addTask_in_pEstimatedTaskTime(" <<pTI_arg->sClassName <<", " <<uRelativeTime_arg <<");\n";
+
+
+
+		// Lagrer "posisjon" (i pEstimatedTaskTime-lista) i pTI_arg->ul EstimatedTaskTime_for_object.
+		pTI_arg->ulEstimatedTaskTime_for_object = ulTidsiterasjoner + uRelativeTime_arg;
+
 
 		// legg til element i denne vektorenPEIKEREN:
-		(*estTimeIter)->push_back( pTI_arg );
+		(*get_iteration_in_pEstimatedTaskTime( uRelativeTime_arg ))->push_back( pTI_arg );
+
 	} //}2
 
-	static void TEST_skrivUt_pEstimatedTaskTime()
+	static inline void moveTask_in_pEstimatedTaskTime( timeInterface* pTI_arg, unsigned uRelativeTime_arg )
+	{ //{2
+		cout<<"moveTask_in_pEstimatedTaskTime(" <<pTI_arg->sClassName <<", " <<uRelativeTime_arg <<")\n";
+	
+		//newTimeEstimate_iterator får verdien til iteratoren som peiker på rett iterasjon.
+		std::list< std::list<timeInterface*>* >::iterator newTimeEstimate_iterator = get_iteration_in_pEstimatedTaskTime( uRelativeTime_arg );
+
+		// Trenger å finne gamle plassen til [pTI_arg]
+		/***************
+		* PLAN:
+		* 	- mest sannsynlige er at det nye estimatet ligger i nærleiken av gamle estimatet (som eg skal finne, og slette).
+		* 	 	så vi bør begynne søket der. Veit ikkje om elementet ligger over eller under, så bør alternere mellom å sjekke element før og etter.o
+		*
+		* 	NEI: Bedre er det å lagre en unsigned uEstimertTaskTid i kvar timeInterface*. Denne kan brukes for å finne posisjon i pEstimatedTaskTime!
+		*
+		***************/
+
+
+//static inline std::list< std::list<timeInterface*>* >::iterator   get_iteration_in_pEstimatedTaskTime( unsigned uTimeDifference_arg )
+
+		// bruker timeInterface::ulEstimated TaskTime_for_object og get_iteration_in_pEstimatedTaskTime():
+		// Finner rett estimerte iterasjon: pIterator_in_pEstimatedTaskTime_temp  				(get_iteration_in_pEstimatedTaskTime() tar argument: tid til taskTime)
+//		std::list<timeInterface*>::iterator pIterator_in_pEstimatedTaskTime_temp = (*get_iteration_in_pEstimatedTaskTime( pTI_arg->ul EstimatedTaskTime_for_object - time_class::getTid()  ))->begin();
+
+		// Fjærner element med verdien [pTI_arg] fra lista i tidspunkt [timeInterface::ul EstimatedTaskTime_for_object]
+//		pIterator_in_pEstimatedTaskTime_temp.remove( pTI_arg ); 
+		//Dette kaller også destruktor, men dette blir ikkje problem siden element bare er en peiker..
+		
+		// TODO Vettafaen om neste linje er naudsynt? TODO sjå gjennom koden neste linjene!
+		std::list< std::list<timeInterface*>* >::iterator oldTimeEstimate_iterator = get_iteration_in_pEstimatedTaskTime( pTI_arg->ulEstimatedTaskTime_for_object - time_class::getTid() );
+		cout<<"Iterasjon i pEstimatedTaskTime: " << pTI_arg->ulEstimatedTaskTime_for_object - time_class::getTid() <<endl;
+		(*oldTimeEstimate_iterator)->remove( pTI_arg );
+		// Legger inn elementet på ny plass:
+		// TODO: Dårlig: har ikkje feilsjekk!  ELLER KANSKJE. Orker ikkje meir no. Trur get_iteration_in_pEstimatedTaskTime() har feilsjekk/feilordning slik at det blir bra. 
+		// KAnskje dette er bra? :
+		// TODO ER dette farlig? Kanskje.. ALDRI bruk iterator etter at størrelsen har blitt endra. Dette er kanskje greit? :
+		(*newTimeEstimate_iterator)->push_back( pTI_arg );
+		// TODO KANSKJE HELLER 
+		// (*  get_iteration_in_pEstimatedTaskTime( pTI_arg->ulEstimatedTaskTime_for_object - time_class::getTid() ))->push_back( pTI_arg );
+		// eller noke..
+
+		// oppdaterer pTI_arg->ulEstimatedTaskTime_for_object 
+		pTI_arg->ulEstimatedTaskTime_for_object = time_class::getTid() + uRelativeTime_arg;
+
+
+
+
+
+		cout<<"Skriver ut TEST. Lengde: " <<(*oldTimeEstimate_iterator)->size() <<"\n\n\n";
+		int ni = 1;
+		for( std::list<timeInterface*>::iterator it = (*oldTimeEstimate_iterator)->begin(); it != (*oldTimeEstimate_iterator)->end(); it++ )
+		{
+	 		cout<<"Element nr. " <<ni++ <<" er " <<(*it)->sClassName <<endl;
+		}
+		cout<<"FERIDG\n";
+
+		cout<<"Tester å finne lengde på liste 0. Antall element: " <<(*get_iteration_in_pEstimatedTaskTime(0))->size() <<"\n\n";
+		cout<<"Tester å finne lengde på liste 1. Antall element: " <<(*get_iteration_in_pEstimatedTaskTime(1))->size() <<"\n\n";
+		cout<<"Tester å finne lengde på liste 2. Antall element: " <<(*get_iteration_in_pEstimatedTaskTime(2))->size() <<"\n\n";
+		cout<<"Tester å finne lengde på liste 3. Antall element: " <<(*get_iteration_in_pEstimatedTaskTime(3))->size() <<"\n\n";
+		cout<<"Tester å finne lengde på liste 4. Antall element: " <<(*get_iteration_in_pEstimatedTaskTime(4))->size() <<"\n\n";
+
+
+		/* TODO TODO TODO UNØDVENDIG: slett! : 
+		//{ UTKOMMENTERT
+		// Søker gjennom denne etter rett timeInterface element:
+		for( std::list<timeInterface*>::iterator  iterElement = pIterator_in_pEstimatedTaskTime_temp->begin();  iterElement != pIterator_in_pEstimatedTaskTime_temp.end(); iterElement++ )
+		{
+			// iterElement er iterator og pTI_arg er peiker. Må derfor dereferere de for å sammenligne
+	 		if( (*iterElement) == (*pTI_arg) )
+			{
+	 			// Har funnet pTI_arg! Fjærner det fra pEstimatedTaskTime.[gammel tid] (skal legge til på ny pos. etterpå.
+				
+			}
+			// husk å oppdatere timeInterface::ul EstimatedTaskTime_for_object
+		}
+*/ //}
+	} //}2
+
+	const static void TEST_skrivUt_pEstimatedTaskTime()
 	{ //{2
 		cout<<"Skriver ut pEstimatedTaskTime: \n";
 		int nYtreIter = 1;
@@ -235,14 +342,15 @@ class time_class : public timeInterface {
 		// itererer gjennom ytre liste:
 		for(std::list< std::list<timeInterface*>* >::iterator ll_iter = pEstimatedTaskTime.begin(); 	ll_iter != pEstimatedTaskTime.end() ; 	ll_iter++ )
 		{
-			//cout<<"\tNeste ytreIter: " <<nYtreIter <<std::endl;
+			cout<<nYtreIter <<"\tpEstimatedTaskTime[" <<nYtreIter <<"] \t- - - - - - - - - - - - - - - - - - - - - - - - - - - - - " <<"\n";
 	
 			nIndreIter = 1;
 			//itererer gjennom indre vector:
-			std::list<timeInterface*>::iterator listIter = (*ll_iter)->begin();
-			for( ; listIter != (*ll_iter)->end(); listIter++ )
+			
+			for(std::list<timeInterface*>::iterator listIter = (*ll_iter)->begin() ; listIter != (*ll_iter)->end(); listIter++ )
 			{
-		 		cout<<"\t\tElement [" <<nYtreIter <<", " <<nIndreIter++ <<"]:\t" <<(*listIter)->sClassName <<endl;
+		 		cout<<"\t\telement nr. " <<nIndreIter++ <<":  \t" <<(*listIter)->sClassName <<"     \t ulEstimatedTaskTime_for_object :  " <<(*listIter)->ulEstimatedTaskTime_for_object 
+					<<"\tPeiker: " <<*listIter <<endl;
 			}
 	
 			nYtreIter++;

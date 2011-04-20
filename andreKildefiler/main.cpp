@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
 	//TODO For at alle skal destrueres automatisk, legg alle peikere inn i std::vector, og destruer alle element i vector på slutten av main.
 
   /* SANN: test-oppsett. 		SANN  		* /
- 	//{4 SANN: TEST-oppsett. Lager mange neuron..
+ 	//{ SANN: TEST-oppsett. Lager mange neuron..
 	s_auron* A1 = new s_auron("A1");
 	s_auron* A2 = new s_auron("A2");
 	s_auron* A3 = new s_auron("A3");
@@ -183,60 +183,125 @@ int main(int argc, char *argv[])
 
 	//Setter i gang ANN
 	A1->doTask();
-//}4 /**/ 
+	//} /**/ 
 
-  /* KANN: test-oppsett. 		KANN  		*/
- 	//{4 KANN: TEST-oppsett. Lager mange neuron..
+  /* KANN: test-oppsett. 		KANN  		* /
+ 	//{ KANN: TEST-oppsett. Lager mange neuron..
 
 	cout<<"\n\nLAGER KANN\n\n";
 
 	K_auron* K4 = new K_auron("K_4", 4*FYRINGSTERSKEL);
 	K_auron* K2 = new K_auron("K_2", 2*FYRINGSTERSKEL);
+	K_auron* K9 = new K_auron("K_9", 9*FYRINGSTERSKEL);
 
 	new K_synapse(K4, K2, 50);
 	new K_synapse(K2, K4, 1111);
-	//}4 /**/
+	//} /**/
 
-  /*  pEstimatedTaskTime 	Test 			* /
-//{4 pEstimertTaskTime test-oppsett.
+  /*  pEstimatedTaskTime 	Test 			*/
+//{ pEstimertTaskTime test-oppsett.
 	cout<<"\n\n\nTEST: pEstimatedTaskTime; \n\n\n";
 
 	time_class tid;
 
-	s_auron* sTest1 = new s_auron;
-	s_auron* sTest2 = new s_auron;
-	s_auron* sTest3 = new s_auron;
+	s_auron* sTest1 = new s_auron("1:");
+	s_auron* sTest2 = new s_auron("2:");
+	s_auron* sTest3 = new s_auron("3:");
+	s_auron* sTest4 = new s_auron("4:");
+	s_auron* sTest5 = new s_auron("5:");
+	s_auron* sTest6 = new s_auron("6:");
+	s_auron* sTest7 = new s_auron("7:");
+	s_auron* sTest8 = new s_auron("8:");
 	s_dendrite* sTd1 = new s_dendrite(sTest1);
 
-	time_class::addTaskIn_pEstimatedTaskTime( sTest2, 1 );
-	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 2 );
-	time_class::addTaskIn_pEstimatedTaskTime( sTest3, 2 );
-	time_class::addTaskIn_pEstimatedTaskTime( sTd1, 3 );
-	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 3 );
-	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 3 );
-	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 6 );
+// HUSK: Kvart element skal bare ligge på en plass. Dette har eg brukt en heil dag på å feilsøke. Helvete!
+	time_class::addTask_in_pEstimatedTaskTime( sTest1, 1 );
 
-	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 10 );
-	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 8 );
-	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 5 );
-	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 9 );
-	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 22 );
-	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 10 );
-	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 11 );
-	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 12 );
-	time_class::addTaskIn_pEstimatedTaskTime( sTest1, 55 );
+	time_class::addTask_in_pEstimatedTaskTime( sTest2, 2 );
+	time_class::addTask_in_pEstimatedTaskTime( sTest3, 2 );
 
+	time_class::addTask_in_pEstimatedTaskTime( sTd1, 3 );
+	time_class::addTask_in_pEstimatedTaskTime( sTest4, 3 );
+	time_class::addTask_in_pEstimatedTaskTime( sTest5, 3 );
+
+	time_class::addTask_in_pEstimatedTaskTime( sTest7, 4);
+	time_class::addTask_in_pEstimatedTaskTime( sTest8, 22);
+
+/*
+	time_class::addTask_in_pEstimatedTaskTime( sTest6, 6 );
+
+	time_class::addTask_in_pEstimatedTaskTime( sTest4, 10 );
+	time_class::addTask_in_pEstimatedTaskTime( sTest5, 8 );
+	time_class::addTask_in_pEstimatedTaskTime( sTest5, 5 );
+	time_class::addTask_in_pEstimatedTaskTime( sTest5, 9 );
+	//time_class::addTask_in_pEstimatedTaskTime( sTest1, 22 );
+	time_class::addTask_in_pEstimatedTaskTime( sTest6, 10 );
+	time_class::addTask_in_pEstimatedTaskTime( sTest6, 11 );
+	time_class::addTask_in_pEstimatedTaskTime( sTest6, 12 );
+	//time_class::addTask_in_pEstimatedTaskTime( sTest1, 55 );
+*/
 
 	cout<<"\n\nSkriver ut pEstimatedTaskTime: \n\n";
 	time_class::TEST_skrivUt_pEstimatedTaskTime();
-for(int i=0; i<5; i++) {
+
+/*
+	cout<<"\n\nSTARTER TESTING: fjærner første par elementa.\n\n";
+for(int i=0; i<3; i++) {
+	cout<<"Fjærner element nr. " <<i <<endl;
 	tid.doTask();
-	cout<<"\n\nSkriver ut pEstimatedTaskTime: \n\n";
+	cout<<endl;
 	time_class::TEST_skrivUt_pEstimatedTaskTime();
-}
+ 	}
+*/
 
-exit(0);
-/**/ //}4
+cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 3 til iter. 5 " <<"\tpeiker: " <<sTd1 <<"\n\n";
+time_class::moveTask_in_pEstimatedTaskTime( sTd1, 5);
+time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+cout<<"\n\nFLYTTE ELEMENT: flytter første element fra iter. 1 til iter. 50 " <<"\tpeiker: " <<sTd1 <<"\n\n";
+time_class::moveTask_in_pEstimatedTaskTime( sTest1, 50);
+time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 5 til iter. 48 " <<"\tpeiker: " <<sTd1 <<"\n\n";
+time_class::moveTask_in_pEstimatedTaskTime( sTd1, 48);
+time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 48 til iter. 1 " <<"\tpeiker: " <<sTd1 <<"\n\n";
+time_class::moveTask_in_pEstimatedTaskTime( sTd1, 1);
+time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+
+cout<<"\n\nFLYTTE ELEMENT: flytter sTest1 fra iter. 50 til iter. 1 " <<"\tpeiker: " <<sTd1 <<"\n\n";
+time_class::moveTask_in_pEstimatedTaskTime( sTest1, 1);
+time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+
+
+cout<<"Estimert tid for auron [1,2,3,4,5,6]:  [" 
+		<<sTest1->ulEstimatedTaskTime_for_object <<", " 
+		<<sTest2->ulEstimatedTaskTime_for_object <<", " 
+		<<sTest3->ulEstimatedTaskTime_for_object <<", " 
+		<<sTest4->ulEstimatedTaskTime_for_object <<", " 
+		<<sTest5->ulEstimatedTaskTime_for_object <<", " 
+		<<sTest6->ulEstimatedTaskTime_for_object <<", " <<"]\n";
+cout<<"timeIterations no: " <<time_class::getTid() <<endl;
+
+cout<<"\n\n\nVirker bra no. Test bedre når du har vetet med deg. No: drithaud!\nFår dra å sjå på action eller noke (romkom?)\nNeiss\n";
+exit(0); //    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**/ //}
 
 /*
 cout<<"TESTER NOKE:\n";
@@ -266,8 +331,7 @@ OUTPUT("\nSkulle skrevet noke. Jess! Det gjorde det ikkje!\n");
 
 
 
-	cout<<"\n\n*************************************************************************** AVLUTTER "
-		<<"******************************************************************************************\n\n\n";
+	cout<<"\n\n\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\nAvslutter.\n\n\n";
 /****************************************** Kaller destructor for alle gjenværande udestruerte auron ***************************************/
 	// Sletter alle auron i i_auron::pAllAurons
 	while( ! i_auron::pAllAurons.empty() )

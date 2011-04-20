@@ -659,21 +659,18 @@ inline void s_dendrite::doTask()
 
 //{1 		* 	KANN
 
+//TODO:
 inline void K_auron::doTask()
 { //{ ** AURON
 	 
-	cout<<"| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |\t"
-		<<sNavn <<".doTask()\tFYRER Action Potential for neuron " <<sNavn <<".\t\t| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | \ttid: " <<time_class::getTid() <<"\n\n";
-
 	// Beregn ny isi-periode^{-1}. Brukes til å beregne syn.overføring seinare i signal-cascade.
-	unsigned uNyPeriode_promille_temp = 1000*(log((double)nAktivitetsVariabel/((double)nAktivitetsVariabel-FYRINGSTERSKEL)) ) / ALPHA ;
-	//unsigned uNyFrekvens_temp = 1/uNyPeriode_promille_temp;
+	unsigned uLastCalculatedPeriod_promille = 1000*(log((double)nAktivitetsVariabel/((double)nAktivitetsVariabel-FYRINGSTERSKEL)) ) / ALPHA ;
 	 	// Beregn endring i periode ivers, og lagre dette i nChangeInPeriodInverse for seinare bruk i synapsene.
 		// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO yy
 		// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO yy
 		// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO yy
 		// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO yy
-#define nyPERIODE_INVERS_PROMILLE (1000*1000/(double)uNyPeriode_promille_temp)
+#define nyPERIODE_INVERS_PROMILLE (1000*1000/(double)uLastCalculatedPeriod_promille)
  	nChangeInPeriodInverse_promille = nyPERIODE_INVERS_PROMILLE - uLastCalculatedPeriodInverse_promille ;
 	 	// Lagre ny kalkulert periode i uLastCalculatedPeriod_inverse:
 	uLastCalculatedPeriodInverse_promille = nyPERIODE_INVERS_PROMILLE;
@@ -683,9 +680,10 @@ cout<<"HER. uLastCalculatedPeriodInverse_promille = " <<uLastCalculatedPeriodInv
 // 		<<"Frekvens(promille): \t" 	<<(double)uLastCalculatedPeriodInverse_promille  <<endl; 
 
 
-	// Legger seg selv til i pEstimatedTaskTime om uNyPeriode_promille_temp time iterations:
-	time_class::addTaskIn_pEstimatedTaskTime( this,  uNyPeriode_promille_temp );
-	cout<<"K_auron: legger til [this] peiker til pEstimatedTaskTime om tid:\t" <<uNyPeriode_promille_temp <<"\n\n";
+	// Legger seg selv til i pEstimatedTaskTime om uLastCalculatedPeriod_promille time iterations:
+	// XXX Dette skjer i time_class::doTask() når gamle element i pEstimatedTaskTime blir fjærna.
+	time_class::addTask_in_pEstimatedTaskTime( this,  uLastCalculatedPeriod_promille );
+	cout<<"K_auron: legger til [this] peiker til pEstimatedTaskTime om tid:\t" <<uLastCalculatedPeriod_promille <<"\n\n";
 	
 
 	//Axon hillock: send aksjonspotensial 	-- innkapsling gir at a xon skal ta hånd om all output. // bestiller at a xon skal fyre NESTE tidsiterasjon. Simulerer tidsdelay i a xonet.
@@ -695,6 +693,11 @@ cout<<"HER. uLastCalculatedPeriodInverse_promille = " <<uLastCalculatedPeriodInv
 	bEndraKappaDennePerioden = false;
 	
 	skrivAktivitetsVarLogg();
+	
+	//Utskrift til skjerm:
+	cout<<"| | " <<sNavn <<" | | | " <<sNavn <<" | | | | " <<sNavn <<" | | | | " <<sNavn <<" | | | | " <<sNavn <<" | | | | " <<sNavn <<"| | | | | | | | |\t"
+		<<sNavn <<".doTask()\tFYRER neuron " <<sNavn <<".\t\t| | | |  [periode] = " <<(float)uLastCalculatedPeriod_promille/1000 <<"     | | | | | | | | | | | | | | | | | | \ttid: " <<time_class::getTid() <<"\n\n";
+
 
 } //}
 inline void K_axon::doTask()
@@ -756,7 +759,7 @@ void K_auron::doCalculation()
 	// Det har blitt ny kappa, så nytt estimat av fyringstid må beregnes:
 	nDepolAtStartOfTimeWindow = nAktivitetsVariabel + (nDepolAtStartOfTimeWindow - nAktivitetsVariabel)*exp(-ALPHA*(time_class::getTid()-ulStartOfTimewindow));
 
- 	unsigned long ulEstimatedTimeToAP =  (FAKTOR_FOR_AA_FAA_RETT_PERIODE / ALPHA) * log( (float)(nDepolAtStartOfTimeWindow - nAktivitetsVariabel) / (float)(FYRINGSTERSKEL - nAktivitetsVariabel) );
+ 	unsigned long ulEstimatedTimeToAP_temp =  (FAKTOR_FOR_AA_FAA_RETT_PERIODE / ALPHA) * log( (float)(nDepolAtStartOfTimeWindow - nAktivitetsVariabel) / (float)(FYRINGSTERSKEL - nAktivitetsVariabel) );
 	//unsigned uNyPeriode_promille_temp = ALPHA / log((double)nAktivitetsVariabel/((double)nAktivitetsVariabel-FYRINGSTERSKEL));
 	// TODO EN AV DESSE ER FEIL: Veit ikkje kva. Denne i doCalculation() eller den i K_auron::doTask()
 	// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
@@ -773,7 +776,7 @@ void K_auron::doCalculation()
 			<<"\n\n";
 
 //	cout<<"LEGGER til task i pEstimatedTaskTime";
-	time_class::addTaskIn_pEstimatedTaskTime( this, ulEstimatedTimeToAP);
+	time_class::addTask_in_pEstimatedTaskTime( this, ulEstimatedTimeToAP_temp);
 
 } //}
 
