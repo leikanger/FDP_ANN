@@ -52,7 +52,8 @@ int main(int argc, char *argv[])
 
 	// Dersom ./datafiles_for_evaluation/ ikkje finnes, lages den. Dersm den finnes gjør ikkje kallet noke:
 	if( system("mkdir datafiles_for_evaluation") == 256 ){
-		cout<<"Could not make directory for log files [./datafiles_for_evaluation/]. Directory probably already exist.\n\tIn case this directory does not exist, please make this directory manually in the current directory.\n\n"; 
+		cout<<"Could not make directory for log files [./datafiles_for_evaluation/]. Directory probably already exist."
+			<<"\n\tIn case this directory does not exist, please make this directory manually in the current directory.\n\n"; 
 	}
 	//Renser opp i ./datafiles_for_evaluation/
 	if( system("rm ./datafiles_for_evaluation/log_*.oct") == 256)
@@ -203,7 +204,8 @@ int main(int argc, char *argv[])
 	cout<<"\n\n\nTEST: pEstimatedTaskTime; \n\n\n";
 
 	time_class tid;
-
+/* utkommentert, testning med SANN noder
+//{
 	s_auron* sTest1 = new s_auron("1:");
 	s_auron* sTest2 = new s_auron("2:");
 	s_auron* sTest3 = new s_auron("3:");
@@ -227,32 +229,10 @@ int main(int argc, char *argv[])
 	time_class::addTask_in_pEstimatedTaskTime( sTest7, 4);
 	time_class::addTask_in_pEstimatedTaskTime( sTest8, 22);
 
-/*
-	time_class::addTask_in_pEstimatedTaskTime( sTest6, 6 );
-
-	time_class::addTask_in_pEstimatedTaskTime( sTest4, 10 );
-	time_class::addTask_in_pEstimatedTaskTime( sTest5, 8 );
-	time_class::addTask_in_pEstimatedTaskTime( sTest5, 5 );
-	time_class::addTask_in_pEstimatedTaskTime( sTest5, 9 );
-	//time_class::addTask_in_pEstimatedTaskTime( sTest1, 22 );
-	time_class::addTask_in_pEstimatedTaskTime( sTest6, 10 );
-	time_class::addTask_in_pEstimatedTaskTime( sTest6, 11 );
-	time_class::addTask_in_pEstimatedTaskTime( sTest6, 12 );
-	//time_class::addTask_in_pEstimatedTaskTime( sTest1, 55 );
-*/
 
 	cout<<"\n\nSkriver ut pEstimatedTaskTime: \n\n";
 	time_class::TEST_skrivUt_pEstimatedTaskTime();
 
-/*
-	cout<<"\n\nSTARTER TESTING: fjærner første par elementa.\n\n";
-for(int i=0; i<3; i++) {
-	cout<<"Fjærner element nr. " <<i <<endl;
-	tid.doTask();
-	cout<<endl;
-	time_class::TEST_skrivUt_pEstimatedTaskTime();
- 	}
-*/
 
 cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 3 til iter. 5 " <<"\tpeiker: " <<sTd1 <<"\n\n";
 time_class::moveTask_in_pEstimatedTaskTime( sTd1, 5);
@@ -285,8 +265,85 @@ cout<<"Estimert tid for auron [1,2,3,4,5,6]:  ["
 		<<sTest5->ulEstimatedTaskTime_for_object <<", " 
 		<<sTest6->ulEstimatedTaskTime_for_object <<", " <<"]\n";
 cout<<"timeIterations no: " <<time_class::getTid() <<endl;
+//}
+*/
+//{
+	K_auron* kTest1 = new K_auron("1:");
+	K_auron* kTest2 = new K_auron("2:");
+	K_auron* kTest3 = new K_auron("3:");
+	K_auron* kTest4 = new K_auron("4:");
+	K_auron* kTest5 = new K_auron("5:");
+	K_auron* kTest6 = new K_auron("6:");
+	K_auron* kTest7 = new K_auron("7:");
+	K_auron* kTest8 = new K_auron("8:");
+	K_dendrite* kTd1 = new K_dendrite(kTest1);
 
-cout<<"\n\n\nVirker bra no. Test bedre når du har vetet med deg. No: drithaud!\nFår dra å sjå på action eller noke (romkom?)\nNeiss\n";
+// HUSK: Kvart element skal bare ligge på en plass. Dette har eg brukt en heil dag på å feilsøke. Helvete!
+	time_class::addTask_in_pEstimatedTaskTime( kTest1, 1 );
+
+	time_class::addTask_in_pEstimatedTaskTime( kTest2, 2 );
+	time_class::addTask_in_pEstimatedTaskTime( kTest3, 2 );
+
+	time_class::addTask_in_pEstimatedTaskTime( kTd1, 3 );
+	time_class::addTask_in_pEstimatedTaskTime( kTest4, 3 );
+	time_class::addTask_in_pEstimatedTaskTime( kTest5, 3 );
+
+	time_class::addTask_in_pEstimatedTaskTime( kTest7, 4);
+	time_class::addTask_in_pEstimatedTaskTime( kTest8, 22);
+
+
+	cout<<"\n\nSkriver ut pEstimatedTaskTime: \n\n";
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+cerr<<"\n\nFLYTTE ELEMENT: flytter k_dendrite fra iter " <<kTd1->ulEstimatedTaskTime_for_object <<" til iter 5\n";
+time_class::moveTask_in_pEstimatedTaskTime( kTd1, 5);
+time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+cerr<<"\n\nFLYTTE ELEMENT: flytter kTest1 fra iter " <<kTest1->ulEstimatedTaskTime_for_object <<" til iter 50\n";
+time_class::moveTask_in_pEstimatedTaskTime( kTest1, 50);
+time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+cerr<<"\n\nFLYTTE ELEMENT: flytter k_dendrite fra iter " <<kTd1->ulEstimatedTaskTime_for_object <<" (5?) til iter 48\n";
+time_class::moveTask_in_pEstimatedTaskTime( kTd1, 48);
+time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+cerr<<"\n\nFLYTTE ELEMENT: flytter k_dendrite fra iter " <<kTd1->ulEstimatedTaskTime_for_object <<" (48?) til iter 1\n";
+time_class::moveTask_in_pEstimatedTaskTime( kTd1, 1);
+time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+cerr<<"\n\nFLYTTE ELEMENT: flytter kTest1 fra iter " <<kTest1->ulEstimatedTaskTime_for_object <<" (50?) til iter 1\n";
+time_class::moveTask_in_pEstimatedTaskTime( kTest1, 1);
+time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+cerr<<"\n\nFLYTTE ELEMENT: flytter kTest1 fra iter " <<kTest1->ulEstimatedTaskTime_for_object <<" (1?) til iter 2\n";
+time_class::moveTask_in_pEstimatedTaskTime( kTest1, 2);
+time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+
+
+
+cout<<"Estimert tid for auron [1,2,3,4,5,6]:  [" 
+		<<kTest1->ulEstimatedTaskTime_for_object <<", " 
+		<<kTest2->ulEstimatedTaskTime_for_object <<", " 
+		<<kTest3->ulEstimatedTaskTime_for_object <<", " 
+		<<kTest4->ulEstimatedTaskTime_for_object <<", " 
+		<<kTest5->ulEstimatedTaskTime_for_object <<", " 
+		<<kTest6->ulEstimatedTaskTime_for_object <<", " <<"]\n";
+cout<<"timeIterations no: " <<time_class::getTid() <<endl;
+
+
+cerr<<"\n\n\ntid.doTask();\n";
+tid.doTask();
+time_class::TEST_skrivUt_pWorkTaskQue();
+time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+cerr<<"\n\n\ntid.doTask();\n";
+tid.doTask();
+time_class::TEST_skrivUt_pWorkTaskQue();
+time_class::TEST_skrivUt_pEstimatedTaskTime();
+//}
+
+cout<<"\n\n\nVirker bra no (?)\n\n";
 exit(0); //    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 
@@ -414,8 +471,8 @@ void* taskSchedulerFunction(void* )
 			// Setter igang utføring av neste jobb i lista:
 			time_class::pWorkTaskQue.front() ->doTask(); 		//Dette er i orden, siden pWorkTaskQue er av type list<timeInterface*> og alle arvinger av timeInterface har overlagra funksjonen doTask().
 
-			// Tar vekk jobben fra pWorkTaskQue:
-			time_class::pWorkTaskQue.pop_front();
+			// Tar vekk jobben fra pWorkTaskQue: FLYTTA INN I time_class::doTask()
+			//time_class::pWorkTaskQue.pop_front();
 			
 			//Evt annet som skal gjøres kvart timessteg. Type sjekke etter andre events, legge til fleire synapser, etc.
 

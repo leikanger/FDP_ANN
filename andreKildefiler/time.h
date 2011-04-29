@@ -8,6 +8,7 @@
 #include "../neuroElements/auron.h"
 
 using std::cout;
+using std::cerr;
 using std::endl;
 
 // DEKLARASJONER:
@@ -125,7 +126,8 @@ class time_class : public timeInterface {
 		// pEstimatedTaskTime opplegg ************* 	****** 		********* 		*************  ************************************
 
 
-
+		// Fjærner første element, som per def. er dette elementet (når det blir kalla, skjer dette ved pWorkTaskQue.front()->doTask();
+		pWorkTaskQue.pop_front();
 		// Legger til egenpeiker på slutt av pNesteJobb_ArbeidsKoe
 		pWorkTaskQue.push_back(this);	
 		//itererer time:
@@ -195,7 +197,7 @@ class time_class : public timeInterface {
 
 
 	static inline std::list< std::list<timeInterface*>* >::iterator   get_iteration_in_pEstimatedTaskTime( unsigned uTimeDifference_arg )
-	{
+	{ //{2
 		// Dersom estimert tid er utafor lista av estimert tid: auk lista.
 		int nDiff = uTimeDifference_arg - pEstimatedTaskTime.size()  ;
 		if( nDiff >= 0 ) //Mangler ledd. Legg til rett antall.
@@ -209,20 +211,24 @@ class time_class : public timeInterface {
 		std::list< std::list<timeInterface*>* >::iterator estTimeIter;
 
 		// Finne rett plassering (skal returneres)
-		if( uTimeDifference_arg < (pEstimatedTaskTime.size())/2 ){ // plusser på en (/2) for å få rett avrunding..
+		if( uTimeDifference_arg < (pEstimatedTaskTime.size())/2 ){ 
 			//Søk fra begynnelsen.
 			estTimeIter = pEstimatedTaskTime.begin();
 /*
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 Veit ikkje om for() er bra under. Trur det er broblemer med index. Var (fra 0;<=;++) blei (fra 1; < ; ++)
 
 Meir: Veit ikkje om den som søker fra oppsida er rett heller. No er eg jævla sliten!
 
 */
+
+
+
+
 			for(unsigned u=1; u < uTimeDifference_arg; u++)
 				estTimeIter++;
 // gjorde <= om til < . Veit ikkje om det blir rett. TEST ZZZ XXX XXX XXX XXX XXX
@@ -231,24 +237,32 @@ Meir: Veit ikkje om den som søker fra oppsida er rett heller. No er eg jævla s
 			estTimeIter = (pEstimatedTaskTime.end());
 			for(unsigned u = pEstimatedTaskTime.size(); u >= uTimeDifference_arg; u--)
 				estTimeIter--;
-		}else{ cout<<"ERROR! exit(-123); \nFeilmelding: asdf13@time.h\n"; 
+		}else{ cout<<"Utrulig! Avslutter program: exit(-123); \nLagde jo nettop nok til å unngå denne case'en\nUtskrift av dette er en umulighet.\n"; 
 			exit(-123);
 		}
 
 		//returnerer peiker til rett element
 		return estTimeIter;
-	}
+	} //}2
+
+
+
 
 	// MERK: uRelativeTime_arg er 1 indeksert. TODO gjør den 0-indeksert (antall iterasjoner etter neste)
 	static inline void addTask_in_pEstimatedTaskTime( timeInterface* pTI_arg, unsigned uRelativeTime_arg )
 	{ //{2
-		cout<<"addTask_in_pEstimatedTaskTime(" <<pTI_arg->sClassName <<", " <<uRelativeTime_arg <<");\n";
-
+		cout<<"addTask_in_pEstimatedTaskTime( [" <<pTI_arg->sClassName <<"] , " <<uRelativeTime_arg <<");\n";
+//TODO HER ER EG KOMMET
+		if(uRelativeTime_arg == 0)
+		{
+	 		cout<<"FEIL: kaller get_iteration_in_pEstimatedTaskTime() med argumentet uRelativeTime_arg == 0\n"
+				<<"Returnerer\n";
+			return;
+		}
 
 
 		// Lagrer "posisjon" (i pEstimatedTaskTime-lista) i pTI_arg->ul EstimatedTaskTime_for_object.
 		pTI_arg->ulEstimatedTaskTime_for_object = ulTidsiterasjoner + uRelativeTime_arg;
-
 
 		// legg til element i denne vektorenPEIKEREN:
 		(*get_iteration_in_pEstimatedTaskTime( uRelativeTime_arg ))->push_back( pTI_arg );
@@ -273,8 +287,6 @@ Meir: Veit ikkje om den som søker fra oppsida er rett heller. No er eg jævla s
 		***************/
 
 
-//static inline std::list< std::list<timeInterface*>* >::iterator   get_iteration_in_pEstimatedTaskTime( unsigned uTimeDifference_arg )
-
 		// bruker timeInterface::ulEstimated TaskTime_for_object og get_iteration_in_pEstimatedTaskTime():
 		// Finner rett estimerte iterasjon: pIterator_in_pEstimatedTaskTime_temp  				(get_iteration_in_pEstimatedTaskTime() tar argument: tid til taskTime)
 //		std::list<timeInterface*>::iterator pIterator_in_pEstimatedTaskTime_temp = (*get_iteration_in_pEstimatedTaskTime( pTI_arg->ul EstimatedTaskTime_for_object - time_class::getTid()  ))->begin();
@@ -285,7 +297,8 @@ Meir: Veit ikkje om den som søker fra oppsida er rett heller. No er eg jævla s
 		
 		// TODO Vettafaen om neste linje er naudsynt? TODO sjå gjennom koden neste linjene!
 		std::list< std::list<timeInterface*>* >::iterator oldTimeEstimate_iterator = get_iteration_in_pEstimatedTaskTime( pTI_arg->ulEstimatedTaskTime_for_object - time_class::getTid() );
-		cout<<"Iterasjon i pEstimatedTaskTime: " << pTI_arg->ulEstimatedTaskTime_for_object - time_class::getTid() <<endl;
+		cout<<"Iterasjon i pEstimatedTaskTime: " << pTI_arg->ulEstimatedTaskTime_for_object - time_class::getTid() <<"\t(ulEstimatedTaskTime_for_object (" <<pTI_arg->ulEstimatedTaskTime_for_object <<") - tid.getTid() ["
+			<<time_class::getTid() <<"]\n";
 		(*oldTimeEstimate_iterator)->remove( pTI_arg );
 		// Legger inn elementet på ny plass:
 		// TODO: Dårlig: har ikkje feilsjekk!  ELLER KANSKJE. Orker ikkje meir no. Trur get_iteration_in_pEstimatedTaskTime() har feilsjekk/feilordning slik at det blir bra. 
@@ -303,41 +316,30 @@ Meir: Veit ikkje om den som søker fra oppsida er rett heller. No er eg jævla s
 
 
 
-		cout<<"Skriver ut TEST. Lengde: " <<(*oldTimeEstimate_iterator)->size() <<"\n\n\n";
+		cerr<<"Skriver ut TEST. Lengde: " <<(*oldTimeEstimate_iterator)->size() <<"\n";
 		int ni = 1;
 		for( std::list<timeInterface*>::iterator it = (*oldTimeEstimate_iterator)->begin(); it != (*oldTimeEstimate_iterator)->end(); it++ )
 		{
-	 		cout<<"Element nr. " <<ni++ <<" er " <<(*it)->sClassName <<endl;
+	 		cerr<<"Element nr. " <<ni++ <<" er " <<(*it)->sClassName <<endl;
 		}
-		cout<<"FERIDG\n";
+		cerr<<"FERIDG\n\n";
 
-		cout<<"Tester å finne lengde på liste 0. Antall element: " <<(*get_iteration_in_pEstimatedTaskTime(0))->size() <<"\n\n";
-		cout<<"Tester å finne lengde på liste 1. Antall element: " <<(*get_iteration_in_pEstimatedTaskTime(1))->size() <<"\n\n";
-		cout<<"Tester å finne lengde på liste 2. Antall element: " <<(*get_iteration_in_pEstimatedTaskTime(2))->size() <<"\n\n";
-		cout<<"Tester å finne lengde på liste 3. Antall element: " <<(*get_iteration_in_pEstimatedTaskTime(3))->size() <<"\n\n";
-		cout<<"Tester å finne lengde på liste 4. Antall element: " <<(*get_iteration_in_pEstimatedTaskTime(4))->size() <<"\n\n";
+	
+		cerr<<"Skriver ut lengde på de neste tidsstega:\n";
 
+		cerr<<"Tester å finne lengde på liste 1. Antall element: " <<(*get_iteration_in_pEstimatedTaskTime(1))->size() <<"\n\n";
+		cerr<<"Tester å finne lengde på liste 2. Antall element: " <<(*get_iteration_in_pEstimatedTaskTime(2))->size() <<"\n\n";
+		cerr<<"Tester å finne lengde på liste 3. Antall element: " <<(*get_iteration_in_pEstimatedTaskTime(3))->size() <<"\n\n";
+		cerr<<"Tester å finne lengde på liste 4. Antall element: " <<(*get_iteration_in_pEstimatedTaskTime(4))->size() <<"\n\n";
+		cerr<<"Tester å finne lengde på liste 5. Antall element: " <<(*get_iteration_in_pEstimatedTaskTime(5))->size() <<"\n\n";
 
-		/* TODO TODO TODO UNØDVENDIG: slett! : 
-		//{ UTKOMMENTERT
-		// Søker gjennom denne etter rett timeInterface element:
-		for( std::list<timeInterface*>::iterator  iterElement = pIterator_in_pEstimatedTaskTime_temp->begin();  iterElement != pIterator_in_pEstimatedTaskTime_temp.end(); iterElement++ )
-		{
-			// iterElement er iterator og pTI_arg er peiker. Må derfor dereferere de for å sammenligne
-	 		if( (*iterElement) == (*pTI_arg) )
-			{
-	 			// Har funnet pTI_arg! Fjærner det fra pEstimatedTaskTime.[gammel tid] (skal legge til på ny pos. etterpå.
-				
-			}
-			// husk å oppdatere timeInterface::ul EstimatedTaskTime_for_object
-		}
-*/ //}
+		cerr<<"Ferdig med moveTask_in_pEstimatedTaskTime()   _ _ _ _ _ _ _ _ _ _ \n\n\n\n";
 	} //}2
 
 	const static void TEST_skrivUt_pEstimatedTaskTime()
 	{ //{2
 		cout<<"Skriver ut pEstimatedTaskTime: \n";
-		int nYtreIter = 1;
+		int nYtreIter = 0;
 		int nIndreIter;
 		// itererer gjennom ytre liste:
 		for(std::list< std::list<timeInterface*>* >::iterator ll_iter = pEstimatedTaskTime.begin(); 	ll_iter != pEstimatedTaskTime.end() ; 	ll_iter++ )
@@ -349,14 +351,30 @@ Meir: Veit ikkje om den som søker fra oppsida er rett heller. No er eg jævla s
 			
 			for(std::list<timeInterface*>::iterator listIter = (*ll_iter)->begin() ; listIter != (*ll_iter)->end(); listIter++ )
 			{
-		 		cout<<"\t\telement nr. " <<nIndreIter++ <<":  \t" <<(*listIter)->sClassName <<"     \t ulEstimatedTaskTime_for_object :  " <<(*listIter)->ulEstimatedTaskTime_for_object 
-					<<"\tPeiker: " <<*listIter <<endl;
+		 		cout<<"\t\telement nr. " <<nIndreIter++ <<":  \t" <<(*listIter)->sClassName <<"     \t ulEstimatedTaskTime_for_object :  " 
+					<<(*listIter)->ulEstimatedTaskTime_for_object <<endl;
 			}
 	
 			nYtreIter++;
 		}
 		cout<<"\n\n";
 	} //}2
+
+
+	//static std::list<timeInterface*> pWorkTaskQue;
+	const static void TEST_skrivUt_pWorkTaskQue()
+	{ //{2
+		cout<<"Skriver ut pWorkTaskQue: \n";
+		int nIter = 0;
+		// itererer gjennom ytre liste:
+		for(std::list<timeInterface*>::iterator l_iter = pWorkTaskQue.begin(); 	l_iter != pWorkTaskQue.end() ; 	l_iter++ )
+		{
+			cout<<nIter <<"\t" <<(*l_iter)->sClassName <<endl;
+			nIter++;
+		}
+		cout<<"\n\n";
+	} //}2
+
 
 	public:
 	time_class() : timeInterface("time"){}

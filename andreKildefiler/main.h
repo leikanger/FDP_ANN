@@ -42,10 +42,9 @@
 #include "../neuroElements/dendrite.h"
 #endif*/
 
-//using std::list;
+using std::cerr;
 using std::cout;
 using std::endl;
-//using std::vector;
 
 
 
