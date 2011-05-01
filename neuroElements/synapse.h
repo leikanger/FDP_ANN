@@ -34,6 +34,7 @@ class i_synapse : public timeInterface{
 
 	std::ofstream synWeight_loggFil;
 
+	// XXX Trenger ikkje overlagre i underklasseene? Foreløpig er presyn element og postsyn element av type i_[element]
  	i_axon* pPreNodeAxon;
 	i_dendrite* pPostNodeDendrite; 
 

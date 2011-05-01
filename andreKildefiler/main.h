@@ -26,8 +26,8 @@
 
 #define FYRINGSTERSKEL 1000
 
-#define DEBUG_EXIT(tekst) cout<<"\n\nDEBUG_EXIT :\t" <<tekst <<"\nexit(99);\n\n"; exit(99);
-
+#define DEBUG_EXIT(tekst) cerr<<"\n\nDEBUG_EXIT :\t" <<tekst <<"\nexit(99);\n\n"; exit(99);
+#define DEBUG(tekst) cerr<<"DEBUG :\t" <<tekst <<"\n";
 
 #ifndef MAIN_H_
 #define MAIN_H_

@@ -36,7 +36,7 @@ class i_dendrite : public timeInterface{
 	//virtual inline void feedbackToDendrite() =0;
 
 	public:
-	i_dendrite(i_auron* pElementAvAuron_arg, std::string sNavn /*="dendrite"*/);
+	i_dendrite(std::string sNavn /*="dendrite"*/);
 	~i_dendrite();
 
 	friend int main(int, char**);
@@ -63,8 +63,10 @@ class s_dendrite : public i_dendrite{
 	inline void doTask();
 	inline void feedbackToDendrite();
 
-//	s_auron* pElementAvAuron;
-//	std::list<s_synapse*> pInnSynapser;
+	// Overlagrer i_dendrite::pElementAvAuron og i_dendrite::pInnSynapser, slik at desse blir modellspesifikke.
+	// 	Ligger også i i_dendrite, slik at i_dendrite* også kan kalle pElementAvAuron og pInnSynapser.
+	s_auron* pElementAvAuron;
+	std::list<s_synapse*> pInnSynapser;
 
 	inline void newInputSignal( int nNewSignal );
 	inline void calculateLeakage(); 		//Bare for SANN
@@ -107,6 +109,12 @@ class K_dendrite : public i_dendrite{
  	inline void doTask();
 	inline void feedbackToDendrite();
 
+	// Overlagrer i_dendrite::pElementAvAuron og i_dendrite::pInnSynapser, slik at desse blir modellspesifikke.
+	// 	Ligger også i i_dendrite, slik at i_dendrite* også kan kalle pElementAvAuron og pInnSynapser.
+	K_auron* pElementAvAuron;
+	std::list<K_synapse*> pInnSynapser;
+	
+	
 	inline void newInputSignal(int);
 
 	public:

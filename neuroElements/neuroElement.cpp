@@ -187,12 +187,16 @@ i_synapse::i_synapse(i_axon* pPresynAxon_arg, i_dendrite* pPostsynDendrite_arg, 
 	fSynapticWeight = uSynVekt_Arg;
 	nSynapticWeightChange_promille = 0;
 
+DEBUG("i_synapse::i_synapse(...); \t: 1");
 	pPreNodeAxon = pPresynAxon_arg;
+DEBUG("i_synapse::i_synapse(...); \t: 2");
 	pPostNodeDendrite = pPostsynDendrite_arg;
+DEBUG("i_synapse::i_synapse(...); \t: 3");
 
 	// TODO Kva skal stå her? Har tilegna klassenavn, bInhibitorisk_effekt allerede..
 	
 	cout<<"\t constructor for i_synapse(unsigned uSynVekt_Arg, bool bInhibEffekt_Arg, string navn);\n";
+DEBUG("i_synapse::i_synapse(...); \t: FERDIG");
 	
 } //}3
 //}2
@@ -201,10 +205,19 @@ s_synapse::s_synapse(s_auron* pPresynAuron_arg, s_auron* pPostsynAuron_arg, unsi
 			:  i_synapse(pPresynAuron_arg->pOutputAxon, pPostsynAuron_arg->pInputDendrite , uSynVekt_Arg, bInhibEffekt_Arg, "s_synapse") 
 {//{3	
 
+
+
+DEBUG("s_synapse::s_synapse(...) :\t 1/4");
+
 	cout<<"Kaller s_synapse::s_synapse(" <<pPreNodeAxon->pElementAvAuron->sNavn <<".pOutputAxon, " <<pPostNodeDendrite->pElementAvAuron->sNavn <<".pInputDendrite, ...)\n";
 
+DEBUG("s_synapse::s_synapse(...) :\t 2/4");
+
 	pPreNodeAxon->pUtSynapser.push_back(this);
+DEBUG("s_synapse::s_synapse(...) :\t 3/4");
 	pPostNodeDendrite->pInnSynapser.push_back(this);
+
+DEBUG("s_synapse::s_synapse(...) :\t 4/4");
 	
 
 	cout 	<<"\tCONSTRUCTOR : s_synapse::s_synapse(a*, a*) \tEtterpå får vi:\n" 
@@ -397,11 +410,11 @@ cout<<"\t\tDESTRUCTOR: K_synapse::~<K_synapse() : \t";
 
 //{1 * AXON
 //{2 ***  i_axon
-i_axon::i_axon( i_auron* pAuronArg, std::string sKlasseNavn ="dendrite") : timeInterface(sKlasseNavn), pElementAvAuron(pAuronArg)
+i_axon::i_axon( std::string sKlasseNavn ="dendrite") : timeInterface(sKlasseNavn)
 { //{3
 } //}3
 i_axon::~i_axon()
-{ 
+{ //{
 	// pUtSynapser inneholder bare peikere, så pUtSynapser.clear() vil ikkje føre til destruksjon av synapsene.
 	// 		Sletter synapsene eksplisitt med delete-operatoren på alle element som list<synapse*> pUtSynapser) peiker på.
 	while( !pUtSynapser.empty() ){
@@ -409,10 +422,10 @@ i_axon::~i_axon()
 	}
 	//TO DO   TO DO    TO DO Denne skal ligge i i_axon når pUtSynapser er endra fra <s_synapse*> til <i_synapse*>. TODO TODO  TODO
 
-}
+} //}
 //}2 *** i_axon
 //{2 ***  s_axon
-s_axon::s_axon(s_auron* pAuronArg) : i_axon(pAuronArg, "s_axon")
+s_axon::s_axon(s_auron* pAuronArg) : i_axon("s_axon"), pElementAvAuron(pAuronArg)
 { //{3 
 	cout<<"\tlager axon\n";//for \tauron " <<pAuronArg->sNavn <<endl;		
 } //}3
@@ -423,7 +436,7 @@ s_axon::~s_axon()
 } //}3
 //}2
 //{2 ***  i_axon
-K_axon::K_axon( K_auron* pAuronArg) : i_axon(pAuronArg, "K_axon" )
+K_axon::K_axon( K_auron* pAuronArg) : i_axon("K_axon" ), pElementAvAuron(pAuronArg)
 {
 	cout<<"\tlager axon\n";
 }
@@ -436,9 +449,9 @@ K_axon::~K_axon()
 
 //{1 * DENDRITE
 //{2 *** i_dendrite
-i_dendrite::i_dendrite(i_auron* pElementAvAuron_arg, std::string sNavn ="dendrite") : timeInterface(sNavn)
+i_dendrite::i_dendrite(/*i_auron* pElementAvAuron_arg,*/ std::string sNavn ="dendrite") : timeInterface(sNavn)
 { //{3 
-	pElementAvAuron = pElementAvAuron_arg;
+	//pElementAvAuron = pElementAvAuron_arg;
 } //}3
 i_dendrite::~i_dendrite()
 { //{3
@@ -449,7 +462,7 @@ i_dendrite::~i_dendrite()
 } //}3
 //}2
 //{2 *** s_dendrite
-s_dendrite::s_dendrite( s_auron* pPostSynAuron_Arg ) : i_dendrite(pPostSynAuron_Arg, "s_dendrite")//, pElementAvAuron(pPostSynAuron_Arg)
+s_dendrite::s_dendrite( s_auron* pPostSynAuron_Arg ) : i_dendrite("s_dendrite"), pElementAvAuron(pPostSynAuron_Arg)
 { //{3
 	cout<<"\tLager s_dendrite\n";// for \tauron " <<pElementAvAuron->sNavn <<endl;
 
@@ -461,7 +474,7 @@ s_dendrite::~s_dendrite()
 } //}3
 //}2 XXX s_dendrite 
 //{2 *** K_dendrite
-K_dendrite::K_dendrite( K_auron* pPostSynAuron_Arg ) : i_dendrite(pPostSynAuron_Arg, "K_dendrite" )
+K_dendrite::K_dendrite( K_auron* pPostSynAuron_Arg ) : i_dendrite("K_dendrite" ), pElementAvAuron(pPostSynAuron_Arg)
 {
 	cout<<"\tLager K_dendrite\n";
 }

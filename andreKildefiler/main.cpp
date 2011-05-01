@@ -140,9 +140,10 @@ int main(int argc, char *argv[])
 	s_auron* E = new s_auron("E");
 	s_auron* F = new s_auron("F");
 
+DEBUG("HER (før. Skal være en etter også.");
 	cout<<"new s_synapse(A,B);\n";
-
 	new s_synapse(A1, A2, 1111);
+DEBUG("HER (etter, hurra!)");
 	new s_synapse(A8, A2, 111);
 	
 	new s_synapse(A4, A2, 111);
@@ -465,7 +466,6 @@ cerr<<"pWorkTaskQue.size() :  " <<time_class::pWorkTaskQue.size() <<"\n";
 			//Evt annet som skal gjøres kvart timessteg. Type sjekke etter andre events, legge til fleire synapser, etc.
 
 			// For KANN: skal også sjekke om noko neuron er estimert til å fyre denne iterasjonen.
-DEBUG_EXIT("taskSchedulerFunction(void*)");
 	}
 
 	return 0;
@@ -501,7 +501,7 @@ std::ostream & operator<< (std::ostream & ut, s_axon* pAxonArg ) //XXX Skal gjø
 
 	// Utsynapser:
 		//			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
-	for( std::list<i_synapse*>::iterator iter = pAxonArg->pUtSynapser.begin(); iter != pAxonArg->pUtSynapser.end(); iter++ ){
+	for( std::list<s_synapse*>::iterator iter = pAxonArg->pUtSynapser.begin(); iter != pAxonArg->pUtSynapser.end(); iter++ ){
 	 	ut 	<<"\t\t\t|\t" <<(pAxonArg->pElementAvAuron)->sNavn <<" -> "    <<(*iter)->pPostNodeDendrite->pElementAvAuron->sNavn <<"\t\t|\n";
 	}
 

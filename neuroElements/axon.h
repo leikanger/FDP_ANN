@@ -12,6 +12,7 @@
 //Deklarasjoner:
 class i_synapse;
 class s_synapse;
+class K_synapse;
 class i_auron;
 class s_auron;
 class K_auron;
@@ -24,6 +25,7 @@ class i_axon : public timeInterface{
 	// XXX XXX XXX Utsetter doCalculation() for alle axon: (definerer den til å gjøre ingenting her for å unngå at klassene under blir abstract..)
 	virtual void doCalculation() {}
 	
+	// Desse overlagres i de modell-speisfikke elementa (s_axon og K_axon), for å gi mulighet til å kalle modellspesifikke funksjoner og variabler for s_axon/K_axon.
 	i_auron* pElementAvAuron; 		 // Flytta til i_axon
 	std::list<i_synapse*> pUtSynapser; // Flytta til i_axon
 
@@ -32,7 +34,7 @@ class i_axon : public timeInterface{
 	inline void doTask();
 
 	public:
-	i_axon(i_auron* pAuronArg, std::string sKlasseNavn /*="dendrite"*/);
+	i_axon(std::string sKlasseNavn /*="dendrite"*/);
 	~i_axon();
 	
 	
@@ -56,16 +58,16 @@ class i_axon : public timeInterface{
 	friend class s_axon;
 	friend class s_auron;
 	friend class s_dendrite;
-
-	friend class K_auron;
 };
 
 class s_axon : public i_axon{
 	inline void doTask();
 
-	//s_auron* pElementAvAuron; 		 // Flytta til i_axon
-	//std::list<s_synapse*> pUtSynapser; // Flytta til i_axon
+	// Desse overlagres i de modell-speisfikke elementa (s_axon og K_axon), for å gi mulighet til å kalle modellspesifikke funksjoner og variabler for s_axon/K_axon.
+	s_auron* pElementAvAuron;
+	std::list<s_synapse*> pUtSynapser;
 
+	void slettTESTFUNK(){ cout<<"s_axon::slettTESTFUNK()\n"; } 									// TODO SLETT TODO
 	public:
 	/**************************************************
 	****     axon::axon()  - constructor           ****
@@ -88,6 +90,10 @@ class s_axon : public i_axon{
 
 class K_axon : public i_axon{
 	inline void doTask();
+
+	// Desse overlagres i de modell-speisfikke elementa (s_axon og K_axon), for å gi mulighet til å kalle modellspesifikke funksjoner og variabler for s_axon/K_axon.
+	K_auron* pElementAvAuron;
+	std::list<K_synapse*> pUtSynapser;
 
 	public:
 	K_axon(K_auron*);

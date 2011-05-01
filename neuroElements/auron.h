@@ -36,7 +36,9 @@ class s_axon;
  */
 class i_auron : public timeInterface
 { 	//{		
-	// TODO Flytt axon og dendrite-tilordning ned i underklassene? -> slepper typekonvertering av peikeren..
+	// Variablana pOutputAxon og pInputDendrite overlagres i underklassene. F.eks. i s_auron lages pOutputAxon som en s_axon*. 
+	// 		Effekten av dette blir at alle funksjoner og variabler fra i_axon kan kalles fra utsida (for i_axon--peikerar), mens også de modellspesifikke kan kalles fra andre modellspesifikke element (s_axon-funker kan kalles fra s_auron)!
+
 	//Deler av auronet: (Ligger som s_axon og s_dendrite i s_auron. Samme for K_auron..) TODO SKal ligge der også ?
 	i_axon* pOutputAxon; 			// Trenger å ha dei meir spesifikk for contruction av bl.a. synapse - s_synapse legger til pElementAvAuron->pInputDendrite (som må være av typen ?? XXX prøver igjen..
  	i_dendrite* pInputDendrite; 
@@ -112,8 +114,11 @@ class i_auron : public timeInterface
 
 class s_auron : public i_auron
 { //{
-	//Deler av auronet:
+	//Deler av auronet: 		OVERLAGRA fra i_auron
+	s_axon* pOutputAxon; 			// Overlagrer i_auron::i_axon til s_auron::s_axon. Dette er alternativ til å caste pOutputAxon ved accessering til s_auron::pOutputAxon
+ 	s_dendrite* pInputDendrite;  	// Samme for pInputDendrite.
 
+void slettTESTfunk(){ cout<<"s_auron::TESTfunk()\n"; } 			//TODO TODO TDOD TODO SLETT
 	inline void doTask();
 	inline void doCalculation() { cout<<"s_auron::doCalculation()\n";} 		//XXX UTSETTER. Foreløpig gjør denne ingenting (anna enn å gjøre at s_auron ikkje er abstract)
 
@@ -136,6 +141,9 @@ class s_auron : public i_auron
 
 class K_auron : public i_auron
 { // {
+	//Deler av auronet: 		OVERLAGRA fra i_auron
+	K_axon* pOutputAxon; 			// Overlagrer i_auron::i_axon til K_auron::K_axon. Dette er alternativ til å caste pOutputAxon ved accessering til K_auron::pOutputAxon
+ 	K_dendrite* pInputDendrite;  	// Samme for pInputDendrite.
 	
 
 	inline void doTask();
@@ -172,7 +180,7 @@ class K_auron : public i_auron
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
 	friend int main(int, char**); //TODO SLETT
-//}2
+//}1
 
 }; // }
 
