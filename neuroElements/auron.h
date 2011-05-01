@@ -36,6 +36,7 @@ class s_axon;
  */
 class i_auron : public timeInterface
 { 	//{		
+	// TODO Flytt axon og dendrite-tilordning ned i underklassene? -> slepper typekonvertering av peikeren..
 	//Deler av auronet: (Ligger som s_axon og s_dendrite i s_auron. Samme for K_auron..) TODO SKal ligge der også ?
 	i_axon* pOutputAxon; 			// Trenger å ha dei meir spesifikk for contruction av bl.a. synapse - s_synapse legger til pElementAvAuron->pInputDendrite (som må være av typen ?? XXX prøver igjen..
  	i_dendrite* pInputDendrite; 

@@ -243,6 +243,7 @@ s_synapse::~s_synapse()
 	//TODO Sjekk ut std::find() istedenfor. Stroustrup anbefaler å bruke dette!.
 	if( !bPreOk ){ 	//Redundant test. Kanskje eg skal skrive while(!bPreOk)?
 		//fjærner seg sjølv fra prenode:
+		//			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
 		for( std::list<i_synapse*>::iterator iter = pPreNodeAxon->pUtSynapser.begin(); iter != pPreNodeAxon->pUtSynapser.end() ; iter++ ){
 			if( *iter == this ){
 				cout<<"\t~( [" <<pPreNodeAxon->pElementAvAuron->sNavn <<"] -> "; 	// utskrift del 1
@@ -254,6 +255,7 @@ s_synapse::~s_synapse()
 	}
 	if( !bPostOk ){
 		//fjærner seg sjølv fra postnode:
+		//			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
 		for( std::list<i_synapse*>::iterator iter = pPostNodeDendrite->pInnSynapser.begin(); iter != pPostNodeDendrite->pInnSynapser.end() ; iter++ ){
 			if( *iter == this ){ 
 				cout<<"[" <<pPostNodeDendrite->pElementAvAuron->sNavn <<"] )\t"; 										// utskrift del 2
@@ -337,6 +339,7 @@ cout<<"\t\tDESTRUCTOR: K_synapse::~<K_synapse() : \t";
 	//TODO Sjekk ut std::find() istedenfor. Stroustrup anbefaler å bruke dette!.
 	if( !bPreOk ){ 	//Redundant test. Kanskje eg skal skrive while(!bPreOk)?
 		//fjærner seg sjølv fra prenode:
+		//			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
 		for( std::list<i_synapse*>::iterator iter = pPreNodeAxon->pUtSynapser.begin(); iter != pPreNodeAxon->pUtSynapser.end() ; iter++ ){
 			if( *iter == this ){
 				cout<<"\t~( [" <<pPreNodeAxon->pElementAvAuron->sNavn <<"] -> "; 	// utskrift del 1
@@ -348,6 +351,7 @@ cout<<"\t\tDESTRUCTOR: K_synapse::~<K_synapse() : \t";
 	}
 	if( !bPostOk ){
 		//fjærner seg sjølv fra postnode:
+		//			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
 		for( std::list<i_synapse*>::iterator iter = pPostNodeDendrite->pInnSynapser.begin(); iter != pPostNodeDendrite->pInnSynapser.end() ; iter++ ){
 			if( *iter == this ){ 
 				cout<<"[" <<pPostNodeDendrite->pElementAvAuron->sNavn <<"] )\t"; 										// utskrift del 2
@@ -570,6 +574,7 @@ inline void i_axon::doTask()
  	cout<<"i_axon::doTask()\tLegger inn alle outputsynapser i arbeidskø. Mdl. av auron: " <<pElementAvAuron->sNavn <<" - - - - - - - - - - - - - - - \n";
 
 	// For meir nøyaktig simulering av tid kan alle synaper få verdi for 'time lag' før fyring. No fokuserer eg heller på effektivitet. 
+		//			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
  	for( std::list<i_synapse*>::iterator iter = pUtSynapser.begin(); iter != pUtSynapser.end(); iter++ )
 	{ // Legger alle pUtSynapser inn i arbeidskø: (FIFO-kø)
 		

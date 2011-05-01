@@ -19,6 +19,8 @@ extern std::list< std::list<timeInterface*>* > 	time_class::pEstimatedTaskTime;
 
 extern std::list<i_auron*> i_auron::pAllAurons;
 extern unsigned long time_class::ulTidsiterasjoner;
+extern unsigned long ulAntallTidsiterasjonerTESTING_SLETT;
+
 std::ostream & operator<<(std::ostream& ut, i_auron* pAuronArg );
 
 
@@ -50,13 +52,16 @@ int main(int argc, char *argv[])
 	// Initierer arbeidskø (time_class::pWorkTaskQue)
 	initialiserArbeidsKoe();
 
+	// XXX Veit ikkje heilt med returverdien her. Trur det funka med ==256. Eg tenker det er bedre med !=0 (dersom den returnerer anna enn 0 bare ved feil?
+	// JEss: mkdir returnerer 0 ved successfull completion.
 	// Dersom ./datafiles_for_evaluation/ ikkje finnes, lages den. Dersm den finnes gjør ikkje kallet noke:
-	if( system("mkdir datafiles_for_evaluation") == 256 ){
+	if( system("mkdir datafiles_for_evaluation") != 0 ){
+	// XXX Veit ikkje med rm. Finn ut kva returverdien er for denne. Satser (temporært) på at det er det samme:
 		cout<<"Could not make directory for log files [./datafiles_for_evaluation/]. Directory probably already exist."
 			<<"\n\tIn case this directory does not exist, please make this directory manually in the current directory.\n\n"; 
 	}
 	//Renser opp i ./datafiles_for_evaluation/
-	if( system("rm ./datafiles_for_evaluation/log_*.oct") == 256)
+	if( system("rm ./datafiles_for_evaluation/log_*.oct") != 0)
 		cout<<"Could not remove old log files. Please do this manually to avoid accidendtally plotting old results.\n";
 
 	//Leser inn argumenter: 
@@ -120,7 +125,7 @@ int main(int argc, char *argv[])
 	
 	//TODO For at alle skal destrueres automatisk, legg alle peikere inn i std::vector, og destruer alle element i vector på slutten av main.
 
-  /* SANN: test-oppsett. 		SANN  		* /
+  /* SANN: test-oppsett. 		SANN  		*/
  	//{ SANN: TEST-oppsett. Lager mange neuron..
 	s_auron* A1 = new s_auron("A1");
 	s_auron* A2 = new s_auron("A2");
@@ -199,75 +204,14 @@ int main(int argc, char *argv[])
 	new K_synapse(K2, K4, 1111);
 	//} /**/
 
-  /*  pEstimatedTaskTime 	Test 			*/
+  /*  pEstimatedTaskTime 	Test 			* /
 //{ pEstimertTaskTime test-oppsett.
 	cout<<"\n\n\nTEST: pEstimatedTaskTime; \n\n\n";
 
 	time_class tid;
-/* utkommentert, testning med SANN noder
-//{
-	s_auron* sTest1 = new s_auron("1:");
-	s_auron* sTest2 = new s_auron("2:");
-	s_auron* sTest3 = new s_auron("3:");
-	s_auron* sTest4 = new s_auron("4:");
-	s_auron* sTest5 = new s_auron("5:");
-	s_auron* sTest6 = new s_auron("6:");
-	s_auron* sTest7 = new s_auron("7:");
-	s_auron* sTest8 = new s_auron("8:");
-	s_dendrite* sTd1 = new s_dendrite(sTest1);
 
-// HUSK: Kvart element skal bare ligge på en plass. Dette har eg brukt en heil dag på å feilsøke. Helvete!
-	time_class::addTask_in_pEstimatedTaskTime( sTest1, 1 );
+// TESTING MED KANN NODER:
 
-	time_class::addTask_in_pEstimatedTaskTime( sTest2, 2 );
-	time_class::addTask_in_pEstimatedTaskTime( sTest3, 2 );
-
-	time_class::addTask_in_pEstimatedTaskTime( sTd1, 3 );
-	time_class::addTask_in_pEstimatedTaskTime( sTest4, 3 );
-	time_class::addTask_in_pEstimatedTaskTime( sTest5, 3 );
-
-	time_class::addTask_in_pEstimatedTaskTime( sTest7, 4);
-	time_class::addTask_in_pEstimatedTaskTime( sTest8, 22);
-
-
-	cout<<"\n\nSkriver ut pEstimatedTaskTime: \n\n";
-	time_class::TEST_skrivUt_pEstimatedTaskTime();
-
-
-cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 3 til iter. 5 " <<"\tpeiker: " <<sTd1 <<"\n\n";
-time_class::moveTask_in_pEstimatedTaskTime( sTd1, 5);
-time_class::TEST_skrivUt_pEstimatedTaskTime();
-
-cout<<"\n\nFLYTTE ELEMENT: flytter første element fra iter. 1 til iter. 50 " <<"\tpeiker: " <<sTd1 <<"\n\n";
-time_class::moveTask_in_pEstimatedTaskTime( sTest1, 50);
-time_class::TEST_skrivUt_pEstimatedTaskTime();
-
-cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 5 til iter. 48 " <<"\tpeiker: " <<sTd1 <<"\n\n";
-time_class::moveTask_in_pEstimatedTaskTime( sTd1, 48);
-time_class::TEST_skrivUt_pEstimatedTaskTime();
-
-cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 48 til iter. 1 " <<"\tpeiker: " <<sTd1 <<"\n\n";
-time_class::moveTask_in_pEstimatedTaskTime( sTd1, 1);
-time_class::TEST_skrivUt_pEstimatedTaskTime();
-
-
-cout<<"\n\nFLYTTE ELEMENT: flytter sTest1 fra iter. 50 til iter. 1 " <<"\tpeiker: " <<sTd1 <<"\n\n";
-time_class::moveTask_in_pEstimatedTaskTime( sTest1, 1);
-time_class::TEST_skrivUt_pEstimatedTaskTime();
-
-
-
-cout<<"Estimert tid for auron [1,2,3,4,5,6]:  [" 
-		<<sTest1->ulEstimatedTaskTime_for_object <<", " 
-		<<sTest2->ulEstimatedTaskTime_for_object <<", " 
-		<<sTest3->ulEstimatedTaskTime_for_object <<", " 
-		<<sTest4->ulEstimatedTaskTime_for_object <<", " 
-		<<sTest5->ulEstimatedTaskTime_for_object <<", " 
-		<<sTest6->ulEstimatedTaskTime_for_object <<", " <<"]\n";
-cout<<"timeIterations no: " <<time_class::getTid() <<endl;
-//}
-*/
-//{
 	K_auron* kTest1 = new K_auron("1:");
 	K_auron* kTest2 = new K_auron("2:");
 	K_auron* kTest3 = new K_auron("3:");
@@ -331,44 +275,89 @@ cout<<"Estimert tid for auron [1,2,3,4,5,6]:  ["
 		<<kTest6->ulEstimatedTaskTime_for_object <<", " <<"]\n";
 cout<<"timeIterations no: " <<time_class::getTid() <<endl;
 
+/ * utkommentert, testning med SANN noder
+//{
+	s_auron* sTest1 = new s_auron("1:");
+	s_auron* sTest2 = new s_auron("2:");
+	s_auron* sTest3 = new s_auron("3:");
+	s_auron* sTest4 = new s_auron("4:");
+	s_auron* sTest5 = new s_auron("5:");
+	s_auron* sTest6 = new s_auron("6:");
+	s_auron* sTest7 = new s_auron("7:");
+	s_auron* sTest8 = new s_auron("8:");
+	s_dendrite* sTd1 = new s_dendrite(sTest1);
 
-cerr<<"\n\n\ntid.doTask();\n";
-tid.doTask();
-time_class::TEST_skrivUt_pWorkTaskQue();
+// HUSK: Kvart element skal bare ligge på en plass. Dette har eg brukt en heil dag på å feilsøke. Helvete!
+	time_class::addTask_in_pEstimatedTaskTime( sTest1, 1 );
+
+	time_class::addTask_in_pEstimatedTaskTime( sTest2, 2 );
+	time_class::addTask_in_pEstimatedTaskTime( sTest3, 2 );
+
+	time_class::addTask_in_pEstimatedTaskTime( sTd1, 3 );
+	time_class::addTask_in_pEstimatedTaskTime( sTest4, 3 );
+	time_class::addTask_in_pEstimatedTaskTime( sTest5, 3 );
+
+	time_class::addTask_in_pEstimatedTaskTime( sTest7, 4);
+	time_class::addTask_in_pEstimatedTaskTime( sTest8, 22);
+
+
+	cout<<"\n\nSkriver ut pEstimatedTaskTime: \n\n";
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+
+cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 3 til iter. 5 " <<"\tpeiker: " <<sTd1 <<"\n\n";
+time_class::moveTask_in_pEstimatedTaskTime( sTd1, 5);
 time_class::TEST_skrivUt_pEstimatedTaskTime();
 
-cerr<<"\n\n\ntid.doTask();\n";
-tid.doTask();
-time_class::TEST_skrivUt_pWorkTaskQue();
+cout<<"\n\nFLYTTE ELEMENT: flytter første element fra iter. 1 til iter. 50 " <<"\tpeiker: " <<sTd1 <<"\n\n";
+time_class::moveTask_in_pEstimatedTaskTime( sTest1, 50);
 time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 5 til iter. 48 " <<"\tpeiker: " <<sTd1 <<"\n\n";
+time_class::moveTask_in_pEstimatedTaskTime( sTd1, 48);
+time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 48 til iter. 1 " <<"\tpeiker: " <<sTd1 <<"\n\n";
+time_class::moveTask_in_pEstimatedTaskTime( sTd1, 1);
+time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+
+cout<<"\n\nFLYTTE ELEMENT: flytter sTest1 fra iter. 50 til iter. 1 " <<"\tpeiker: " <<sTd1 <<"\n\n";
+time_class::moveTask_in_pEstimatedTaskTime( sTest1, 1);
+time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+
+
+cout<<"Estimert tid for auron [1,2,3,4,5,6]:  [" 
+		<<sTest1->ulEstimatedTaskTime_for_object <<", " 
+		<<sTest2->ulEstimatedTaskTime_for_object <<", " 
+		<<sTest3->ulEstimatedTaskTime_for_object <<", " 
+		<<sTest4->ulEstimatedTaskTime_for_object <<", " 
+		<<sTest5->ulEstimatedTaskTime_for_object <<", " 
+		<<sTest6->ulEstimatedTaskTime_for_object <<", " <<"]\n";
+cout<<"timeIterations no: " <<time_class::getTid() <<endl;
 //}
+* /
+
+cerr<<"\n\n\ntid.doTask();\n";
+tid.doTask();
+time_class::TEST_skrivUt_pWorkTaskQue();
+time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+cerr<<"\n\n\ntid.doTask();\n";
+tid.doTask();
+time_class::TEST_skrivUt_pWorkTaskQue();
+time_class::TEST_skrivUt_pEstimatedTaskTime();
 
 cout<<"\n\n\nVirker bra no (?)\n\n";
 exit(0); //    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**/ //}
-
-/*
-cout<<"TESTER NOKE:\n";
-#define OUTPUT(x) cout<<x
-OUTPUT("jess. OUTPUT(arg)\n");
-OUTPUT("Endrer OUTPUT() til å være tom:\n");
-#define OUTPUT2(x) 
-OUTPUT2("NOPE, OUTPUT2(arg)\n");
-OUTPUT("\nSkulle skrevet noke. Jess! Det gjorde det ikkje!\n");
 */
+//}
+
+
+
+
+
 
 
 
@@ -380,10 +369,7 @@ OUTPUT("\nSkulle skrevet noke. Jess! Det gjorde det ikkje!\n");
 
 
 
-
-
 /******************************************* Starter void taskSchedulerFunction(void*); ****************************************************/
-	sleep(1);
 	taskSchedulerFunction(0);
 
 
@@ -400,7 +386,7 @@ OUTPUT("\nSkulle skrevet noke. Jess! Det gjorde det ikkje!\n");
 /********************************************************************************************************************************************/
 
 
-	cout<<"\n\nWIN!\n";
+	cout<<"\n\nWIN!\n\n\n";
 	return 0;
 }
 
@@ -440,7 +426,6 @@ void initialiserArbeidsKoe()
 } //}1
 
 
-extern unsigned long ulAntallTidsiterasjonerTESTING_SLETT;
 /*****************************************************************
 ** 	void* taskSchedulerFunction(void*)							**
 ** 																**
@@ -454,6 +439,9 @@ extern unsigned long ulAntallTidsiterasjonerTESTING_SLETT;
 void* taskSchedulerFunction(void* )
 { //{1
 	cout<<"\n\n\t\t\t\t\tKjører void* taskSchedulerFunction(void*);\n";
+
+cerr<<"pWorkTaskQue.size() :  " <<time_class::pWorkTaskQue.size() <<"\n";
+
 	while( time_class::ulTidsiterasjoner <= ulAntallTidsiterasjonerTESTING_SLETT) // XXX Skal bli "uendelig" løkke etterkvart:
 	//while(/*En eller anna avsluttings-bool =*/true)
 	{
@@ -465,7 +453,7 @@ void* taskSchedulerFunction(void* )
 			}
 
 			// DEBUG: 	Skriv ut klassenavn på element:
- 			//cout<<time_class::pWorkTaskQue.front() ->sClassName <<"\t:\t*\t*\t*\n"; 		
+ //cerr<<time_class::pWorkTaskQue.front() ->sClassName <<"\t:\t*\t*\t*\n"; 		
 	
 
 			// Setter igang utføring av neste jobb i lista:
@@ -477,6 +465,7 @@ void* taskSchedulerFunction(void* )
 			//Evt annet som skal gjøres kvart timessteg. Type sjekke etter andre events, legge til fleire synapser, etc.
 
 			// For KANN: skal også sjekke om noko neuron er estimert til å fyre denne iterasjonen.
+DEBUG_EXIT("taskSchedulerFunction(void*)");
 	}
 
 	return 0;
@@ -511,6 +500,7 @@ std::ostream & operator<< (std::ostream & ut, s_axon* pAxonArg ) //XXX Skal gjø
 	ut<<"Utsynapser fra axon tilhørende neuron " <<(pAxonArg->pElementAvAuron)->sNavn <<endl; 
 
 	// Utsynapser:
+		//			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
 	for( std::list<i_synapse*>::iterator iter = pAxonArg->pUtSynapser.begin(); iter != pAxonArg->pUtSynapser.end(); iter++ ){
 	 	ut 	<<"\t\t\t|\t" <<(pAxonArg->pElementAvAuron)->sNavn <<" -> "    <<(*iter)->pPostNodeDendrite->pElementAvAuron->sNavn <<"\t\t|\n";
 	}
@@ -519,4 +509,16 @@ std::ostream & operator<< (std::ostream & ut, s_axon* pAxonArg ) //XXX Skal gjø
 	return ut;
 } //}
 
+
+
+
+/*
+cout<<"TESTER NOKE:\n";
+#define OUTPUT(x) cout<<x
+OUTPUT("jess. OUTPUT(arg)\n");
+OUTPUT("Endrer OUTPUT() til å være tom:\n");
+#define OUTPUT2(x) 
+OUTPUT2("NOPE, OUTPUT2(arg)\n");
+OUTPUT("\nSkulle skrevet noke. Jess! Det gjorde det ikkje!\n");
+*/
 // vim:fdm=marker:fmr=//{,//}

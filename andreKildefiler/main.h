@@ -26,6 +26,7 @@
 
 #define FYRINGSTERSKEL 1000
 
+#define DEBUG_EXIT(tekst) cout<<"\n\nDEBUG_EXIT :\t" <<tekst <<"\nexit(99);\n\n"; exit(99);
 
 
 #ifndef MAIN_H_
