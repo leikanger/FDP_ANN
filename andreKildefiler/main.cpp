@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 	
 	//TODO For at alle skal destrueres automatisk, legg alle peikere inn i std::vector, og destruer alle element i vector på slutten av main.
 
-  /* SANN: test-oppsett. 		SANN  		*/
+  /* SANN: test-oppsett. 		SANN  		* /
  	//{ SANN: TEST-oppsett. Lager mange neuron..
 	s_auron* A1 = new s_auron("A1");
 	s_auron* A2 = new s_auron("A2");
@@ -163,16 +163,16 @@ int main(int argc, char *argv[])
 	new s_synapse(A9, A1, 1111);
 	new s_synapse(A4, A1, 311);
 
-	new s_synapse(A1, E, 151);
-	new s_synapse(A2, E, 131);
-	new s_synapse(A3, E, 121);
-	new s_synapse(A3, E, 101);
-	new s_synapse(A3, E, 121);
-	new s_synapse(A5, E, 161);
-	new s_synapse(A6, E, 131);
-	new s_synapse(A8, E, 151);
-	new s_synapse(A9, E, 191);
-	new s_synapse(A1, E, 51);
+	new s_synapse(A1, E, 15);
+	new s_synapse(A2, E, 11);
+	new s_synapse(A3, E, 13);
+	new s_synapse(A3, E, 5);
+	new s_synapse(A3, E, 11);
+	new s_synapse(A5, E, 6);
+	new s_synapse(A6, E, 3);
+	new s_synapse(A8, E, 18);
+	new s_synapse(A9, E, 4);
+	new s_synapse(A1, E, 5);
 	
 	new s_synapse(A1, F, 251);
 	new s_synapse(A2, F, 131);
@@ -203,13 +203,13 @@ int main(int argc, char *argv[])
 	new K_synapse(K2, K4, 1111);
 	//} /**/
 
-  /*  pEstimatedTaskTime 	Test 			* /
+  //  pEstimatedTaskTime 	Test 		
 //{ pEstimertTaskTime test-oppsett.
-	cout<<"\n\n\nTEST: pEstimatedTaskTime; \n\n\n";
-
 	time_class tid;
 
-// TESTING MED KANN NODER:
+/* TESTING MED KANN NODER: * /
+//{
+	cout<<"\n\n\nTEST: pEstimatedTaskTime for KANN noder; \n\n\n";
 
 	K_auron* kTest1 = new K_auron("1:");
 	K_auron* kTest2 = new K_auron("2:");
@@ -273,9 +273,11 @@ cout<<"Estimert tid for auron [1,2,3,4,5,6]:  ["
 		<<kTest5->ulEstimatedTaskTime_for_object <<", " 
 		<<kTest6->ulEstimatedTaskTime_for_object <<", " <<"]\n";
 cout<<"timeIterations no: " <<time_class::getTid() <<endl;
-
-/ * utkommentert, testning med SANN noder
+/**/ //}
+/* TESTING MED SANN NODER: * /
 //{
+	cout<<"\n\n\nTEST: pEstimatedTaskTime for SANN noder; \n\n\n";
+
 	s_auron* sTest1 = new s_auron("1:");
 	s_auron* sTest2 = new s_auron("2:");
 	s_auron* sTest3 = new s_auron("3:");
@@ -304,27 +306,30 @@ cout<<"timeIterations no: " <<time_class::getTid() <<endl;
 	time_class::TEST_skrivUt_pEstimatedTaskTime();
 
 
-cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 3 til iter. 5 " <<"\tpeiker: " <<sTd1 <<"\n\n";
+cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 3 til iter. 5 " <<"\n\n";
 time_class::moveTask_in_pEstimatedTaskTime( sTd1, 5);
 time_class::TEST_skrivUt_pEstimatedTaskTime();
 
-cout<<"\n\nFLYTTE ELEMENT: flytter første element fra iter. 1 til iter. 50 " <<"\tpeiker: " <<sTd1 <<"\n\n";
+cout<<"\n\nFLYTTE ELEMENT: flytter første element fra iter. 1 til iter. 50 " <<"\n\n";
 time_class::moveTask_in_pEstimatedTaskTime( sTest1, 50);
 time_class::TEST_skrivUt_pEstimatedTaskTime();
 
-cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 5 til iter. 48 " <<"\tpeiker: " <<sTd1 <<"\n\n";
+cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 5 til iter. 48 " <<"\n\n";
 time_class::moveTask_in_pEstimatedTaskTime( sTd1, 48);
 time_class::TEST_skrivUt_pEstimatedTaskTime();
 
-cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 48 til iter. 1 " <<"\tpeiker: " <<sTd1 <<"\n\n";
+cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 48 til iter. 1 "<<"\n\n";
 time_class::moveTask_in_pEstimatedTaskTime( sTd1, 1);
 time_class::TEST_skrivUt_pEstimatedTaskTime();
 
 
-cout<<"\n\nFLYTTE ELEMENT: flytter sTest1 fra iter. 50 til iter. 1 " <<"\tpeiker: " <<sTd1 <<"\n\n";
+cout<<"\n\nFLYTTE ELEMENT: flytter sTest1 fra iter. 50 til iter. 1 " <<"\n\n";
 time_class::moveTask_in_pEstimatedTaskTime( sTest1, 1);
 time_class::TEST_skrivUt_pEstimatedTaskTime();
 
+cout<<"\n\nFLYTTE ELEMENT: flytter sTest1 fra iter. 1 til iter. 2 " <<"\n\n";
+time_class::moveTask_in_pEstimatedTaskTime( sTest1, 2);
+time_class::TEST_skrivUt_pEstimatedTaskTime();
 
 
 cout<<"Estimert tid for auron [1,2,3,4,5,6]:  [" 
@@ -335,8 +340,13 @@ cout<<"Estimert tid for auron [1,2,3,4,5,6]:  ["
 		<<sTest5->ulEstimatedTaskTime_for_object <<", " 
 		<<sTest6->ulEstimatedTaskTime_for_object <<", " <<"]\n";
 cout<<"timeIterations no: " <<time_class::getTid() <<endl;
-//}
-* /
+/**/
+/}
+
+cerr<<"\n\n\ntid.doTask();\n";
+tid.doTask();
+time_class::TEST_skrivUt_pWorkTaskQue();
+time_class::TEST_skrivUt_pEstimatedTaskTime();
 
 cerr<<"\n\n\ntid.doTask();\n";
 tid.doTask();
@@ -350,9 +360,9 @@ time_class::TEST_skrivUt_pEstimatedTaskTime();
 
 cout<<"\n\n\nVirker bra no (?)\n\n";
 exit(0); //    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-*/
+/**/
 //}
-
+//}
 
 
 
