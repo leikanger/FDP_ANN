@@ -29,9 +29,11 @@ class i_axon : public timeInterface{
 	i_auron* pElementAvAuron; 		 // Flytta til i_axon
 	std::list<i_synapse*> pUtSynapser; // Flytta til i_axon
 
+	//SLETT:
+	virtual void SLETTtypeId(){ cout<<"Dette er i_axon\n"; }
 	
-	protected:
-	inline void doTask();
+//	protected:
+//	inline void doTask();
 
 	public:
 	i_axon(std::string sKlasseNavn /*="dendrite"*/);
@@ -67,7 +69,6 @@ class s_axon : public i_axon{
 	s_auron* pElementAvAuron;
 	std::list<s_synapse*> pUtSynapser;
 
-	void slettTESTFUNK(){ cout<<"s_axon::slettTESTFUNK()\n"; } 									// TODO SLETT TODO
 	public:
 	/**************************************************
 	****     axon::axon()  - constructor           ****
@@ -78,6 +79,13 @@ class s_axon : public i_axon{
 	s_axon(s_auron* pAuronArg);// : timeInterface("axon"), pElementAvAuron(pAuronArg) 		//XXX Bare mens eg utvikler i_auron. Kan fjærne etterkvart..
 	//axon(const i_auron* p_iAuronArg);
 	~s_axon();
+
+	//SLETT:
+	virtual void SLETTtypeId(){ cout<<"Dette er i_axon\n"; }
+	void slettTESTFUNK(){ cout<<"s_axon::slettTESTFUNK()\n"; } 									// TODO SLETT TODO
+
+
+
 
 	friend class i_auron;
 	//friend class s_auron;
@@ -98,6 +106,12 @@ class K_axon : public i_axon{
 	public:
 	K_axon(K_auron*);
 	~K_axon();
+
+	//SLETT:
+	virtual void SLETTtypeId(){ cout<<"Dette er i_axon\n"; }
+
+	//Skal vekk:
+	friend class K_synapse;
 };
 #endif
 // vim:fdm=marker:fmr=//{,//}

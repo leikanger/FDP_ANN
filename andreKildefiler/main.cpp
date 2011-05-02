@@ -140,10 +140,8 @@ int main(int argc, char *argv[])
 	s_auron* E = new s_auron("E");
 	s_auron* F = new s_auron("F");
 
-DEBUG("HER (før. Skal være en etter også.");
 	cout<<"new s_synapse(A,B);\n";
 	new s_synapse(A1, A2, 1111);
-DEBUG("HER (etter, hurra!)");
 	new s_synapse(A8, A2, 111);
 	
 	new s_synapse(A4, A2, 111);
@@ -443,11 +441,11 @@ void* taskSchedulerFunction(void* )
 
 cerr<<"pWorkTaskQue.size() :  " <<time_class::pWorkTaskQue.size() <<"\n";
 
+int DEBUG_int = 0;
 	while( time_class::ulTidsiterasjoner <= ulAntallTidsiterasjonerTESTING_SLETT) // XXX Skal bli "uendelig" løkke etterkvart:
 	//while(/*En eller anna avsluttings-bool =*/true)
 	{
 			/*FEILSJEKK (kan takast vekk)*/
-			//cout<<"feilsjekk: Antall element i pWorkTaskQue :  " <<time_class::pWorkTaskQue.size() <<endl;
 			if(time_class::pWorkTaskQue.empty()){ 
 				cout<<"\n\n\nFEIL. time_class::pWorkTaskQue er tom. Skal aldri skje. \nFeilmelding: [taskSchedulerFunction::c01]\n\n\n"; 
 				exit(-1);
@@ -457,16 +455,18 @@ cerr<<"pWorkTaskQue.size() :  " <<time_class::pWorkTaskQue.size() <<"\n";
  //cerr<<time_class::pWorkTaskQue.front() ->sClassName <<"\t:\t*\t*\t*\n"; 		
 	
 
+/*DEBUG*/cout<<"For element av type: " <<time_class::pWorkTaskQue.front()->sClassName <<":\t"; DEBUG("Kaller pWorkTaskQue->front() ->doTask()");
 			// Setter igang utføring av neste jobb i lista:
 			time_class::pWorkTaskQue.front() ->doTask(); 		//Dette er i orden, siden pWorkTaskQue er av type list<timeInterface*> og alle arvinger av timeInterface har overlagra funksjonen doTask().
 
 			// Tar vekk jobben fra pWorkTaskQue: FLYTTA INN I time_class::doTask()
-			//time_class::pWorkTaskQue.pop_front();
+			time_class::pWorkTaskQue.pop_front();
 			
 			//Evt annet som skal gjøres kvart timessteg. Type sjekke etter andre events, legge til fleire synapser, etc.
 
 			// For KANN: skal også sjekke om noko neuron er estimert til å fyre denne iterasjonen.
 	}
+time_class::TEST_skrivUt_pWorkTaskQue();
 
 	return 0;
 } //}1

@@ -180,19 +180,16 @@ K_auron::~K_auron()
 
 //{1 * SYNAPSE
 //{2 i_synapse
-i_synapse::i_synapse(i_axon* pPresynAxon_arg, i_dendrite* pPostsynDendrite_arg, unsigned uSynVekt_Arg, bool bInhibEffekt_Arg, std::string sKlasseNavn /*="synapse"*/ ) : timeInterface(sKlasseNavn), bInhibitorisk_effekt(bInhibEffekt_Arg)
-//i_synapse::i_synapse(unsigned uSynVekt_Arg, bool bInhibEffekt_Arg, std::string sKlasseNavn ="synapse") : timeInterface(sKlasseNavn), bInhibitorisk_effekt(bInhibEffekt_Arg)
+//i_synapse::i_synapse(i_axon* pPresynAxon_arg, i_dendrite* pPostsynDendrite_arg, unsigned uSynVekt_Arg, bool bInhibEffekt_Arg, std::string sKlasseNavn /*="synapse"*/ ) : timeInterface(sKlasseNavn), bInhibitorisk_effekt(bInhibEffekt_Arg)
+i_synapse::i_synapse(unsigned uSynVekt_Arg, bool bInhibEffekt_Arg, std::string sKlasseNavn /*="synapse"*/ ) : timeInterface(sKlasseNavn), bInhibitorisk_effekt(bInhibEffekt_Arg)
 { //{3
 	uSynapticWeight_promille = uSynVekt_Arg;
 	fSynapticWeight = uSynVekt_Arg;
 	nSynapticWeightChange_promille = 0;
-
-DEBUG("i_synapse::i_synapse(...); \t: 1");
+/*
 	pPreNodeAxon = pPresynAxon_arg;
-DEBUG("i_synapse::i_synapse(...); \t: 2");
 	pPostNodeDendrite = pPostsynDendrite_arg;
-DEBUG("i_synapse::i_synapse(...); \t: 3");
-
+*/
 	// TODO Kva skal stå her? Har tilegna klassenavn, bInhibitorisk_effekt allerede..
 	
 	cout<<"\t constructor for i_synapse(unsigned uSynVekt_Arg, bool bInhibEffekt_Arg, string navn);\n";
@@ -202,22 +199,19 @@ DEBUG("i_synapse::i_synapse(...); \t: FERDIG");
 //}2
 //{2 s_synapse
 s_synapse::s_synapse(s_auron* pPresynAuron_arg, s_auron* pPostsynAuron_arg, unsigned uSynVekt_Arg /*=1*/, bool bInhibEffekt_Arg /*=false*/) 
-			:  i_synapse(pPresynAuron_arg->pOutputAxon, pPostsynAuron_arg->pInputDendrite , uSynVekt_Arg, bInhibEffekt_Arg, "s_synapse") 
+			:  i_synapse(uSynVekt_Arg, bInhibEffekt_Arg, "s_synapse"), pPreNodeAxon(pPresynAuron_arg->pOutputAxon), pPostNodeDendrite(pPostsynAuron_arg->pInputDendrite) 
 {//{3	
 
 
 
-DEBUG("s_synapse::s_synapse(...) :\t 1/4");
-
-	cout<<"Kaller s_synapse::s_synapse(" <<pPreNodeAxon->pElementAvAuron->sNavn <<".pOutputAxon, " <<pPostNodeDendrite->pElementAvAuron->sNavn <<".pInputDendrite, ...)\n";
-
-DEBUG("s_synapse::s_synapse(...) :\t 2/4");
+cerr<<"Presyn. axon: " <<pPreNodeAxon->sClassName ;
+pPreNodeAxon->SLETTtypeId();
+	
+	cerr<<"Kaller s_synapse::s_synapse(" <<pPreNodeAxon->pElementAvAuron->sNavn <<".pOutputAxon, " <<pPostNodeDendrite->pElementAvAuron->sNavn <<".pInputDendrite, ...)\n";
 
 	pPreNodeAxon->pUtSynapser.push_back(this);
-DEBUG("s_synapse::s_synapse(...) :\t 3/4");
 	pPostNodeDendrite->pInnSynapser.push_back(this);
 
-DEBUG("s_synapse::s_synapse(...) :\t 4/4");
 	
 
 	cout 	<<"\tCONSTRUCTOR : s_synapse::s_synapse(a*, a*) \tEtterpå får vi:\n" 
@@ -242,7 +236,6 @@ DEBUG("s_synapse::s_synapse(...) :\t 4/4");
 
 	//}4
 
-
 } //}3
 s_synapse::~s_synapse()
 { //{3 ... }    --DESTRUCTOR
@@ -257,7 +250,7 @@ s_synapse::~s_synapse()
 	if( !bPreOk ){ 	//Redundant test. Kanskje eg skal skrive while(!bPreOk)?
 		//fjærner seg sjølv fra prenode:
 		//			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
-		for( std::list<i_synapse*>::iterator iter = pPreNodeAxon->pUtSynapser.begin(); iter != pPreNodeAxon->pUtSynapser.end() ; iter++ ){
+		for( std::list<s_synapse*>::iterator iter = pPreNodeAxon->pUtSynapser.begin(); iter != pPreNodeAxon->pUtSynapser.end() ; iter++ ){
 			if( *iter == this ){
 				cout<<"\t~( [" <<pPreNodeAxon->pElementAvAuron->sNavn <<"] -> "; 	// utskrift del 1
 				(pPreNodeAxon->pUtSynapser).erase( iter );
@@ -269,7 +262,7 @@ s_synapse::~s_synapse()
 	if( !bPostOk ){
 		//fjærner seg sjølv fra postnode:
 		//			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
-		for( std::list<i_synapse*>::iterator iter = pPostNodeDendrite->pInnSynapser.begin(); iter != pPostNodeDendrite->pInnSynapser.end() ; iter++ ){
+		for( std::list<s_synapse*>::iterator iter = pPostNodeDendrite->pInnSynapser.begin(); iter != pPostNodeDendrite->pInnSynapser.end() ; iter++ ){
 			if( *iter == this ){ 
 				cout<<"[" <<pPostNodeDendrite->pElementAvAuron->sNavn <<"] )\t"; 										// utskrift del 2
 				(pPostNodeDendrite->pInnSynapser).erase( iter );
@@ -311,7 +304,7 @@ s_synapse::~s_synapse()
 //}2
 //{2 K_synapse
 K_synapse::K_synapse(K_auron* pPresynAuron_arg, K_auron* pPostsynAuron_arg, unsigned uSynVekt_Arg /*=1*/, bool bInhibEffekt_Arg /*=false*/ )
- :  i_synapse(pPresynAuron_arg->pOutputAxon, pPostsynAuron_arg->pInputDendrite , uSynVekt_Arg, bInhibEffekt_Arg, "s_synapse") 
+ :  i_synapse(uSynVekt_Arg, bInhibEffekt_Arg, "s_synapse") , pPreNodeAxon(pPresynAuron_arg->pOutputAxon), pPostNodeDendrite(pPostsynAuron_arg->pInputDendrite)
 { 	//XXX HER: nytt kappa element:
 	cout<<"Kaller K_synapse::K_synapse(" <<pPreNodeAxon->pElementAvAuron->sNavn <<".pOutputAxon, " <<pPostNodeDendrite->pElementAvAuron->sNavn <<".pInputDendrite, ...)\n";
 
@@ -353,7 +346,7 @@ cout<<"\t\tDESTRUCTOR: K_synapse::~<K_synapse() : \t";
 	if( !bPreOk ){ 	//Redundant test. Kanskje eg skal skrive while(!bPreOk)?
 		//fjærner seg sjølv fra prenode:
 		//			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
-		for( std::list<i_synapse*>::iterator iter = pPreNodeAxon->pUtSynapser.begin(); iter != pPreNodeAxon->pUtSynapser.end() ; iter++ ){
+		for( std::list<K_synapse*>::iterator iter = pPreNodeAxon->pUtSynapser.begin(); iter != pPreNodeAxon->pUtSynapser.end() ; iter++ ){
 			if( *iter == this ){
 				cout<<"\t~( [" <<pPreNodeAxon->pElementAvAuron->sNavn <<"] -> "; 	// utskrift del 1
 				(pPreNodeAxon->pUtSynapser).erase( iter );
@@ -365,7 +358,7 @@ cout<<"\t\tDESTRUCTOR: K_synapse::~<K_synapse() : \t";
 	if( !bPostOk ){
 		//fjærner seg sjølv fra postnode:
 		//			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
-		for( std::list<i_synapse*>::iterator iter = pPostNodeDendrite->pInnSynapser.begin(); iter != pPostNodeDendrite->pInnSynapser.end() ; iter++ ){
+		for( std::list<K_synapse*>::iterator iter = pPostNodeDendrite->pInnSynapser.begin(); iter != pPostNodeDendrite->pInnSynapser.end() ; iter++ ){
 			if( *iter == this ){ 
 				cout<<"[" <<pPostNodeDendrite->pElementAvAuron->sNavn <<"] )\t"; 										// utskrift del 2
 				(pPostNodeDendrite->pInnSynapser).erase( iter );
@@ -581,7 +574,8 @@ inline void s_dendrite::calculateLeakage()
 ****** 													******
 *************************************************************/
 
- //{1   *  i_axon::doTask()
+/*
+ //{1   *  i_axon::doTask() KOMMENTERT UT
 inline void i_axon::doTask()
 {
  	cout<<"i_axon::doTask()\tLegger inn alle outputsynapser i arbeidskø. Mdl. av auron: " <<pElementAvAuron->sNavn <<" - - - - - - - - - - - - - - - \n";
@@ -597,7 +591,7 @@ inline void i_axon::doTask()
 	}
 
 } //}1
-
+*/
 //{1 		* 	SANN
 inline void s_auron::doTask()
 { //{ ** AURON
@@ -627,13 +621,24 @@ inline void s_auron::doTask()
 } //}
 inline void s_axon::doTask()
 { //{ ** AXON
-	i_axon::doTask();
 
+DEBUG("s_axon::doTask() START");
 	// Avblokkerer dendritt. Opner den for meir input. Foreløpig er dette måten 'refraction time' funker på.. (etter 2 ms-dendrite og auron overføring..)
-	 static_cast<s_dendrite*>(pElementAvAuron->pInputDendrite)->bBlockInput_refractionTime = false;
+	//static_cast<s_dendrite*>(pElementAvAuron->pInputDendrite)->bBlockInput_refractionTime = false;
+	pElementAvAuron->pInputDendrite ->bBlockInput_refractionTime = false;
+
+ 	cout<<"s_axon::doTask()\tLegger inn alle outputsynapser i arbeidskø. Mdl. av auron: " <<pElementAvAuron->sNavn <<" - - - - - - - - - - - - - - - \n";
+
+	// Legger til alle utsynapser i pWorkTaskQue:
+		//			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
+ 	for( std::list<s_synapse*>::iterator iter = pUtSynapser.begin(); iter != pUtSynapser.end(); iter++ )
+	{ // Legger alle pUtSynapser inn i time_class::pWorkTaskQue: (FIFO-kø)
+		time_class::leggTilTask( *iter );
+	}
 
 	 //Skriver til logg etter refraction-period.
 	 pElementAvAuron->skrivAktivitetsVarLogg();
+DEBUG("s_axon::doTask() SLUTT");
 
 } //}
 inline void s_synapse::doTask()
@@ -721,7 +726,15 @@ cout<<"HER. uLastCalculatedPeriodInverse_promille = " <<uLastCalculatedPeriodInv
 inline void K_axon::doTask()
 { //{ ** AXON
 	// Legg heller til en i pEstimatedTaskTime, og kall i_axon::doTask() direkte fra K_auron.
-	i_axon::doTask();
+//	i_axon::doTask();
+ 	cout<<"K_axon::doTask()\tLegger inn alle outputsynapser i arbeidskø. Mdl. av auron: " <<pElementAvAuron->sNavn <<" - - - - - - - - - - - - - - - \n";
+
+	// Legg til alle utsynapser i pWorkTaskQue:
+		//			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
+ 	for( std::list<K_synapse*>::iterator iter = pUtSynapser.begin(); iter != pUtSynapser.end(); iter++ )
+	{ // Legger alle pUtSynapser inn i time_class::pWorkTaskQue: (FIFO-kø)
+		time_class::leggTilTask( *iter );
+	}
 
 	
 	//pElementAvAuron->loggAktivitetsVar_i_AktivitetsVarLoggFil(); ENDRA TIL:

@@ -98,6 +98,7 @@ class s_dendrite : public i_dendrite{
 
 	friend class s_auron;
 	friend class s_axon;
+	// Skal vekk: ? :
 	friend class s_synapse;
 	//friend std::ostream & operator<< (std::ostream & ut, axon  );
 	friend std::ostream & operator<< (std::ostream & ut, s_axon* );
@@ -120,6 +121,9 @@ class K_dendrite : public i_dendrite{
 	public:
 	K_dendrite( K_auron* );
 	~K_dendrite();
+
+	// Skal vekk: ? :
+	friend class K_synapse;
 };
 
 #endif

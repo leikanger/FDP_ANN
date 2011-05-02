@@ -28,7 +28,6 @@ class timeInterface
 	timeInterface(std::string s) : ulEstimatedTaskTime_for_object(0), sClassName(s){}
 	timeInterface() 				{} 				//For mens eg itererer i utviklinga.  Trur ikkje eg skal ha denne etterpå..
 
-	// SKAL VÆRE private ? XXX XXX XXX
 	virtual void doTask() =0;
 	virtual void doCalculation() =0;
 
@@ -84,7 +83,7 @@ class time_class : public timeInterface {
 		// Undersøker om lengden på lista er kortere enn MIN_LENGDE_PAA_pEstimatedTaskTime:
 		if(pEstimatedTaskTime.size() < MIN_LENGDE_PAA_pEstimatedTaskTime )
 		{
-cerr<<"Legger inn manglende element for MIN_LENGDE_PAA_pEstimatedTaskTime i pEstimatedTaskTime\n";
+ 			cerr<<"Legger inn manglende element for MIN_LENGDE_PAA_pEstimatedTaskTime i pEstimatedTaskTime\n";
 			// Legger inn MIN_LENGDE_PAA_pEstimatedTaskTime antall element.
 			for( int i=0; i<MIN_LENGDE_PAA_pEstimatedTaskTime; i++)
 				pEstimatedTaskTime.push_back( new std::list<timeInterface*> );
@@ -96,20 +95,18 @@ cerr<<"Legger inn manglende element for MIN_LENGDE_PAA_pEstimatedTaskTime i pEst
 			cout<<"Planlagt oppgave i tid: " <<time_class::getTid() <<"\n\n";
 		}
 		
-cerr<<"pEstimatedTaskTime.size() : \t" <<pEstimatedTaskTime.size() <<endl;
-cerr<<"pEstimatedTaskTime.front()->size(): " <<pEstimatedTaskTime.front()->size() <<endl;
 		timeInterface* pTI_temp;
 		while( ! (pEstimatedTaskTime.front())->empty() ) // Kjør alle element i FØRSTE element av pEstimatedTaskTime.
 		{
 
 			// pTI_temp peiker får verdien til første timeInterface*-element i pEstimatedTaskTime.front()->front():
 			pTI_temp = (pEstimatedTaskTime.front())->front();
-cerr<<"H1 før segfault i SANN\n";
+DEBUG("H1 før segfault i SANN");
 			cout<<"pEstimatedTaskTime fører til at eg legger til " <<pTI_temp->sClassName <<" i pWorkTaskQue\n";
 			pWorkTaskQue.push_back( pTI_temp ); //Legger til første element av første liste i pWorkTaskQue
 			// legg elementet i pEstimatedTaskTime om [periode] tid
 			
-cerr<<"H1 etter segfault i SANN\n";
+DEBUG("H1 etter segfault i SANN");
 			// fjærner element fra { pEstimatedTaskTime.[dette tidssteget] }
 			(pEstimatedTaskTime.front()) ->pop_front(); 			//Fjærn første element (av første lista).
 
@@ -117,7 +114,6 @@ cerr<<"H1 etter segfault i SANN\n";
 			// NEI: dette er bare for regelmessige oppgaver. M.a.o klassespesifikt. Gjøres i klassene! 		For K_auron:
 			//time_class::addTask_in_pEstimatedTaskTime( pTI_temp, pTI_temp->uLastCalculatedPeriod_promille );
 
-		
 //cout<<"H2\n";
 		}
 		
@@ -127,13 +123,12 @@ cerr<<"H1 etter segfault i SANN\n";
 			// pop element (ta vekk fra liste)
 		pEstimatedTaskTime.pop_front(); //Fjærn heile lista med estimerte oppgaver for neste time_iteration.
 			
-
-
-		// pEstimatedTaskTime opplegg ************* 	****** 		********* 		*************  ************************************
+		// Ferdig: pEstimatedTaskTime opplegg ************* 	****** 		********* 		*************  ************************************
 
 
 		// Fjærner første element, som per def. er dette elementet (når det blir kalla, skjer dette ved pWorkTaskQue.front()->doTask();
-		pWorkTaskQue.pop_front();
+		//pWorkTaskQue.pop_front(); GJØRES HELLER I taskSchedulerFunction()! (tilbake til original plan)
+
 		// Legger til egenpeiker på slutt av pNesteJobb_ArbeidsKoe
 		pWorkTaskQue.push_back(this);	
 		//itererer time:
@@ -145,6 +140,7 @@ cerr<<"H1 etter segfault i SANN\n";
 		 		<<"\t* * * * TID: \t  =  " <<ulTidsiterasjoner <<" * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * = "
 				<<ulTidsiterasjoner <<"\n";
 
+DEBUG("Returnerer fra tid::doTask()");
 	}//}
 	inline void doCalculation()
 	{ //{
@@ -390,7 +386,7 @@ Meir: Veit ikkje om den som søker fra oppsida er rett heller. No er eg jævla s
 
 	//static std::list<timeInterface*> pWorkTaskQue;
 	const static void TEST_skrivUt_pWorkTaskQue()
-	{ //{2
+	{ //{
 		cout<<"Skriver ut pWorkTaskQue: \n";
 		int nIter = 0;
 		// itererer gjennom ytre liste:
@@ -401,7 +397,7 @@ Meir: Veit ikkje om den som søker fra oppsida er rett heller. No er eg jævla s
 			nIter++;
 		}
 		cout<<"\n\n";
-	} //}2
+	} //}
 
 
 	public:
