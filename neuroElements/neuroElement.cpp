@@ -1,4 +1,28 @@
+//{ GNU GPL v.3
+/***************************************************************************
+*           auronNet - Implementation of event-driven spiking ANN          *
+*                           -------------------                            *
+* copyright            : (C) 2011 by Per R. Leikanger                      *
+* email                : leikange@gmail.com                                *
+***************************************************************************/
 
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 3 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>. *
+ *                                                                         *
+ ***************************************************************************/
+//}
 #include <sstream> //For skriving til fil: logg.
 
 #include "synapse.h"
@@ -514,10 +538,10 @@ inline void s_dendrite::newInputSignal( int nNewSignal_arg )
 		
 	 	
 		//Ekstra time-delay:
-		time_class::leggTilTask( this );
+		time_class::addTaskIn_pWorkTaskQue( this );
 		// for ekstra time delay. Evt kan vi kjøre auron som neste ledd:
 		// Legger til neste ledd i signal-path (soma == auron).
-	 	//time_class::leggTilTask( pElementAvAuron );
+	 	//time_class::addTaskIn_pWorkTaskQue( pElementAvAuron );
 
 	}
 
@@ -587,7 +611,7 @@ inline void i_axon::doTask()
 		
 		//time_class::pWorkTaskQue.push_back( (*iter) );
 		// Legger til ut-synapser i time_class::arbeidskø
-		time_class::leggTilTask( *iter );
+		time_class::addTaskIn_pWorkTaskQue( *iter );
 	}
 
 } //}1
@@ -600,7 +624,7 @@ inline void s_auron::doTask()
 	cout<<"\t" <<sNavn <<".doTask()\tFYRER Action Potential for neuron " <<sNavn <<".\t\t| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | \ttid: " <<time_class::getTid() <<"\n";
 
 	//Axon hillock: send aksjonspotensial 	-- innkapsling gir at a xon skal ta hånd om all output. // bestiller at a xon skal fyre NESTE tidsiterasjon. Simulerer tidsdelay i a xonet.
-	time_class::leggTilTask( pOutputAxon );
+	time_class::addTaskIn_pWorkTaskQue( pOutputAxon );
 
 
 	if( ulTimestampForrigeFyring == time_class::getTid() )
@@ -633,7 +657,7 @@ DEBUG("s_axon::doTask() START");
 		//			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
  	for( std::list<s_synapse*>::iterator iter = pUtSynapser.begin(); iter != pUtSynapser.end(); iter++ )
 	{ // Legger alle pUtSynapser inn i time_class::pWorkTaskQue: (FIFO-kø)
-		time_class::leggTilTask( *iter );
+		time_class::addTaskIn_pWorkTaskQue( *iter );
 	}
 
 	 //Skriver til logg etter refraction-period.
@@ -676,7 +700,7 @@ inline void s_dendrite::doTask()
 { //{ DENDRITE
 	// Kva skal dendrite::doTask() gjøre? 
 	//cout<<pElementAvAuron->sNavn <<"->[dendrite]::doTask(). Postsyn. depol (" <<pElementAvAuron->sNavn <<") etter overføring: " <<pElementAvAuron->nAktivitetsVariabel <<".\n";
-	time_class::leggTilTask( pElementAvAuron );
+	time_class::addTaskIn_pWorkTaskQue( pElementAvAuron );
 } //}
 //}1            *       slutt SANN
 
@@ -689,9 +713,6 @@ inline void K_auron::doTask()
 	// Beregn ny isi-periode^{-1}. Brukes til å beregne syn.overføring seinare i signal-cascade.
 	unsigned uLastCalculatedPeriod_promille = 1000*(log((double)nAktivitetsVariabel/((double)nAktivitetsVariabel-FYRINGSTERSKEL)) ) / ALPHA ;
 	 	// Beregn endring i periode ivers, og lagre dette i nChangeInPeriodInverse for seinare bruk i synapsene.
-		// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO yy
-		// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO yy
-		// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO yy
 		// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO yy
 #define nyPERIODE_INVERS_PROMILLE (1000*1000/(double)uLastCalculatedPeriod_promille)
  	nChangeInPeriodInverse_promille = nyPERIODE_INVERS_PROMILLE - uLastCalculatedPeriodInverse_promille ;
@@ -710,7 +731,7 @@ cout<<"HER. uLastCalculatedPeriodInverse_promille = " <<uLastCalculatedPeriodInv
 	
 
 	//Axon hillock: send aksjonspotensial 	-- innkapsling gir at a xon skal ta hånd om all output. // bestiller at a xon skal fyre NESTE tidsiterasjon. Simulerer tidsdelay i a xonet.
-	time_class::leggTilTask( pOutputAxon );
+	time_class::addTaskIn_pWorkTaskQue( pOutputAxon );
 
 	// Resetter bEndraKappaDennePerioden. Blir satt til true når auron får nytt input.
 	bEndraKappaDennePerioden = false;
@@ -733,7 +754,7 @@ inline void K_axon::doTask()
 		//			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
  	for( std::list<K_synapse*>::iterator iter = pUtSynapser.begin(); iter != pUtSynapser.end(); iter++ )
 	{ // Legger alle pUtSynapser inn i time_class::pWorkTaskQue: (FIFO-kø)
-		time_class::leggTilTask( *iter );
+		time_class::addTaskIn_pWorkTaskQue( *iter );
 	}
 
 	
@@ -770,7 +791,6 @@ inline void K_dendrite::doTask()
 	cout<<"\n\nBrutal feilsjekk @ K_dendrite::doTask() : exit(-1);\n\n";
 
 	exit(-1);
-	time_class::leggTilTask( pElementAvAuron );
 } //}
 
 //}1            *       KANN slutt

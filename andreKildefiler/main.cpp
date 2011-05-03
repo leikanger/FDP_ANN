@@ -1,3 +1,30 @@
+//{ GNU GPL v.3
+/***************************************************************************
+*           auronNet - Implementation of event-driven spiking ANN          *
+*                           -------------------                            *
+* copyright            : (C) 2011 by Per R. Leikanger                      *
+* email                : leikange@gmail.com                                *
+***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 3 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>. *
+ *                                                                         *
+ ***************************************************************************/
+//}
+
+
 /*
  * main.cpp
  *
@@ -125,7 +152,7 @@ int main(int argc, char *argv[])
 	
 	//TODO For at alle skal destrueres automatisk, legg alle peikere inn i std::vector, og destruer alle element i vector på slutten av main.
 
-  /* SANN: test-oppsett. 		SANN  		* /
+  /* SANN: test-oppsett. 		SANN  		*/
  	//{ SANN: TEST-oppsett. Lager mange neuron..
 	s_auron* A1 = new s_auron("A1");
 	s_auron* A2 = new s_auron("A2");
@@ -159,20 +186,19 @@ int main(int argc, char *argv[])
 	new s_synapse(A6, A7, 1111);
 	new s_synapse(A7, A8, 1111);
 	new s_synapse(A8, A9, 1111);
-	new s_synapse(A8, A9, 1111);
 	new s_synapse(A9, A1, 1111);
 	new s_synapse(A4, A1, 311);
 
 	new s_synapse(A1, E, 15);
-	new s_synapse(A2, E, 11);
-	new s_synapse(A3, E, 13);
-	new s_synapse(A3, E, 5);
-	new s_synapse(A3, E, 11);
-	new s_synapse(A5, E, 6);
-	new s_synapse(A6, E, 3);
-	new s_synapse(A8, E, 18);
-	new s_synapse(A9, E, 4);
-	new s_synapse(A1, E, 5);
+	new s_synapse(A2, E, 20);
+	new s_synapse(A3, E, 15);
+	new s_synapse(A4, E, 20);
+	new s_synapse(A5, E, 15);
+	new s_synapse(A6, E, 20);
+	//new s_synapse(A7, E, 13);
+	new s_synapse(A8, E, 20);
+	new s_synapse(A9, E, 25);
+	//new s_synapse(A1, E, 16);
 	
 	new s_synapse(A1, F, 251);
 	new s_synapse(A2, F, 131);
@@ -340,8 +366,8 @@ cout<<"Estimert tid for auron [1,2,3,4,5,6]:  ["
 		<<sTest5->ulEstimatedTaskTime_for_object <<", " 
 		<<sTest6->ulEstimatedTaskTime_for_object <<", " <<"]\n";
 cout<<"timeIterations no: " <<time_class::getTid() <<endl;
-/**/
-/}
+/ ** /
+//}
 
 cerr<<"\n\n\ntid.doTask();\n";
 tid.doTask();
@@ -451,7 +477,6 @@ void* taskSchedulerFunction(void* )
 
 cerr<<"pWorkTaskQue.size() :  " <<time_class::pWorkTaskQue.size() <<"\n";
 
-int DEBUG_int = 0;
 	while( time_class::ulTidsiterasjoner <= ulAntallTidsiterasjonerTESTING_SLETT) // XXX Skal bli "uendelig" løkke etterkvart:
 	//while(/*En eller anna avsluttings-bool =*/true)
 	{
@@ -465,7 +490,6 @@ int DEBUG_int = 0;
  //cerr<<time_class::pWorkTaskQue.front() ->sClassName <<"\t:\t*\t*\t*\n"; 		
 	
 
-/*DEBUG*/cout<<"For element av type: " <<time_class::pWorkTaskQue.front()->sClassName <<":\t"; DEBUG("Kaller pWorkTaskQue->front() ->doTask()");
 			// Setter igang utføring av neste jobb i lista:
 			time_class::pWorkTaskQue.front() ->doTask(); 		//Dette er i orden, siden pWorkTaskQue er av type list<timeInterface*> og alle arvinger av timeInterface har overlagra funksjonen doTask().
 

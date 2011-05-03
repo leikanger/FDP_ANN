@@ -1,5 +1,28 @@
+//{ GNU GPL v.3
+/***************************************************************************
+*           auronNet - Implementation of event-driven spiking ANN          *
+*                           -------------------                            *
+* copyright            : (C) 2011 by Per R. Leikanger                      *
+* email                : leikange@gmail.com                                *
+***************************************************************************/
 
-
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 3 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>. *
+ *                                                                         *
+ ***************************************************************************/
+//}
 #ifndef TID_H_
 #define TID_H_
 
@@ -101,12 +124,11 @@ class time_class : public timeInterface {
 
 			// pTI_temp peiker får verdien til første timeInterface*-element i pEstimatedTaskTime.front()->front():
 			pTI_temp = (pEstimatedTaskTime.front())->front();
-DEBUG("H1 før segfault i SANN");
+
 			cout<<"pEstimatedTaskTime fører til at eg legger til " <<pTI_temp->sClassName <<" i pWorkTaskQue\n";
 			pWorkTaskQue.push_back( pTI_temp ); //Legger til første element av første liste i pWorkTaskQue
 			// legg elementet i pEstimatedTaskTime om [periode] tid
 			
-DEBUG("H1 etter segfault i SANN");
 			// fjærner element fra { pEstimatedTaskTime.[dette tidssteget] }
 			(pEstimatedTaskTime.front()) ->pop_front(); 			//Fjærn første element (av første lista).
 
@@ -114,7 +136,6 @@ DEBUG("H1 etter segfault i SANN");
 			// NEI: dette er bare for regelmessige oppgaver. M.a.o klassespesifikt. Gjøres i klassene! 		For K_auron:
 			//time_class::addTask_in_pEstimatedTaskTime( pTI_temp, pTI_temp->uLastCalculatedPeriod_promille );
 
-//cout<<"H2\n";
 		}
 		
 		// Organiserer pEstimatedTaskTime. Fjærner første ledd:
@@ -140,7 +161,6 @@ DEBUG("H1 etter segfault i SANN");
 		 		<<"\t* * * * TID: \t  =  " <<ulTidsiterasjoner <<" * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * = "
 				<<ulTidsiterasjoner <<"\n";
 
-DEBUG("Returnerer fra tid::doTask()");
 	}//}
 	inline void doCalculation()
 	{ //{
@@ -404,7 +424,7 @@ Meir: Veit ikkje om den som søker fra oppsida er rett heller. No er eg jævla s
 	time_class() : timeInterface("time"){}
 
 
-	static void leggTilTask( timeInterface* pArg )
+	static void addTaskIn_pWorkTaskQue( timeInterface* pArg )
 	{
 	 	pWorkTaskQue.push_back( pArg );
 	}
