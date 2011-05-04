@@ -1,0 +1,10 @@
+01.05
+X	- Gjøre om slik at tilknytninga til andre auron-underelement ikkje ligger i i_[element], men i s_[element] og K_[element].
+			Fjærner behovet for casting.
+		=> 	Løysinga ble å overlagre peikarane i barneklassene (s_[element] og K_[element]) for forrige og neste element i signalbana. Dette gjør at [element].pNesteElementISignalBana blir av samme modell som [element].
+
+O	- Gjøre slik at pEstimatedTaskTime funker.
+		(sjå main.cpp l. 468 : taskSchedulerFunction() )
+	O	- teste for SANN oppsettet fra tidligare.
+	O	- teste for KANN oppsettet fra tidligare.
+		
