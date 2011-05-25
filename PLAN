@@ -7,4 +7,9 @@ O	- Gjøre slik at pEstimatedTaskTime funker.
 		(sjå main.cpp l. 468 : taskSchedulerFunction() )
 	O	- teste for SANN oppsettet fra tidligare.
 	O	- teste for KANN oppsettet fra tidligare.
-		
+
+
+08.05
+Las at inlining bør bare være på funksjoner der funksjonskall-overhead er relativt stor i forhold til det som gjøres i funksjonen.
+Dette betyr at eg bør ivertfall fjærne inline på funksjonen "inline void doTask()", doCalculation(), og kanskje get_iteration_in_pEstimatedTaskTime().
+Sjå forøvrig siden: "http://www.tantalon.com/pete/cppopt/final.htm#InlineFunctions"

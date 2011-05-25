@@ -36,10 +36,13 @@ using std::endl;
 
 // DEKLARASJONER:
 //extern unsigned long ulTidsiterasjoner;
+void loggeFunk_K_auron();
 
 
 // BARE FOR TESTING! TODO fjærn neste linja:
 class i_auron;
+
+class K_auron;
 
 
 /****************************************
@@ -161,6 +164,11 @@ class time_class : public timeInterface {
 		 		<<"\t* * * * TID: \t  =  " <<ulTidsiterasjoner <<" * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * = "
 				<<ulTidsiterasjoner <<"\n";
 
+
+
+		// Kaller testfunk for å teste K_auron. 
+		loggeFunk_K_auron();
+
 	}//}
 	inline void doCalculation()
 	{ //{
@@ -230,7 +238,7 @@ class time_class : public timeInterface {
 	// TODO TODO Undersøk om det er mulig å lagre iteratoren i objektet, og bruke denne istedenfor å heile tida kalle get_iteration_in_pEstimatedTaskTime(). 
 	// unngikk dette siden det stod i stroustrup, men eg trur han snakka om std::vector..
 	static inline std::list< std::list<timeInterface*>* >::iterator   get_iteration_in_pEstimatedTaskTime( unsigned uTimeDifference_arg )
-	{ //{2
+	{ //{
 		// Dersom estimert tid er utafor lista av estimert tid: auk lista.
 		int nDiff = uTimeDifference_arg - pEstimatedTaskTime.size()  ;
 		if( nDiff >= 0 ) //Mangler ledd. Legg til rett antall.
@@ -269,7 +277,7 @@ Meir: Veit ikkje om den som søker fra oppsida er rett heller. No er eg jævla s
 
 		//returnerer peiker til rett element
 		return estTimeIter;
-	} //}2
+	} //}
 
 
 
@@ -428,7 +436,7 @@ Meir: Veit ikkje om den som søker fra oppsida er rett heller. No er eg jævla s
 	{
 	 	pWorkTaskQue.push_back( pArg );
 	}
-	static const unsigned long getTid(){ return ulTidsiterasjoner; }
+	static const inline unsigned long getTid(){ return ulTidsiterasjoner; }
 	//Noke slikt: XXX 	friend schedulerFunksjon;
 	// Viktig med inkapsling!
 

@@ -45,6 +45,7 @@ extern std::list<timeInterface*> 				time_class::pCalculatationTaskQue;
 extern std::list< std::list<timeInterface*>* > 	time_class::pEstimatedTaskTime;
 
 extern std::list<i_auron*> i_auron::pAllAurons;
+extern std::list<K_auron*> K_auron::pAllKappaAurons;
 extern unsigned long time_class::ulTidsiterasjoner;
 extern unsigned long ulAntallTidsiterasjonerTESTING_SLETT;
 
@@ -152,7 +153,7 @@ int main(int argc, char *argv[])
 	
 	//TODO For at alle skal destrueres automatisk, legg alle peikere inn i std::vector, og destruer alle element i vector på slutten av main.
 
-  /* SANN: test-oppsett. 		SANN  		*/
+  /* SANN: test-oppsett. 		SANN  		* /
  	//{ SANN: TEST-oppsett. Lager mange neuron..
 	s_auron* A1 = new s_auron("A1");
 	s_auron* A2 = new s_auron("A2");
@@ -216,17 +217,39 @@ int main(int argc, char *argv[])
 	A1->doTask();
 	//} /**/ 
 
+
+  /* SANN: samme eit-neurons testoppsett:*/
+  	cout<<"\n\nLAGER SANN\n\n";
+	s_auron* s1 = new s_auron("s1");
+	s_auron* s2 = new s_auron("s2");
+	new s_synapse(s1, s2, 1111);
+	new s_synapse(s2, s1, 1111);
+
+	s_auron* sA = new s_auron("sA");
+	new s_synapse(s1, sA, (1.5 * ALPHA * FYRINGSTERSKEL ) );
+	new s_synapse(s2, sA, (1.5 * (1-LEKKASJEFAKTOR_FOR_DEPOL) * FYRINGSTERSKEL ) ); 
+	
+	s1->doTask();
+  /**/
   /* KANN: test-oppsett. 		KANN  		* /
  	//{ KANN: TEST-oppsett. Lager mange neuron..
 
 	cout<<"\n\nLAGER KANN\n\n";
 
-	K_auron* K4 = new K_auron("K_4", 4*FYRINGSTERSKEL);
-	K_auron* K2 = new K_auron("K_2", 2*FYRINGSTERSKEL);
-	K_auron* K9 = new K_auron("K_9", 9*FYRINGSTERSKEL);
+	K_auron* A = new K_auron("A", 1*FYRINGSTERSKEL);
+/*
+	K_auron* K2 = new K_auron("K_2", 1.2*FYRINGSTERSKEL);
+	K_auron* K4 = new K_auron("K_4", 1.4*FYRINGSTERSKEL);
+	K_auron* K9 = new K_auron("K_9", 1.9*FYRINGSTERSKEL);
 
 	new K_synapse(K4, K2, 50);
 	new K_synapse(K2, K4, 1111);
+
+
+	K_auron* E = new K_auron("E", 4*FYRINGSTERSKEL);
+	new K_synapse(K2, E, 100);
+	new K_synapse(K4, E, 500, true);
+*/
 	//} /**/
 
   //  pEstimatedTaskTime 	Test 		
@@ -542,6 +565,8 @@ std::ostream & operator<< (std::ostream & ut, s_axon* pAxonArg ) //XXX Skal gjø
 
 	return ut;
 } //}
+
+
 
 
 

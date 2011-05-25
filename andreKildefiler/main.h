@@ -42,8 +42,8 @@
 //Defines:
 #define DEFAULT_ANTALL_TIDSITERASJONER 1000
 
-#define ALPHA (double)0.996
-#define LEKKASJEFAKTOR_FOR_DEPOL ALPHA
+#define ALPHA (double)0.004
+#define LEKKASJEFAKTOR_FOR_DEPOL (double)1-ALPHA
 
 #define MIN_LENGDE_PAA_pEstimatedTaskTime 20
 #define FAKTOR_FOR_AA_FAA_RETT_PERIODE 1000 

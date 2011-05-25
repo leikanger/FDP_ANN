@@ -78,8 +78,9 @@ class i_auron : public timeInterface
 	unsigned long ulTimestampForrigeFyring;  //Er begge naudsynt? sjø gjennom!
 
 
-	// aktivitetsobjekt: Om dette er KANN eller SANN er avhengig av kva nAktivitetsVariabel skal bety (kappa eller depol..).
-	int nAktivitetsVariabel;
+	// aktivitetsobjekt: Om dette er KANN eller SANN er avhengig av kva dAktivitetsVariabel skal bety (kappa eller depol..).
+	// Tidligere: 	int nAktivitetsVariabel;
+	double dAktivitetsVariabel;
 
 	//dopamin: for å styre synaptisk plastisitet. En ide inspirert av naturen.
 	//også her kan eg bruke \kappa for å finne nivået i kvart neuron..
@@ -89,7 +90,7 @@ class i_auron : public timeInterface
  	
 	virtual const void skrivAktivitetsVarLogg(){
 	//const void loggAktivitetsVar_i_AktivitetsVarLoggFil(){
-	 	depol_logFile 	<<time_class::getTid() <<"\t" <<nAktivitetsVariabel <<"; \t #Activity variable\n" ;
+	 	depol_logFile 	<<time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"; \t #Activity variable\n" ;
 	 	depol_logFile.flush();
 	}
 	
@@ -102,13 +103,13 @@ class i_auron : public timeInterface
 
 
 	public:
-	i_auron(std::string sNavn_Arg ="unnamed", int nStartDepol = 0); 		//: timeInterface("auron"), ao_AuronetsAktivitet(this), sNavn(sNavn_Arg) {
+	i_auron(std::string sNavn_Arg ="unnamed", double dStartAktVar = 0); 		//: timeInterface("auron"), ao_AuronetsAktivitet(this), sNavn(sNavn_Arg) {
 	~i_auron();
 
 	std::string sNavn; //for utskrift
 	const std::string getNavn(){ return sNavn; }
 
-	int getAktivityVar(){ return nAktivitetsVariabel; }
+	int getAktivityVar(){ return dAktivitetsVariabel; }
 
 	//testfunksjon:
 	void exiterNeuronTilFyringGjennomElectrode()
@@ -174,15 +175,24 @@ class K_auron : public i_auron
 	inline void doCalculation();
 
 	unsigned long ulStartOfTimewindow;
-	int nDepolAtStartOfTimeWindow;
+	double dDepolAtStartOfTimeWindow;
 
 	unsigned uLastCalculatedPeriod_promille;
 	unsigned uLastCalculatedPeriodInverse_promille;
 	int nChangeInPeriodInverse_promille;
 
+	unsigned long uEstimertTidTilFyring;
+
+	inline void changeKappa( double );
+	inline double getKappa(){ return dAktivitetsVariabel; }
 
 	// todo TODO TODO TODO For KANN trenger eg en bEndraKappaDennePerioden, som blir satt til false kvar fyring av auronet. XXX
 	bool bEndraKappaDennePerioden;
+
+
+	// For debugging: trenger ei liste over alle K_auron, slik at eg kan skrive log for depol kvar tidsiterasjon:
+	// Legger til i constructor og fjærner i destructor (akkurat som for i_auron::pAllAurons)
+	static std::list<K_auron*> pAllKappaAurons;
 
 
 	//Overlager denne, siden eg må regne ut depol. TODO TODO TODO TODO OTDO OTOD TODD TODO TODO TODO
@@ -204,6 +214,7 @@ class K_auron : public i_auron
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
 	friend int main(int, char**); //TODO SLETT
+	friend void loggeFunk_K_auron();// TODO SAMME
 //}1
 
 }; // }

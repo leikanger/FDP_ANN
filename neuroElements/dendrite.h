@@ -53,7 +53,7 @@ class i_dendrite : public timeInterface{
 	// XXX XXX XXX Utsetter doCalculation() for alle dendrite: (definerer den til å gjøre ingenting her for å unngå at klassene under blir abstract..)
 	virtual void doCalculation() {}
 
-	virtual inline void newInputSignal( int ) =0;
+	virtual inline void newInputSignal( double ) =0;
 	//virtual inline void feedbackToDendrite() =0;
 
 	public:
@@ -89,7 +89,7 @@ class s_dendrite : public i_dendrite{
 	s_auron* pElementAvAuron;
 	std::list<s_synapse*> pInnSynapser;
 
-	inline void newInputSignal( int nNewSignal );
+	inline void newInputSignal( double /*nNewSignal*/ );
 	inline void calculateLeakage(); 		//Bare for SANN
 
 	bool bBlockInput_refractionTime; 		//Bare for SANN 	//Blokkere input når refraction period eller når depol er over terskel.
@@ -137,7 +137,7 @@ class K_dendrite : public i_dendrite{
 	std::list<K_synapse*> pInnSynapser;
 	
 	
-	inline void newInputSignal(int);
+	inline void newInputSignal(double);
 
 	public:
 	K_dendrite( K_auron* );
