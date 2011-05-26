@@ -136,6 +136,18 @@ class K_dendrite : public i_dendrite{
 	K_auron* pElementAvAuron;
 	std::list<K_synapse*> pInnSynapser;
 	
+	// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+	inline double recalculateKappa()
+	{
+		double dKappa_temp = 0;
+	 	std::list<K_synapse*>::iterator iter = pInnSynapser.begin();
+		while(iter != pInnSynapser.end() )
+		{
+	 		//dKappa_temp += iter->dPresynPeriodINVERSE*dSynapticWeight;
+		}
+		return dKappa_temp;
+	}
+
 	
 	inline void newInputSignal(double);
 
@@ -145,6 +157,7 @@ class K_dendrite : public i_dendrite{
 
 	// Skal vekk: ? :
 	friend class K_synapse;
+	friend class K_auron;
 };
 
 #endif

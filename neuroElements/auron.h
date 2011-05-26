@@ -90,6 +90,10 @@ class i_auron : public timeInterface
  	
 	virtual const void skrivAktivitetsVarLogg(){
 	//const void loggAktivitetsVar_i_AktivitetsVarLoggFil(){
+		// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+		// TODO Endre denne fra å skrive til depol_logFile, til å skrive til ei egen aktivitetsvar-loggfil. 
+		// 		No kan dette bli problemer ved K_auron (som har eg egen writeDepolToLog() funksjon)
+		// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
 	 	depol_logFile 	<<time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"; \t #Activity variable\n" ;
 	 	depol_logFile.flush();
 	}
@@ -178,12 +182,11 @@ class K_auron : public i_auron
 	double dDepolAtStartOfTimeWindow;
 
 	unsigned uLastCalculatedPeriod;
-	unsigned uLastCalculatedPeriodINVERSE;
+	double dPeriodINVERSE;
 	int nChangeInPeriodINVERSE;
 
-	long lEstimatedTimeToFiring;
-
 	inline void changeKappa( double );
+	inline double recalculateKappa();
 	inline double getKappa(){ return dAktivitetsVariabel; }
 
 	// todo TODO TODO TODO For KANN trenger eg en bEndraKappaDennePerioden, som blir satt til false kvar fyring av auronet. XXX
@@ -218,6 +221,8 @@ class K_auron : public i_auron
 	friend class K_axon;
 	friend class K_synapse;
 	friend class K_dendrite;
+	friend class recalcKappaObj;
+
 	friend void testFunksjon_slett(s_auron*);
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
@@ -227,7 +232,21 @@ class K_auron : public i_auron
 
 }; // }
 
+class recalcKappaObj : public timeInterface
+{
+	public:
+	recalcKappaObj(K_auron* pKnyttaTilKappaAuron_arg) : timeInterface("Kappa-recalc. obj."), pKappaAuron_obj(pKnyttaTilKappaAuron_arg){}
 
+	inline void doTask();
+	virtual void doCalculation(){
+		cout<<"Brutal Feilsjekk. recalculateKappa::doCalculation() er ikkje i bruk. Feilmelding dj331 @ neuroElemen.cpp\n\n\n";
+		exit(0);
+	}
+
+	K_auron* pKappaAuron_obj;
+	// Og fra timeInterface:  long ulEstimatedTaskTime_for_object; 
+
+};
 
 
 

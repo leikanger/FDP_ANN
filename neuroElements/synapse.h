@@ -54,9 +54,12 @@ class i_synapse : public timeInterface{
 	
 	protected:
 	const bool bInhibitorisk_effekt;
-	float fSynapticWeight;
-	unsigned uSynapticWeight_promille;
-	int nSynapticWeightChange_promille;
+	double dSynapticWeight;
+	double dSynapticWeightChange;
+
+// Ta vekk neste to. Dette skal være double.
+//	unsigned uSynapticWeight_promille;
+//	int nSynapticWeightChange_promille;
 
 
 	std::ofstream synWeight_loggFil;
@@ -70,11 +73,11 @@ class i_synapse : public timeInterface{
 	// Lag også axon.nySynapse(auron* pOutputAuron){  new synapse(this, pOutputAuron); } XXX
 
 	//i_synapse(i_axon* pPresynAxon_arg, i_dendrite* pPostsynDendrite_arg, unsigned uSynVekt_Arg, bool bInhibEffekt_Arg, std::string sKlasseNavn /*="synapse"*/ );
-	i_synapse(unsigned uSynVekt_Arg, bool bInhibEffekt_Arg, std::string sKlasseNavn /*="synapse"*/ );
+	i_synapse(double dSynVekt_Arg, bool bInhibEffekt_Arg, std::string sKlasseNavn /*="synapse"*/ );
 	//~i_synapse();  TRUR IKKJE DENNE TRENGS. Ingen peikere i i_synapse ?
 	// KANSKJE EG SKAL HA UTSKRIFT HER? --avslutting av loggen for synapsen..  TODO
 	
-	int getSynVekt(){ return fSynapticWeight; }
+	double getSynVekt(){ return dSynapticWeight; }
 
 	friend int make(int, char**);
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
@@ -106,7 +109,7 @@ class s_synapse : public i_synapse{
 class K_synapse : public i_synapse{
 	inline void doTask();
 	
-	unsigned forrigeUtregnaPresynPeriode;
+	//unsigned forrigeUtregnaPresynPeriode;
 	//unsigned uKappa;
 
 	// Overlagrer peikarane, for å få rett preElement og postElement for synapsen (av rett modell). 	 Gjør at underelement som er sammenkobbla til samme s_[element], veit dette.
@@ -116,8 +119,10 @@ class K_synapse : public i_synapse{
 	// TEST: & : inline unsigned& regnutPresynPeriode();
 	// Optimalisering? XXX ha denne i presyn istedenfor. Det er en presyn, men mange synapser..
 	// Beste er kanskje å regne ut ved AP, og lagre i axon. Kan hentes av synapsene derretter..
-	inline unsigned regnutPresynPeriode();
+	//inline unsigned regnutPresynPeriode();
 
+	double dPresynPeriodINVERSE;
+	const inline double getWij(){} //TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
 	public:
 	K_synapse(K_auron*, K_auron*, unsigned uSynVekt_Arg =1, bool bInhibEffekt_Arg =false) ;
 	~K_synapse();

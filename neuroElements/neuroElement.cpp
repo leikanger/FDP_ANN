@@ -31,6 +31,11 @@
 
 
 
+std::ostream & operator<< (std::ostream & ut, i_auron* pAuronArg );
+//std::ostream & operator<< (std::ostream & ut, s_axon* pAxonArg );
+std::ostream & operator<<(std::ostream& ut, i_auron* pAuronArg );
+
+
 
 //Bedre oppdeling: (uferdig (ustarta)
 
@@ -161,7 +166,7 @@ s_auron::~s_auron()
 } //}3
 //}2
 //{2 *** K_auron
-K_auron::K_auron(std::string sNavn_Arg /*="unnamed"*/, int nStartKappa /*= FYRINGSTERSKEL*/, unsigned uStartDepol_prosent /*=0*/) : i_auron(sNavn_Arg, nStartKappa)
+K_auron::K_auron(std::string sNavn_Arg /*="unnamed"*/, int nStartKappa /*= FYRINGSTERSKEL*/, unsigned uStartDepol_prosent /*=0*/) : i_auron(sNavn_Arg)
 {
 	ulTimestampForrigeFyring = time_class::getTid();
 	//ulTimestampForrigeInput  = time_class::getTid();
@@ -189,6 +194,7 @@ K_auron::K_auron(std::string sNavn_Arg /*="unnamed"*/, int nStartKappa /*= FYRIN
 
  	cout 	<<"\nConstructing K_auron.\n"
 			<<"\tKappa: \t\t\t\t" <<dAktivitetsVariabel <<endl
+			<<"\tTau:   \t\t\t\t" <<FYRINGSTERSKEL <<endl
 			//<<"\tEstimated time to A.P.: \t" <<(1 / ALPHA) * log( (dDepolAtStartOfTimeWindow - dAktivitetsVariabel) / (float)(FYRINGSTERSKEL - dAktivitetsVariabel) ) 
 			<<"\n\n";
 
@@ -209,19 +215,16 @@ K_auron::~K_auron()
 //{1 * SYNAPSE
 //{2 i_synapse
 //i_synapse::i_synapse(i_axon* pPresynAxon_arg, i_dendrite* pPostsynDendrite_arg, unsigned uSynVekt_Arg, bool bInhibEffekt_Arg, std::string sKlasseNavn /*="synapse"*/ ) : timeInterface(sKlasseNavn), bInhibitorisk_effekt(bInhibEffekt_Arg)
-i_synapse::i_synapse(unsigned uSynVekt_Arg, bool bInhibEffekt_Arg, std::string sKlasseNavn /*="synapse"*/ ) : timeInterface(sKlasseNavn), bInhibitorisk_effekt(bInhibEffekt_Arg)
+i_synapse::i_synapse(double dSynVekt_Arg, bool bInhibEffekt_Arg, std::string sKlasseNavn /*="synapse"*/ ) : timeInterface(sKlasseNavn), bInhibitorisk_effekt(bInhibEffekt_Arg)
 { //{3
-	uSynapticWeight_promille = uSynVekt_Arg;
-	fSynapticWeight = uSynVekt_Arg;
-	nSynapticWeightChange_promille = 0;
+	dSynapticWeight = dSynVekt_Arg;
+	dSynapticWeightChange = 0;
 /*
 	pPreNodeAxon = pPresynAxon_arg;
 	pPostNodeDendrite = pPostsynDendrite_arg;
 */
-	// TODO Kva skal stå her? Har tilegna klassenavn, bInhibitorisk_effekt allerede..
 	
 	cout<<"\t constructor for i_synapse(unsigned uSynVekt_Arg, bool bInhibEffekt_Arg, string navn);\n";
-DEBUG("i_synapse::i_synapse(...); \t: FERDIG");
 	
 } //}3
 //}2
@@ -332,7 +335,7 @@ s_synapse::~s_synapse()
 //}2
 //{2 K_synapse
 K_synapse::K_synapse(K_auron* pPresynAuron_arg, K_auron* pPostsynAuron_arg, unsigned uSynVekt_Arg /*=1*/, bool bInhibEffekt_Arg /*=false*/ )
- :  i_synapse(uSynVekt_Arg, bInhibEffekt_Arg, "s_synapse") , pPreNodeAxon(pPresynAuron_arg->pOutputAxon), pPostNodeDendrite(pPostsynAuron_arg->pInputDendrite)
+ :  i_synapse(uSynVekt_Arg, bInhibEffekt_Arg, "s_synapse") , pPreNodeAxon(pPresynAuron_arg->pOutputAxon), pPostNodeDendrite(pPostsynAuron_arg->pInputDendrite), dPresynPeriodINVERSE(0)
 { 	//XXX HER: nytt kappa element:
 	cout<<"Kaller K_synapse::K_synapse(" <<pPreNodeAxon->pElementAvAuron->sNavn <<".pOutputAxon, " <<pPostNodeDendrite->pElementAvAuron->sNavn <<".pInputDendrite, ...)\n";
 
@@ -340,8 +343,8 @@ K_synapse::K_synapse(K_auron* pPresynAuron_arg, K_auron* pPostsynAuron_arg, unsi
 	pPostNodeDendrite->pInnSynapser.push_back(this);
 	
 
-	cout 	<<"\tCONSTRUCTOR : K_synapse::K_synapse(a*, a*) \tEtterpå får vi:\n" 
-			<<(pPreNodeAxon) <<endl;
+//	cout 	<<"\tCONSTRUCTOR : K_synapse::K_synapse(a*, a*) \tEtterpå får vi:\n" 
+//			<<(pPreNodeAxon) <<endl;
 
 
 	// lag ei .oct - fil, og gjør klar for å kjøres i octave:
@@ -585,6 +588,7 @@ inline void K_auron::changeKappa( double dInputDerived_arg)//int derivedInput_ar
 
 	time_class::addCalculationIn_pCalculatationTaskQue( this );
 
+	bEndraKappaDennePerioden = true;
 	
 }
 
@@ -699,10 +703,11 @@ inline void s_synapse::doTask()
 
 	// Dersom synapsen har inhibitorisk effekt: send inhibitorisk signal (subtraksjon). Ellers: eksiter postsyn. auron.
 	// Dendrite lagrer tidspunk for overføring.
+	// Istedenfor sender inn pos. eller neg. signal avhengig av bInhibitorisk_effekt: [ 1-2*bInhibitorisk_effekt ]  Gir enten +1 dersom bInhibitorisk_effekt er false (=0) eller -1 om bInhibitorisk_effekt er true (=1).
 	if( bInhibitorisk_effekt ){
- 		pPostNodeDendrite->newInputSignal(  -fSynapticWeight );
+ 		pPostNodeDendrite->newInputSignal(  -dSynapticWeight );
 	}else{
-		pPostNodeDendrite->newInputSignal(   fSynapticWeight ); //TODO gjør uSynapticWeight_promille om til uSynapticWeight_promille
+		pPostNodeDendrite->newInputSignal(   dSynapticWeight );
 	}
 //( dendrite legges til i arbeidskø dersom den kommer over fyringsterskel.) --Dette er feilaktig, men meir effektivt.
 		
@@ -714,7 +719,7 @@ inline void s_synapse::doTask()
 
 	// TODO: synaptisk plastisitet: HER.
 	//{ Loggfører syn.weight
-	synWeight_loggFil 	<<"\t" <<time_class::getTid() <<"\t" <<fSynapticWeight
+	synWeight_loggFil 	<<"\t" <<time_class::getTid() <<"\t" <<dSynapticWeight
 						<<" ;   \t#Synpaptic weight\n" ;
 	synWeight_loggFil.flush();
 			//} 
@@ -738,36 +743,19 @@ inline void K_auron::doTask()
 	// Første eg gjør er å nullstille v_0:
 	dDepolAtStartOfTimeWindow = 0;
 
-
-	//********************* gammelt, under her ***************************
-
-
-
-
-
-
-
 	// Beregn ny isi-periode^{-1}. Brukes til å beregne syn.overføring seinare i signal-cascade.
-	// GAMMEL: uLastCalculatedPeriod = 1000*(log((double)dAktivitetsVariabel/((double)dAktivitetsVariabel-FYRINGSTERSKEL)) ) / ALPHA ;
 	uLastCalculatedPeriod = (- log((dAktivitetsVariabel - FYRINGSTERSKEL) / dAktivitetsVariabel) / ALPHA);
 	
-	 	// Beregn endring i periode ivers, og lagre dette i nChangeInPeriodInverse for seinare bruk i synapsene.
-		// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO yy
-//#define nyPERIODE_INVERS_PROMILLE (1000*1000/(double)uLastCalculatedPeriod)
- 	nChangeInPeriodINVERSE = (1/uLastCalculatedPeriod) - uLastCalculatedPeriodINVERSE ;
-	uLastCalculatedPeriodINVERSE = (1/uLastCalculatedPeriod);
+ 	nChangeInPeriodINVERSE = (1/(double)uLastCalculatedPeriod) - dPeriodINVERSE ;
+	dPeriodINVERSE = (1/(double)uLastCalculatedPeriod);
+
 
 cout 	<<"K_auron::doTask()\n"
-		<<"uLastCalculatedPeriod = " <<uLastCalculatedPeriod <<endl
-		<<"uLastCalculatedPeriodINVERSE = " <<uLastCalculatedPeriodINVERSE <<endl
-		<<"= 1000 000 / " <<uLastCalculatedPeriod <<endl;
-
-//cout 	<<"\n\n\nPeriode:\t" <<(double)uNyPeriode_promille_temp <<endl
-// 		<<"Frekvens(promille): \t" 	<<(double)uLastCalculatedPeriodINVERSE  <<endl; 
+		<<"uLastCalculatedPeriod :\t" <<uLastCalculatedPeriod <<endl
+		<<"dPeriodINVERSE :\t" <<dPeriodINVERSE <<endl;
 
 
-	// Legger seg selv til i pEstimatedTaskTime om uLastCalculatedPeriod time iterations:
-	// XXX Dette skjer i time_class::doTask() når gamle element i pEstimatedTaskTime blir fjærna.
+	// Legger seg selv til i pEstimatedTaskTime om uLastCalculatedPeriod time iterations: (forrige peiker i fra pEstimatedTaskTime til dette K_auron ble fjærnet når peiker til dette obj ble lagt inn i pWorkTaskQue).
 	time_class::addTask_in_pEstimatedTaskTime( this,  uLastCalculatedPeriod );
 	cout<<"K_auron: legger til [this] peiker til pEstimatedTaskTime om tid:\t" <<uLastCalculatedPeriod <<"\n\n";
 	
@@ -808,34 +796,14 @@ inline void K_synapse::doTask()
 	// K_ij = w_ij / p(K_j) Differansen Delta K_ij blir sendt som argument til pPostNodeDendrite->newInputSignal( argument );
 	// 	denne er gitt som Delta K_ij = Delta w_ij / Delta p(K_j)
 
-	
-	
- 	cout<<"K_synapse::doTask()\tuSynapticWeight_promille: " <<uSynapticWeight_promille 
-		<<", preNode-uLastCalculatedPeriodINVERSE: " <<static_cast<K_auron*>(pPreNodeAxon->pElementAvAuron)->uLastCalculatedPeriodINVERSE 	<<endl;
-	
-	// Ved kall hit er presyn periode ulik før (?), sjekker om syn_weigth er det samme. Isåfall send vidare: 		//XXX What? :
-	//if( uSynapticWeight_promille != 1000 * (double) fSynapticWeight ){
+	// Istedenfor sender inn pos. eller neg. signal avhengig av bInhibitorisk_effekt: [ 1-2*bInhibitorisk_effekt ]  Gir enten +1 dersom bInhibitorisk_effekt er false (=0) eller -1 om bInhibitorisk_effekt er true (=1).
+	pPostNodeDendrite->newInputSignal( (1-2*bInhibitorisk_effekt) * dSynapticWeightChange * (pPreNodeAxon->pElementAvAuron)->nChangeInPeriodINVERSE );
 
-		// TODO  PLAN:
-		/*
-		* 	- Istedenfor if-setning: skriv heller [ 1-2*bInhibitorisk_effekt ] => gir enten 1 (dersom bInhibitorisk_effekt er false (=0) eller -1 dersom bInhibitorisk_effekt er true (=1)).
-		* 	- Ta vekk casting (static_cast). Ikkje naudsynt lenger (modelspesifikke element overlagrer interface-element i_synapse's pOutputAxon og pInputDendrite,,)
-		*/
-		
-		// Istedenfor sender inn pos. eller neg. signal avhengig av bInhibitorisk_effekt: [ 1-2*bInhibitorisk_effekt ]  Gir enten +1 dersom bInhibitorisk_effekt er false (=0) eller -1 om bInhibitorisk_effekt er true (=1).
-		pPostNodeDendrite->newInputSignal( (1-2*bInhibitorisk_effekt) * nSynapticWeightChange_promille * (pPreNodeAxon->pElementAvAuron)->nChangeInPeriodINVERSE );
-		/* Gammel variant, med if-setning: //{
-		if(bInhibitorisk_effekt)
-		{
-			// TODO Trenger ikkje casting: pPreNodeAxon og pPostNodeDendrite er allerede av type K_auron.
-			//pPostNodeDendrite->newInputSignal( -uSynapticWeight_promille * pPreNodeAxon->pElementAvAuron->getPeriode() );
-			pPostNodeDendrite->newInputSignal( - nSynapticWeightChange_promille * static_cast<K_auron*>(pPreNodeAxon->pElementAvAuron)->nChangeInPeriodINVERSE );
-	
-		}else{
-			//pPostNodeDendrite->newInputSignal( uSynapticWeight_promille * pPreNodeAxon->pElementAvAuron->dAktivitetsVariabel );
-			pPostNodeDendrite->newInputSignal( nSynapticWeightChange_promille * static_cast<K_auron*>(pPreNodeAxon->pElementAvAuron)->nChangeInPeriodINVERSE ); 
-		}*/ //}
-	//} 
+	dPresynPeriodINVERSE = (pPreNodeAxon->pElementAvAuron)->dPeriodINVERSE;
+
+
+ 	cout<<"K_synapse::doTask()\tdSynapticWeight: " <<dSynapticWeight 
+		<<", preNode-dPeriodINVERSE: " <<(pPreNodeAxon->pElementAvAuron)->dPeriodINVERSE 	<<endl;
 } //}
 inline void K_dendrite::doTask()
 { //{ XX DENDRITE (ikkje i bruk)
@@ -873,14 +841,14 @@ void K_auron::doCalculation()
 	if( dAktivitetsVariabel > FYRINGSTERSKEL ) // if(kappa>tau)
 	{
 		// Beregner nytt fyringsestimat:
-		lEstimatedTimeToFiring = ( - log((dAktivitetsVariabel-FYRINGSTERSKEL)/(dAktivitetsVariabel - dDepolAtStartOfTimeWindow)) / ALPHA ); //XXX TODO Trur det skal være med:  * 1000;
-		//cout<<"lEstimatedTimeToFiring     = \t" << lEstimatedTimeToFiring <<endl
+		lEstimatedTaskTime_for_object = ( - log((dAktivitetsVariabel-FYRINGSTERSKEL)/(dAktivitetsVariabel - dDepolAtStartOfTimeWindow)) / ALPHA ); //XXX TODO Trur det skal være med:  * 1000;
+		//cout<<"lEstimatedTaskTime_for_object     = \t" << lEstimatedTaskTime_for_object <<endl
 		//	<<"dDepolAtStartOfTimeWindow = \t" <<dDepolAtStartOfTimeWindow <<"\n\n\n\n";
 
-		// Berenger uLastCalculatedPeriodINVERSE og nChangeInPeriodINVERSE:
-		unsigned uPeriod_promille_temp  = (- log((dAktivitetsVariabel - FYRINGSTERSKEL) / dAktivitetsVariabel) / ALPHA);
-		nChangeInPeriodINVERSE = uPeriod_promille_temp - uLastCalculatedPeriodINVERSE;
-		uLastCalculatedPeriod  = uPeriod_promille_temp;
+		// Berenger dPeriodINVERSE og nChangeInPeriodINVERSE:
+		unsigned uPeriod_temp  = (- log((dAktivitetsVariabel - FYRINGSTERSKEL) / dAktivitetsVariabel) / ALPHA);
+		nChangeInPeriodINVERSE = uPeriod_temp - dPeriodINVERSE;
+		uLastCalculatedPeriod  = uPeriod_temp;
 
 		/*********************************************************************************************
 		** 	Her er det veldig viktig at auronet fyrer når det skal, og ikkje seinare. 				**
@@ -892,8 +860,8 @@ void K_auron::doCalculation()
 		
 		/* DEBUG:
 		//{
-		cout 	<<"lEstimatedTimeToFiring = " <<lEstimatedTimeToFiring <<endl <<((dAktivitetsVariabel - FYRINGSTERSKEL)/(dAktivitetsVariabel-dDepolAtStartOfTimeWindow)) <<endl
-				<<"lEstimatedTimeToFiring = ( - log((dAktivitetsVariabel-FYRINGSTERSKEL)/(dAktivitetsVariabel - dDepolAtStartOfTimeWindow)) / ALPHA ) = "
+		cout 	<<"lEstimatedTaskTime_for_object = " <<lEstimatedTaskTime_for_object <<endl <<((dAktivitetsVariabel - FYRINGSTERSKEL)/(dAktivitetsVariabel-dDepolAtStartOfTimeWindow)) <<endl
+				<<"lEstimatedTaskTime_for_object = ( - log((dAktivitetsVariabel-FYRINGSTERSKEL)/(dAktivitetsVariabel - dDepolAtStartOfTimeWindow)) / ALPHA ) = "
 				<< ( - log((dAktivitetsVariabel-FYRINGSTERSKEL)/(dAktivitetsVariabel - dDepolAtStartOfTimeWindow)) / ALPHA ) <<endl
 				<<"\ndAktivitetsVariabel, FYRINGSTERSKEL = " <<dAktivitetsVariabel <<", " <<FYRINGSTERSKEL <<", depol = " <<dDepolAtStartOfTimeWindow <<"\n\n" ;
 		//} 
@@ -910,8 +878,8 @@ void K_auron::doCalculation()
 		*		Dette skjer i K_auron.doTask()
 		*/
 
-		if( (lEstimatedTimeToFiring - time_class::getTid() ) > 0 )
-		 	time_class::moveTask_in_pEstimatedTaskTime( this, lEstimatedTimeToFiring-time_class::getTid() );
+		if( (lEstimatedTaskTime_for_object - time_class::getTid() ) > 0 )
+		 	time_class::moveTask_in_pEstimatedTaskTime( this, lEstimatedTaskTime_for_object-time_class::getTid() );
 		else
 			// XXX XXX Ikkje heilt sikker på om det er greitt å flytte denne til element 0. Men eg trur det.. XXX
 			time_class::moveTask_in_pEstimatedTaskTime( this, 0);
@@ -929,8 +897,35 @@ void K_auron::doCalculation()
 
 } //}
 
+// Rekalkulerer feil i Kappa for auronet.
+double K_auron::recalculateKappa()
+{
+	// Plan:
+	//  - Rekalkulerer kappa for dendrite.
+	// 		- skal hente ut K_ij fra alle innsynapsene. Dette kan den gjøre ved å kalle K_synapse::getWij();
+	double dKappa_temp = pInputDendrite->recalculateKappa();
+	double dKappaFeil_temp = dAktivitetsVariabel-dKappa_temp;
+
+	dAktivitetsVariabel = dKappa_temp;
+
+	return dKappaFeil_temp;
+	
+}
+
+void recalcKappaObj::doTask()
+{
+	// Rekalkuler Kappa.
+	// Trenger en funksjon K_auron::recalculateKappa() som
+	// 	- rekalkulerer kappa for auronet.
+	// 	- returnerer rekalkulert kappa.
+	
+	pKappaAuron_obj->recalculateKappa();
+	// Sjå kva feilen er, og la feilen bestemme kor lenge vi skal vente til neste rekalk. Kanskje også ha en slags FIR-effekt her?
+}
 
 
+
+// Gjøre denne til mdl.funk. av K_auron?
 void loggeFunk_K_auron()
 {
 		// Får den til å skrive til logg. Dersom 0 sendes inn i changeKappa(0) vil ikkje verdi endres heller.

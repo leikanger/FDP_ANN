@@ -51,13 +51,14 @@ class K_auron;
 class timeInterface
 {
 	public:
-	timeInterface(std::string s) : ulEstimatedTaskTime_for_object(0), sClassName(s){}
+	timeInterface(std::string s) : lEstimatedTaskTime_for_object(0), sClassName(s){}
 	timeInterface() 				{} 				//For mens eg itererer i utviklinga.  Trur ikkje eg skal ha denne etterpå..
 
 	virtual void doTask() =0;
 	virtual void doCalculation() =0;
 
-	unsigned long ulEstimatedTaskTime_for_object; //Brukes for når man skal flytte ledd i pEstimatedTaskTime. Veldig viktig for KANN!
+	long lEstimatedTaskTime_for_object; //Brukes for når man skal flytte ledd i pEstimatedTaskTime. Veldig viktig for KANN!
+
 
 	//for debugging:
 	std::string sClassName;
@@ -160,8 +161,7 @@ class time_class : public timeInterface {
 		
 		// utskrift:
 		if(ulTidsiterasjoner%100 == 0)		
-			cout<<"\t_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n"
-		 		<<"\t* * * * TID: \t  =  " <<ulTidsiterasjoner <<" * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * = "
+			cout<<"\t* * * * TID: \t  =  " <<ulTidsiterasjoner <<" * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * = "
 				<<ulTidsiterasjoner <<"\n";
 
 
@@ -313,7 +313,7 @@ Meir: Veit ikkje om den som søker fra oppsida er rett heller. No er eg jævla s
 
 
 		// Lagrer "posisjon" (i pEstimatedTaskTime-lista) i pTI_arg->ul EstimatedTaskTime_for_object.
-		pTI_arg->ulEstimatedTaskTime_for_object = ulTidsiterasjoner + nRelativeTime_arg;
+		pTI_arg->lEstimatedTaskTime_for_object = ulTidsiterasjoner + nRelativeTime_arg;
 
 		// legg til element i denne vektorenPEIKEREN:
 		(*get_iteration_in_pEstimatedTaskTime( nRelativeTime_arg ))->push_back( pTI_arg );
@@ -348,7 +348,7 @@ Meir: Veit ikkje om den som søker fra oppsida er rett heller. No er eg jævla s
 		***************/
 
 
-		// bruker timeInterface::ulEstimated TaskTime_for_object og get_iteration_in_pEstimatedTaskTime():
+		// bruker timeInterface::lEstimated TaskTime_for_object og get_iteration_in_pEstimatedTaskTime():
 		// Finner rett estimerte iterasjon: pIterator_in_pEstimatedTaskTime_temp  				(get_iteration_in_pEstimatedTaskTime() tar argument: tid til taskTime)
 //		std::list<timeInterface*>::iterator pIterator_in_pEstimatedTaskTime_temp = (*get_iteration_in_pEstimatedTaskTime( pTI_arg->ul EstimatedTaskTime_for_object - time_class::getTid()  ))->begin();
 
@@ -357,9 +357,9 @@ Meir: Veit ikkje om den som søker fra oppsida er rett heller. No er eg jævla s
 		//Dette kaller også destruktor, men dette blir ikkje problem siden element bare er en peiker..
 		
 		// TODO Vettafaen om neste linje er naudsynt? TODO sjå gjennom koden neste linjene!
-		std::list< std::list<timeInterface*>* >::iterator oldTimeEstimate_iterator = get_iteration_in_pEstimatedTaskTime( pTI_arg->ulEstimatedTaskTime_for_object - time_class::getTid() );
+		std::list< std::list<timeInterface*>* >::iterator oldTimeEstimate_iterator = get_iteration_in_pEstimatedTaskTime( pTI_arg->lEstimatedTaskTime_for_object - time_class::getTid() );
 	
-		cout<<"Iterasjon i pEstimatedTaskTime: " <<((int)pTI_arg->ulEstimatedTaskTime_for_object - (int)time_class::getTid()) <<"\t(ulEstimatedTaskTime_for_object (" <<pTI_arg->ulEstimatedTaskTime_for_object <<") - tid.getTid() ["
+		cout<<"Iterasjon i pEstimatedTaskTime: " <<((int)pTI_arg->lEstimatedTaskTime_for_object - (int)time_class::getTid()) <<"\t(lEstimatedTaskTime_for_object (" <<pTI_arg->lEstimatedTaskTime_for_object <<") - tid.getTid() ["
 			<<time_class::getTid() <<"]\n";
 		
 		(*oldTimeEstimate_iterator)->remove( pTI_arg );
@@ -369,11 +369,11 @@ Meir: Veit ikkje om den som søker fra oppsida er rett heller. No er eg jævla s
 		// Gjelder bare for vector: "bruk aldri iterator etter at størrelsen har blitt endra.
 		(*newTimeEstimate_iterator)->push_back( pTI_arg );
 		// TODO KANSKJE HELLER 
-		// (*  get_iteration_in_pEstimatedTaskTime( pTI_arg->ulEstimatedTaskTime_for_object - time_class::getTid() ))->push_back( pTI_arg );
+		// (*  get_iteration_in_pEstimatedTaskTime( pTI_arg->lEstimatedTaskTime_for_object - time_class::getTid() ))->push_back( pTI_arg );
 		// eller noke..
 
-		// oppdaterer pTI_arg->ulEstimatedTaskTime_for_object 
-		pTI_arg->ulEstimatedTaskTime_for_object = time_class::getTid() + nRelativeTime_arg;
+		// oppdaterer pTI_arg->lEstimatedTaskTime_for_object 
+		pTI_arg->lEstimatedTaskTime_for_object = time_class::getTid() + nRelativeTime_arg;
 
 
 
@@ -406,8 +406,8 @@ Meir: Veit ikkje om den som søker fra oppsida er rett heller. No er eg jævla s
 		//			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
 			for(std::list<timeInterface*>::iterator listIter = (*ll_iter)->begin() ; listIter != (*ll_iter)->end(); listIter++ )
 			{
-		 		cout<<"\t\telement nr. " <<nIndreIter++ <<":  \t" <<(*listIter)->sClassName <<"     \t ulEstimatedTaskTime_for_object :  " 
-					<<(*listIter)->ulEstimatedTaskTime_for_object <<endl;
+		 		cout<<"\t\telement nr. " <<nIndreIter++ <<":  \t" <<(*listIter)->sClassName <<"     \t lEstimatedTaskTime_for_object :  " 
+					<<(*listIter)->lEstimatedTaskTime_for_object <<endl;
 			}
 	
 			nYtreIter++;

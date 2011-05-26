@@ -25,6 +25,15 @@
 //}
 
 
+#if 0
+Haha! Fett. Ny måte å kommentere ut ting på! Thank you, K.
+#endif
+
+#if 1
+// Ikkje kommentert ut
+#endif
+
+
 /*
  * main.cpp
  *
@@ -237,7 +246,7 @@ int main(int argc, char *argv[])
 
 	cout<<"\n\nLAGER KANN\n\n";
 
-	K_auron* A = new K_auron("A", 1.5*FYRINGSTERSKEL);
+	K_auron* A = new K_auron("A", 1.1*FYRINGSTERSKEL);
 /*
 	K_auron* K2 = new K_auron("K_2", 1.2*FYRINGSTERSKEL);
 	K_auron* K4 = new K_auron("K_4", 1.4*FYRINGSTERSKEL);
