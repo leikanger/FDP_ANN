@@ -182,11 +182,14 @@ K_auron::K_auron(std::string sNavn_Arg /*="unnamed"*/, int nStartKappa /*= FYRIN
 	pOutputAxon = new K_axon(this);
  	pInputDendrite = new K_dendrite(this); //	Skal ligge i s_auron og k_auron
 
+	// Dersom start-kappa er over fyringsterskel (dette er bare for initiell debugging)
+	// Alt taes hand om i changeKappa()
+	changeKappa( nStartKappa );
 
 
  	cout 	<<"\nConstructing K_auron.\n"
 			<<"\tKappa: \t\t\t\t" <<dAktivitetsVariabel <<endl
-			<<"\tEstimated time to A.P.: \t" <<(FAKTOR_FOR_AA_FAA_RETT_PERIODE / ALPHA) * log( (float)(dDepolAtStartOfTimeWindow - dAktivitetsVariabel) / (float)(FYRINGSTERSKEL - dAktivitetsVariabel) ) 
+			//<<"\tEstimated time to A.P.: \t" <<(1 / ALPHA) * log( (dDepolAtStartOfTimeWindow - dAktivitetsVariabel) / (float)(FYRINGSTERSKEL - dAktivitetsVariabel) ) 
 			<<"\n\n";
 
 
@@ -575,39 +578,12 @@ inline void K_dendrite::newInputSignal( double dNewSignal_arg )
 
 inline void K_auron::changeKappa( double dInputDerived_arg)//int derivedInput_arg )
 {
-
-	// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-	// Gjør den biten som har med endring av kappa (ugjort..)
-	// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-
 	/************************
 	* Legg arg til i Kappa  *
 	************************/
 	dAktivitetsVariabel += dInputDerived_arg;
 
-	//**********************************************
-	//*  Beregn ny depol og estimert fyringstid:   *
-	//**********************************************
-	// Beregne v_0 ved endring av kappa (nytt 'time window'):
-	// Beregner ny v_0 : depolarisasjon ved slutt av dette time window (før vi starter neste..) 								v_0 = (v_0,forrige - K)e^-at + K
-	dDepolAtStartOfTimeWindow = (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(float)ALPHA  * (double)((time_class::getTid() - ulStartOfTimewindow))) + dAktivitetsVariabel ;
-	// Skriver ny t_0 (start av 'time window')
-	ulStartOfTimewindow = time_class::getTid();
-
-	// Skriver til log for depol:
-	depol_logFile 	<<time_class::getTid() <<"\t" <<dDepolAtStartOfTimeWindow <<"; \t #Depol\n" ;
-	depol_logFile.flush();
-
-
-	// Beregner nytt fyringsestimat:
-	uEstimertTidTilFyring = ( - log((dAktivitetsVariabel-FYRINGSTERSKEL)/(dAktivitetsVariabel - dDepolAtStartOfTimeWindow)) / ALPHA ); //XXX TODO Trur det skal være med:  * 1000;
-	//cout<<"uEstimertTidTilFyring     = \t" << uEstimertTidTilFyring <<endl
-	//	<<"dDepolAtStartOfTimeWindow = \t" <<dDepolAtStartOfTimeWindow <<"\n\n\n\n";
-
-	// Berenger uLastCalculatedPeriodInverse_promille og nChangeInPeriodInverse_promille:
-	unsigned uPeriod_promille_temp  = - log((dAktivitetsVariabel - FYRINGSTERSKEL) / dAktivitetsVariabel) / ALPHA;
-	nChangeInPeriodInverse_promille = uLastCalculatedPeriodInverse_promille - uPeriod_promille_temp;
-	uLastCalculatedPeriod_promille  = uPeriod_promille_temp;
+	time_class::addCalculationIn_pCalculatationTaskQue( this );
 
 	
 }
@@ -759,25 +735,41 @@ inline void s_dendrite::doTask()
 //TODO:
 inline void K_auron::doTask()
 { //{ ** AURON
-	 
+	// Første eg gjør er å nullstille v_0:
+	dDepolAtStartOfTimeWindow = 0;
+
+
+	//********************* gammelt, under her ***************************
+
+
+
+
+
+
+
 	// Beregn ny isi-periode^{-1}. Brukes til å beregne syn.overføring seinare i signal-cascade.
-	unsigned uLastCalculatedPeriod_promille = 1000*(log((double)dAktivitetsVariabel/((double)dAktivitetsVariabel-FYRINGSTERSKEL)) ) / ALPHA ;
+	// GAMMEL: uLastCalculatedPeriod = 1000*(log((double)dAktivitetsVariabel/((double)dAktivitetsVariabel-FYRINGSTERSKEL)) ) / ALPHA ;
+	uLastCalculatedPeriod = (- log((dAktivitetsVariabel - FYRINGSTERSKEL) / dAktivitetsVariabel) / ALPHA);
+	
 	 	// Beregn endring i periode ivers, og lagre dette i nChangeInPeriodInverse for seinare bruk i synapsene.
 		// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO yy
-#define nyPERIODE_INVERS_PROMILLE (1000*1000/(double)uLastCalculatedPeriod_promille)
- 	nChangeInPeriodInverse_promille = nyPERIODE_INVERS_PROMILLE - uLastCalculatedPeriodInverse_promille ;
-	 	// Lagre ny kalkulert periode i uLastCalculatedPeriod_inverse:
-	uLastCalculatedPeriodInverse_promille = nyPERIODE_INVERS_PROMILLE;
-cout<<"HER. uLastCalculatedPeriodInverse_promille = " <<uLastCalculatedPeriodInverse_promille <<endl;
+//#define nyPERIODE_INVERS_PROMILLE (1000*1000/(double)uLastCalculatedPeriod)
+ 	nChangeInPeriodINVERSE = (1/uLastCalculatedPeriod) - uLastCalculatedPeriodINVERSE ;
+	uLastCalculatedPeriodINVERSE = (1/uLastCalculatedPeriod);
+
+cout 	<<"K_auron::doTask()\n"
+		<<"uLastCalculatedPeriod = " <<uLastCalculatedPeriod <<endl
+		<<"uLastCalculatedPeriodINVERSE = " <<uLastCalculatedPeriodINVERSE <<endl
+		<<"= 1000 000 / " <<uLastCalculatedPeriod <<endl;
 
 //cout 	<<"\n\n\nPeriode:\t" <<(double)uNyPeriode_promille_temp <<endl
-// 		<<"Frekvens(promille): \t" 	<<(double)uLastCalculatedPeriodInverse_promille  <<endl; 
+// 		<<"Frekvens(promille): \t" 	<<(double)uLastCalculatedPeriodINVERSE  <<endl; 
 
 
-	// Legger seg selv til i pEstimatedTaskTime om uLastCalculatedPeriod_promille time iterations:
+	// Legger seg selv til i pEstimatedTaskTime om uLastCalculatedPeriod time iterations:
 	// XXX Dette skjer i time_class::doTask() når gamle element i pEstimatedTaskTime blir fjærna.
-	time_class::addTask_in_pEstimatedTaskTime( this,  uLastCalculatedPeriod_promille );
-	cout<<"K_auron: legger til [this] peiker til pEstimatedTaskTime om tid:\t" <<uLastCalculatedPeriod_promille <<"\n\n";
+	time_class::addTask_in_pEstimatedTaskTime( this,  uLastCalculatedPeriod );
+	cout<<"K_auron: legger til [this] peiker til pEstimatedTaskTime om tid:\t" <<uLastCalculatedPeriod <<"\n\n";
 	
 
 	//Axon hillock: send aksjonspotensial 	-- innkapsling gir at a xon skal ta hånd om all output. // bestiller at a xon skal fyre NESTE tidsiterasjon. Simulerer tidsdelay i a xonet.
@@ -790,7 +782,7 @@ cout<<"HER. uLastCalculatedPeriodInverse_promille = " <<uLastCalculatedPeriodInv
 	
 	//Utskrift til skjerm:
 	cout<<"| | " <<sNavn <<" | | | " <<sNavn <<" | | | | " <<sNavn <<" | | | | " <<sNavn <<" | | | | " <<sNavn <<" | | | | " <<sNavn <<"| | | | | | | | |\t"
-		<<sNavn <<".doTask()\tFYRER neuron " <<sNavn <<".\t\t| | | |  [periode] = " <<(float)uLastCalculatedPeriod_promille/1000 <<"     | | | | | | | | | | | | | | | | | | \ttid: " <<time_class::getTid() <<"\n\n";
+		<<sNavn <<".doTask()\tFYRER neuron " <<sNavn <<".\t\t| | | |  [periode] = " <<(float)uLastCalculatedPeriod/1000 <<"     | | | | | | | | | | | | | | | | | | \ttid: " <<time_class::getTid() <<"\n\n";
 
 
 } //}
@@ -819,7 +811,7 @@ inline void K_synapse::doTask()
 	
 	
  	cout<<"K_synapse::doTask()\tuSynapticWeight_promille: " <<uSynapticWeight_promille 
-		<<", preNode-uLastCalculatedPeriodInverse_promille: " <<static_cast<K_auron*>(pPreNodeAxon->pElementAvAuron)->uLastCalculatedPeriodInverse_promille 	<<endl;
+		<<", preNode-uLastCalculatedPeriodINVERSE: " <<static_cast<K_auron*>(pPreNodeAxon->pElementAvAuron)->uLastCalculatedPeriodINVERSE 	<<endl;
 	
 	// Ved kall hit er presyn periode ulik før (?), sjekker om syn_weigth er det samme. Isåfall send vidare: 		//XXX What? :
 	//if( uSynapticWeight_promille != 1000 * (double) fSynapticWeight ){
@@ -831,17 +823,17 @@ inline void K_synapse::doTask()
 		*/
 		
 		// Istedenfor sender inn pos. eller neg. signal avhengig av bInhibitorisk_effekt: [ 1-2*bInhibitorisk_effekt ]  Gir enten +1 dersom bInhibitorisk_effekt er false (=0) eller -1 om bInhibitorisk_effekt er true (=1).
-		pPostNodeDendrite->newInputSignal( (1-2*bInhibitorisk_effekt) * nSynapticWeightChange_promille * (pPreNodeAxon->pElementAvAuron)->nChangeInPeriodInverse_promille );
+		pPostNodeDendrite->newInputSignal( (1-2*bInhibitorisk_effekt) * nSynapticWeightChange_promille * (pPreNodeAxon->pElementAvAuron)->nChangeInPeriodINVERSE );
 		/* Gammel variant, med if-setning: //{
 		if(bInhibitorisk_effekt)
 		{
 			// TODO Trenger ikkje casting: pPreNodeAxon og pPostNodeDendrite er allerede av type K_auron.
 			//pPostNodeDendrite->newInputSignal( -uSynapticWeight_promille * pPreNodeAxon->pElementAvAuron->getPeriode() );
-			pPostNodeDendrite->newInputSignal( - nSynapticWeightChange_promille * static_cast<K_auron*>(pPreNodeAxon->pElementAvAuron)->nChangeInPeriodInverse_promille );
+			pPostNodeDendrite->newInputSignal( - nSynapticWeightChange_promille * static_cast<K_auron*>(pPreNodeAxon->pElementAvAuron)->nChangeInPeriodINVERSE );
 	
 		}else{
 			//pPostNodeDendrite->newInputSignal( uSynapticWeight_promille * pPreNodeAxon->pElementAvAuron->dAktivitetsVariabel );
-			pPostNodeDendrite->newInputSignal( nSynapticWeightChange_promille * static_cast<K_auron*>(pPreNodeAxon->pElementAvAuron)->nChangeInPeriodInverse_promille ); 
+			pPostNodeDendrite->newInputSignal( nSynapticWeightChange_promille * static_cast<K_auron*>(pPreNodeAxon->pElementAvAuron)->nChangeInPeriodINVERSE ); 
 		}*/ //}
 	//} 
 } //}
@@ -862,32 +854,78 @@ inline void K_dendrite::doTask()
 ****** 														*******
 ******************************************************************/
 
+//TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
 void K_auron::doCalculation()
 { //{
  	cout<<"dC():\tK_auron " <<sNavn <<".doCalculation()\t\t" <<sNavn <<".doCalculation()\n";
+	
 
-	// Skal estimere firingTime, og endre oppføringa i pEstimatedTaskTime.
-	// Det har blitt ny kappa, så nytt estimat av fyringstid må beregnes:
-	dDepolAtStartOfTimeWindow = dAktivitetsVariabel + (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-ALPHA*(time_class::getTid()-ulStartOfTimewindow));
+	//**********************************************
+	//*  Beregn ny depol og estimert fyringstid:   *
+	//**********************************************
+	// Beregne v_0 ved endring av kappa (nytt 'time window'):
+	// Beregner ny v_0 : depolarisasjon ved slutt av dette time window (før vi starter neste..) 								v_0 = (v_0,forrige - K)e^-at + K
+	dDepolAtStartOfTimeWindow = (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * ((time_class::getTid() - ulStartOfTimewindow))) + dAktivitetsVariabel ;
+	// Skriver ny t_0 (start av 'time window')
+	ulStartOfTimewindow = time_class::getTid();
 
- 	unsigned long ulEstimatedTimeToAP_temp =  (FAKTOR_FOR_AA_FAA_RETT_PERIODE / ALPHA) * log( (float)(dDepolAtStartOfTimeWindow - dAktivitetsVariabel) / (float)(FYRINGSTERSKEL - dAktivitetsVariabel) );
-	//unsigned uNyPeriode_promille_temp = ALPHA / log((double)dAktivitetsVariabel/((double)dAktivitetsVariabel-FYRINGSTERSKEL));
-	// TODO EN AV DESSE ER FEIL: Veit ikkje kva. Denne i doCalculation() eller den i K_auron::doTask()
-	// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-	// 
-	// Bli heilt sikker på kva tidsskala dei kjører på. Har bestemt at det skal være ms. Tidligere var det 1/100 s.
-	//
-	// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
 
-	//cout<<"K == " <<dAktivitetsVariabel <<", T == " <<FYRINGSTERSKEL <<", ALPHA == " <<ALPHA <<", V_0 == " <<dDepolAtStartOfTimeWindow <<endl;
+	if( dAktivitetsVariabel > FYRINGSTERSKEL ) // if(kappa>tau)
+	{
+		// Beregner nytt fyringsestimat:
+		lEstimatedTimeToFiring = ( - log((dAktivitetsVariabel-FYRINGSTERSKEL)/(dAktivitetsVariabel - dDepolAtStartOfTimeWindow)) / ALPHA ); //XXX TODO Trur det skal være med:  * 1000;
+		//cout<<"lEstimatedTimeToFiring     = \t" << lEstimatedTimeToFiring <<endl
+		//	<<"dDepolAtStartOfTimeWindow = \t" <<dDepolAtStartOfTimeWindow <<"\n\n\n\n";
 
- 	cout 	<<"\nCalculating K_auron.\n"
-			<<"\tKappa: \t\t\t\t" <<dAktivitetsVariabel <<endl
-			<<"\tEstimated time to A.P.: \t" <<(FAKTOR_FOR_AA_FAA_RETT_PERIODE / ALPHA) * log( (float)(dDepolAtStartOfTimeWindow - dAktivitetsVariabel) / (float)(FYRINGSTERSKEL - dAktivitetsVariabel) ) 
-			<<"\n\n";
+		// Berenger uLastCalculatedPeriodINVERSE og nChangeInPeriodINVERSE:
+		unsigned uPeriod_promille_temp  = (- log((dAktivitetsVariabel - FYRINGSTERSKEL) / dAktivitetsVariabel) / ALPHA);
+		nChangeInPeriodINVERSE = uPeriod_promille_temp - uLastCalculatedPeriodINVERSE;
+		uLastCalculatedPeriod  = uPeriod_promille_temp;
 
-//	cout<<"LEGGER til task i pEstimatedTaskTime";
-	time_class::addTask_in_pEstimatedTaskTime( this, ulEstimatedTimeToAP_temp);
+		/*********************************************************************************************
+		** 	Her er det veldig viktig at auronet fyrer når det skal, og ikkje seinare. 				**
+		** 		Dersom det sjekkes etter at det skulle fyre, vil verdien wrappe (pga unsigned) 		**
+		** 		Case: depol er 999, Kappa endres til høg, => auronet skulle fyrt for "lenge siden". **
+		** 		Av denne grunn endrer eg ulEstimatedTimeToFiring til lEstimertTidTilFyring 			**
+		** 		(Den får lov å være negativ også. Da kan problemet handteres seinare.. 				**
+		*********************************************************************************************/
+		
+		/* DEBUG:
+		//{
+		cout 	<<"lEstimatedTimeToFiring = " <<lEstimatedTimeToFiring <<endl <<((dAktivitetsVariabel - FYRINGSTERSKEL)/(dAktivitetsVariabel-dDepolAtStartOfTimeWindow)) <<endl
+				<<"lEstimatedTimeToFiring = ( - log((dAktivitetsVariabel-FYRINGSTERSKEL)/(dAktivitetsVariabel - dDepolAtStartOfTimeWindow)) / ALPHA ) = "
+				<< ( - log((dAktivitetsVariabel-FYRINGSTERSKEL)/(dAktivitetsVariabel - dDepolAtStartOfTimeWindow)) / ALPHA ) <<endl
+				<<"\ndAktivitetsVariabel, FYRINGSTERSKEL = " <<dAktivitetsVariabel <<", " <<FYRINGSTERSKEL <<", depol = " <<dDepolAtStartOfTimeWindow <<"\n\n" ;
+		//} 
+		*/
+	
+		
+		/**************************************
+		* Legg inn auron i pEstimatedTaskTime *
+		**************************************/
+
+		/*
+		* 	- Siden auronet alltid ligger der, skal det bare flyttes.
+		* 		( Ved fyring av auronet flyttes det bare til 	[no] + [periode] i pEstimatedTaskTime )
+		*		Dette skjer i K_auron.doTask()
+		*/
+
+		if( (lEstimatedTimeToFiring - time_class::getTid() ) > 0 )
+		 	time_class::moveTask_in_pEstimatedTaskTime( this, lEstimatedTimeToFiring-time_class::getTid() );
+		else
+			// XXX XXX Ikkje heilt sikker på om det er greitt å flytte denne til element 0. Men eg trur det.. XXX
+			time_class::moveTask_in_pEstimatedTaskTime( this, 0);
+	} // slutt: if(kappa>tau)
+	/*	else{  //TODO TA VEKK TENNE TAD DO TODO TODO
+		cout<<"dAktivitetsVariabel: " <<dAktivitetsVariabel <<endl;
+		exit(0); 
+	}	*/
+	
+	
+	// Skriver til log for depol:
+	writeDepolToLog();
+
+
 
 } //}
 
@@ -906,9 +944,7 @@ void loggeFunk_K_auron()
 				cout<<"pluss ti på kappa\n";
 			}else
 			// XXX TIL HIT: sjå forrige XXX */
-			(*iter) ->changeKappa(0);
-
-			cout<<"Kappa :" <<(*iter)->getKappa() <<endl;
+			(*iter) ->writeDepolToLog();
 		}
 }
 

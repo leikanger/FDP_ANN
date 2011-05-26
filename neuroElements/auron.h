@@ -177,11 +177,11 @@ class K_auron : public i_auron
 	unsigned long ulStartOfTimewindow;
 	double dDepolAtStartOfTimeWindow;
 
-	unsigned uLastCalculatedPeriod_promille;
-	unsigned uLastCalculatedPeriodInverse_promille;
-	int nChangeInPeriodInverse_promille;
+	unsigned uLastCalculatedPeriod;
+	unsigned uLastCalculatedPeriodINVERSE;
+	int nChangeInPeriodINVERSE;
 
-	unsigned long uEstimertTidTilFyring;
+	long lEstimatedTimeToFiring;
 
 	inline void changeKappa( double );
 	inline double getKappa(){ return dAktivitetsVariabel; }
@@ -205,6 +205,14 @@ class K_auron : public i_auron
 	public:
 	K_auron(std::string sNavn_Arg ="unnamed", int nStartKappa = FYRINGSTERSKEL, unsigned uStartDepol_prosent =0); 	
 	~K_auron();
+
+
+	inline void writeDepolToLog()
+	{
+		// Skriver dDepolAtStartOfTimeWindow til logg:
+		depol_logFile 	<<time_class::getTid() <<"\t" <<dDepolAtStartOfTimeWindow <<"; \t #Depol\n" ;
+		depol_logFile.flush();
+	}
 
 //{2 friend
 	friend class K_axon;

@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
 	//} /**/ 
 
 
-  /* SANN: samme eit-neurons testoppsett:*/
+  /* SANN: samme eit-neurons testoppsett:* /
   	cout<<"\n\nLAGER SANN\n\n";
 	s_auron* s1 = new s_auron("s1");
 	s_auron* s2 = new s_auron("s2");
@@ -226,17 +226,18 @@ int main(int argc, char *argv[])
 	new s_synapse(s2, s1, 1111);
 
 	s_auron* sA = new s_auron("sA");
-	new s_synapse(s1, sA, (1.5 * ALPHA * FYRINGSTERSKEL ) );
-	new s_synapse(s2, sA, (1.5 * (1-LEKKASJEFAKTOR_FOR_DEPOL) * FYRINGSTERSKEL ) ); 
+#define FORHOLD_MELLOM_ALPHA_OG_INPUT_FAKTOR ALPHA
+	new s_synapse(s1, sA, (1.5 * FORHOLD_MELLOM_ALPHA_OG_INPUT_FAKTOR * FYRINGSTERSKEL ) );
+	new s_synapse(s2, sA, (1.5 * FORHOLD_MELLOM_ALPHA_OG_INPUT_FAKTOR * FYRINGSTERSKEL ) ); 
 	
 	s1->doTask();
   /**/
-  /* KANN: test-oppsett. 		KANN  		* /
+  /* KANN: test-oppsett. 		KANN  		*/
  	//{ KANN: TEST-oppsett. Lager mange neuron..
 
 	cout<<"\n\nLAGER KANN\n\n";
 
-	K_auron* A = new K_auron("A", 1*FYRINGSTERSKEL);
+	K_auron* A = new K_auron("A", 1.5*FYRINGSTERSKEL);
 /*
 	K_auron* K2 = new K_auron("K_2", 1.2*FYRINGSTERSKEL);
 	K_auron* K4 = new K_auron("K_4", 1.4*FYRINGSTERSKEL);
