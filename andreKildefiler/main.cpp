@@ -159,10 +159,10 @@ int main(int argc, char *argv[])
 		skrivUtArgumentKonvensjoner(argv[0]);
 	} //}1
 	
-	
-	//TODO For at alle skal destrueres automatisk, legg alle peikere inn i std::vector, og destruer alle element i vector på slutten av main.
 
-  /* SANN: test-oppsett. 		SANN  		* /
+	// Testoppsett:
+	
+ 	#if 0  	// SANN: test-oppsett.
  	//{ SANN: TEST-oppsett. Lager mange neuron..
 	s_auron* A1 = new s_auron("A1");
 	s_auron* A2 = new s_auron("A2");
@@ -224,10 +224,11 @@ int main(int argc, char *argv[])
 
 	//Setter i gang ANN
 	A1->doTask();
-	//} /**/ 
+	//}
+	#endif
 
-
-  /* SANN: samme eit-neurons testoppsett:* /
+	#if 0  	//	SANN: 1-neurons testoppsett:
+	//{ 	SANN - 1-auron
   	cout<<"\n\nLAGER SANN\n\n";
 	s_auron* s1 = new s_auron("s1");
 	s_auron* s2 = new s_auron("s2");
@@ -240,13 +241,16 @@ int main(int argc, char *argv[])
 	new s_synapse(s2, sA, (1.5 * FORHOLD_MELLOM_ALPHA_OG_INPUT_FAKTOR * FYRINGSTERSKEL ) ); 
 	
 	s1->doTask();
-  /**/
-  /* KANN: test-oppsett. 		KANN  		*/
- 	//{ KANN: TEST-oppsett. Lager mange neuron..
+	//}
+  	#endif
+
+	#if 1 	// 	KANN-Test
+ 	//{ KANN: TEST-oppsett.
 
 	cout<<"\n\nLAGER KANN\n\n";
 
 	K_auron* A = new K_auron("A", 1.1*FYRINGSTERSKEL);
+	A->writeDepolToLog(); //bare for å fjærne en warning..
 /*
 	K_auron* K2 = new K_auron("K_2", 1.2*FYRINGSTERSKEL);
 	K_auron* K4 = new K_auron("K_4", 1.4*FYRINGSTERSKEL);
@@ -261,13 +265,15 @@ int main(int argc, char *argv[])
 	new K_synapse(K4, E, 500, true);
 */
 	//} /**/
+	#endif
 
-  //  pEstimatedTaskTime 	Test 		
-//{ pEstimertTaskTime test-oppsett.
+  	#if 0 	// pEstimatedTaskTime Testoppsett:
+	//{
 	time_class tid;
 
-/* TESTING MED KANN NODER: * /
-//{
+
+	#if 0  // pEstimatedTaskTime Testing med KANN-noder
+	//{  TESTING MED KANN NODER:
 	cout<<"\n\n\nTEST: pEstimatedTaskTime for KANN noder; \n\n\n";
 
 	K_auron* kTest1 = new K_auron("1:");
@@ -297,44 +303,46 @@ int main(int argc, char *argv[])
 	cout<<"\n\nSkriver ut pEstimatedTaskTime: \n\n";
 	time_class::TEST_skrivUt_pEstimatedTaskTime();
 
-cerr<<"\n\nFLYTTE ELEMENT: flytter k_dendrite fra iter " <<kTd1->ulEstimatedTaskTime_for_object <<" til iter 5\n";
-time_class::moveTask_in_pEstimatedTaskTime( kTd1, 5);
-time_class::TEST_skrivUt_pEstimatedTaskTime();
+	cerr<<"\n\nFLYTTE ELEMENT: flytter k_dendrite fra iter " <<kTd1->ulEstimatedTaskTime_for_object <<" til iter 5\n";
+	time_class::moveTask_in_pEstimatedTaskTime( kTd1, 5);
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
 
-cerr<<"\n\nFLYTTE ELEMENT: flytter kTest1 fra iter " <<kTest1->ulEstimatedTaskTime_for_object <<" til iter 50\n";
-time_class::moveTask_in_pEstimatedTaskTime( kTest1, 50);
-time_class::TEST_skrivUt_pEstimatedTaskTime();
+	cerr<<"\n\nFLYTTE ELEMENT: flytter kTest1 fra iter " <<kTest1->ulEstimatedTaskTime_for_object <<" til iter 50\n";
+	time_class::moveTask_in_pEstimatedTaskTime( kTest1, 50);
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
 
-cerr<<"\n\nFLYTTE ELEMENT: flytter k_dendrite fra iter " <<kTd1->ulEstimatedTaskTime_for_object <<" (5?) til iter 48\n";
-time_class::moveTask_in_pEstimatedTaskTime( kTd1, 48);
-time_class::TEST_skrivUt_pEstimatedTaskTime();
+	cerr<<"\n\nFLYTTE ELEMENT: flytter k_dendrite fra iter " <<kTd1->ulEstimatedTaskTime_for_object <<" (5?) til iter 48\n";
+	time_class::moveTask_in_pEstimatedTaskTime( kTd1, 48);
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
 
-cerr<<"\n\nFLYTTE ELEMENT: flytter k_dendrite fra iter " <<kTd1->ulEstimatedTaskTime_for_object <<" (48?) til iter 1\n";
-time_class::moveTask_in_pEstimatedTaskTime( kTd1, 1);
-time_class::TEST_skrivUt_pEstimatedTaskTime();
+	cerr<<"\n\nFLYTTE ELEMENT: flytter k_dendrite fra iter " <<kTd1->ulEstimatedTaskTime_for_object <<" (48?) til iter 1\n";
+	time_class::moveTask_in_pEstimatedTaskTime( kTd1, 1);
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
 
-cerr<<"\n\nFLYTTE ELEMENT: flytter kTest1 fra iter " <<kTest1->ulEstimatedTaskTime_for_object <<" (50?) til iter 1\n";
-time_class::moveTask_in_pEstimatedTaskTime( kTest1, 1);
-time_class::TEST_skrivUt_pEstimatedTaskTime();
+	cerr<<"\n\nFLYTTE ELEMENT: flytter kTest1 fra iter " <<kTest1->ulEstimatedTaskTime_for_object <<" (50?) til iter 1\n";
+	time_class::moveTask_in_pEstimatedTaskTime( kTest1, 1);
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
 
-cerr<<"\n\nFLYTTE ELEMENT: flytter kTest1 fra iter " <<kTest1->ulEstimatedTaskTime_for_object <<" (1?) til iter 2\n";
-time_class::moveTask_in_pEstimatedTaskTime( kTest1, 2);
-time_class::TEST_skrivUt_pEstimatedTaskTime();
-
-
+	cerr<<"\n\nFLYTTE ELEMENT: flytter kTest1 fra iter " <<kTest1->ulEstimatedTaskTime_for_object <<" (1?) til iter 2\n";
+	time_class::moveTask_in_pEstimatedTaskTime( kTest1, 2);
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
 
 
-cout<<"Estimert tid for auron [1,2,3,4,5,6]:  [" 
+
+
+	cout<<"Estimert tid for auron [1,2,3,4,5,6]:  [" 
 		<<kTest1->ulEstimatedTaskTime_for_object <<", " 
 		<<kTest2->ulEstimatedTaskTime_for_object <<", " 
 		<<kTest3->ulEstimatedTaskTime_for_object <<", " 
 		<<kTest4->ulEstimatedTaskTime_for_object <<", " 
 		<<kTest5->ulEstimatedTaskTime_for_object <<", " 
 		<<kTest6->ulEstimatedTaskTime_for_object <<", " <<"]\n";
-cout<<"timeIterations no: " <<time_class::getTid() <<endl;
-/**/ //}
-/* TESTING MED SANN NODER: * /
-//{
+	cout<<"timeIterations no: " <<time_class::getTid() <<endl;
+	//}
+	#endif
+
+	#if 0 	// pEstimatedTaskTime Testing med SANN-noder
+	//{ TESTING MED SANN NODER:
 	cout<<"\n\n\nTEST: pEstimatedTaskTime for SANN noder; \n\n\n";
 
 	s_auron* sTest1 = new s_auron("1:");
@@ -347,7 +355,7 @@ cout<<"timeIterations no: " <<time_class::getTid() <<endl;
 	s_auron* sTest8 = new s_auron("8:");
 	s_dendrite* sTd1 = new s_dendrite(sTest1);
 
-// HUSK: Kvart element skal bare ligge på en plass. Dette har eg brukt en heil dag på å feilsøke. Helvete!
+	// HUSK: Kvart element skal bare ligge på en plass. Dette har eg brukt en heil dag på å feilsøke. Helvete!
 	time_class::addTask_in_pEstimatedTaskTime( sTest1, 1 );
 
 	time_class::addTask_in_pEstimatedTaskTime( sTest2, 2 );
@@ -365,64 +373,62 @@ cout<<"timeIterations no: " <<time_class::getTid() <<endl;
 	time_class::TEST_skrivUt_pEstimatedTaskTime();
 
 
-cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 3 til iter. 5 " <<"\n\n";
-time_class::moveTask_in_pEstimatedTaskTime( sTd1, 5);
-time_class::TEST_skrivUt_pEstimatedTaskTime();
+	cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 3 til iter. 5 " <<"\n\n";
+	time_class::moveTask_in_pEstimatedTaskTime( sTd1, 5);
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
 
-cout<<"\n\nFLYTTE ELEMENT: flytter første element fra iter. 1 til iter. 50 " <<"\n\n";
-time_class::moveTask_in_pEstimatedTaskTime( sTest1, 50);
-time_class::TEST_skrivUt_pEstimatedTaskTime();
+	cout<<"\n\nFLYTTE ELEMENT: flytter første element fra iter. 1 til iter. 50 " <<"\n\n";
+	time_class::moveTask_in_pEstimatedTaskTime( sTest1, 50);
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
 
-cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 5 til iter. 48 " <<"\n\n";
-time_class::moveTask_in_pEstimatedTaskTime( sTd1, 48);
-time_class::TEST_skrivUt_pEstimatedTaskTime();
+	cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 5 til iter. 48 " <<"\n\n";
+	time_class::moveTask_in_pEstimatedTaskTime( sTd1, 48);
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
 
-cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 48 til iter. 1 "<<"\n\n";
-time_class::moveTask_in_pEstimatedTaskTime( sTd1, 1);
-time_class::TEST_skrivUt_pEstimatedTaskTime();
-
-
-cout<<"\n\nFLYTTE ELEMENT: flytter sTest1 fra iter. 50 til iter. 1 " <<"\n\n";
-time_class::moveTask_in_pEstimatedTaskTime( sTest1, 1);
-time_class::TEST_skrivUt_pEstimatedTaskTime();
-
-cout<<"\n\nFLYTTE ELEMENT: flytter sTest1 fra iter. 1 til iter. 2 " <<"\n\n";
-time_class::moveTask_in_pEstimatedTaskTime( sTest1, 2);
-time_class::TEST_skrivUt_pEstimatedTaskTime();
+	cout<<"\n\nFLYTTE ELEMENT: flytter s_dendrite fra iter. 48 til iter. 1 "<<"\n\n";
+	time_class::moveTask_in_pEstimatedTaskTime( sTd1, 1);
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
 
 
-cout<<"Estimert tid for auron [1,2,3,4,5,6]:  [" 
+	cout<<"\n\nFLYTTE ELEMENT: flytter sTest1 fra iter. 50 til iter. 1 " <<"\n\n";
+	time_class::moveTask_in_pEstimatedTaskTime( sTest1, 1);
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+	cout<<"\n\nFLYTTE ELEMENT: flytter sTest1 fra iter. 1 til iter. 2 " <<"\n\n";
+	time_class::moveTask_in_pEstimatedTaskTime( sTest1, 2);
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+
+	cout<<"Estimert tid for auron [1,2,3,4,5,6]:  [" 
 		<<sTest1->ulEstimatedTaskTime_for_object <<", " 
 		<<sTest2->ulEstimatedTaskTime_for_object <<", " 
 		<<sTest3->ulEstimatedTaskTime_for_object <<", " 
 		<<sTest4->ulEstimatedTaskTime_for_object <<", " 
 		<<sTest5->ulEstimatedTaskTime_for_object <<", " 
 		<<sTest6->ulEstimatedTaskTime_for_object <<", " <<"]\n";
-cout<<"timeIterations no: " <<time_class::getTid() <<endl;
-/ ** /
-//}
+	cout<<"timeIterations no: " <<time_class::getTid() <<endl;
+	//}
+ 	#endif
 
-cerr<<"\n\n\ntid.doTask();\n";
-tid.doTask();
-time_class::TEST_skrivUt_pWorkTaskQue();
-time_class::TEST_skrivUt_pEstimatedTaskTime();
+	cerr<<"\n\n\ntid.doTask();\n";
+	tid.doTask();
+	time_class::TEST_skrivUt_pWorkTaskQue();
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
 
-cerr<<"\n\n\ntid.doTask();\n";
-tid.doTask();
-time_class::TEST_skrivUt_pWorkTaskQue();
-time_class::TEST_skrivUt_pEstimatedTaskTime();
+	cerr<<"\n\n\ntid.doTask();\n";
+	tid.doTask();
+	time_class::TEST_skrivUt_pWorkTaskQue();
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
 
-cerr<<"\n\n\ntid.doTask();\n";
-tid.doTask();
-time_class::TEST_skrivUt_pWorkTaskQue();
-time_class::TEST_skrivUt_pEstimatedTaskTime();
+	cerr<<"\n\n\ntid.doTask();\n";
+	tid.doTask();
+	time_class::TEST_skrivUt_pWorkTaskQue();
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
 
-cout<<"\n\n\nVirker bra no (?)\n\n";
-exit(0); //    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-/**/
-//}
-//}
-
+	cout<<"\n\n\nVirker bra no (?)\n\n";
+	exit(0); //    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	//}
+	#endif
 
 
 

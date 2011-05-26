@@ -88,15 +88,12 @@ class i_auron : public timeInterface
 
 	std::ofstream depol_logFile;
  	
-	virtual const void skrivAktivitetsVarLogg(){
-	//const void loggAktivitetsVar_i_AktivitetsVarLoggFil(){
-		// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-		// TODO Endre denne fra å skrive til depol_logFile, til å skrive til ei egen aktivitetsvar-loggfil. 
-		// 		No kan dette bli problemer ved K_auron (som har eg egen writeDepolToLog() funksjon)
-		// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-	 	depol_logFile 	<<time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"; \t #Activity variable\n" ;
-	 	depol_logFile.flush();
-	}
+	// Overlagres forskjellig i s_auron og K_auron for å finne depol.
+	virtual const void writeDepolToLog() =0;
+//	{
+//	 	depol_logFile 	<<time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"; \t #Activity variable\n" ;
+//	 	depol_logFile.flush();
+//	}
 	
 
 	protected:
@@ -156,6 +153,11 @@ void slettTESTfunk(){ cout<<"s_auron::TESTfunk()\n"; } 			//TODO TODO TDOD TODO 
 	s_auron(std::string sNavn_Arg ="unnamed", int nStartDepol = 0); 	
 	~s_auron();
 
+	virtual const void writeDepolToLog()
+	{
+	 	depol_logFile 	<<time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"; \t #Activity variable\n" ;
+	 	depol_logFile.flush();
+	}
 //{friend
 	friend class s_axon;
 	friend class s_synapse;
@@ -178,8 +180,8 @@ class K_auron : public i_auron
 	inline void doTask();
 	inline void doCalculation();
 
-	unsigned long ulStartOfTimewindow;
 	double dDepolAtStartOfTimeWindow;
+	unsigned long ulStartOfTimewindow;
 
 	unsigned uLastCalculatedPeriod;
 	double dPeriodINVERSE;
@@ -198,22 +200,25 @@ class K_auron : public i_auron
 	static std::list<K_auron*> pAllKappaAurons;
 
 
-	//Overlager denne, siden eg må regne ut depol. TODO TODO TODO TODO OTDO OTOD TODD TODO TODO TODO
-	/*const void skrivAktivitetsVarLogg(){
-		// XXX XXX GÅR UT FRA AT DENNE KALLES ETTER NYTT TIDSVINDU!
-	 	depol_logFile <<time_class::getTid() <<"\t" <<nDepolAtStartOfTimeWindow <<"; \t #depol\n" ;
-	 	depol_logFile.flush();
-	}*/
-
 	public:
 	K_auron(std::string sNavn_Arg ="unnamed", int nStartKappa = FYRINGSTERSKEL, unsigned uStartDepol_prosent =0); 	
 	~K_auron();
 
 
-	inline void writeDepolToLog()
+	inline double calculateDepol()
+	{
+		/*DEBUG*/cout<<"Depol: " <<(dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * ((time_class::getTid() - ulStartOfTimewindow))) + dAktivitetsVariabel ;
+		cout<<"dDepolAtStartOfTimeWindow: " <<dDepolAtStartOfTimeWindow <<"\tulStartOfTimeWindow: " <<ulStartOfTimewindow <<endl
+			<<"dAktivitetsVariabel:\t" <<dAktivitetsVariabel <<"\ttid: " <<time_class::getTid() <<endl;
+
+		return (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * ((time_class::getTid() - ulStartOfTimewindow))) + dAktivitetsVariabel ;
+	}
+
+	
+	const inline void writeDepolToLog()
 	{
 		// Skriver dDepolAtStartOfTimeWindow til logg:
-		depol_logFile 	<<time_class::getTid() <<"\t" <<dDepolAtStartOfTimeWindow <<"; \t #Depol\n" ;
+		depol_logFile 	<<time_class::getTid() <<"\t" <<calculateDepol() <<"; \t #Depol\n" ;
 		depol_logFile.flush();
 	}
 

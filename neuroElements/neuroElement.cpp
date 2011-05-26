@@ -669,8 +669,8 @@ inline void s_auron::doTask()
 
 	//Resetter depol.verdi 
 	dAktivitetsVariabel = 0; 
-	//loggAktivitetsVar_i_AktivitetsVarLoggFil(); endra navn til:
-	skrivAktivitetsVarLogg();
+
+	writeDepolToLog();
 
 } //}
 inline void s_axon::doTask()
@@ -691,7 +691,7 @@ DEBUG("s_axon::doTask() START");
 	}
 
 	 //Skriver til logg etter refraction-period.
-	 pElementAvAuron->skrivAktivitetsVarLogg();
+	 pElementAvAuron->writeDepolToLog();
 DEBUG("s_axon::doTask() SLUTT");
 
 } //}
@@ -737,11 +737,9 @@ inline void s_dendrite::doTask()
 
 //{1 		* 	KANN
 
-//TODO:
+
 inline void K_auron::doTask()
 { //{ ** AURON
-	// Første eg gjør er å nullstille v_0:
-	dDepolAtStartOfTimeWindow = 0;
 
 	// Beregn ny isi-periode^{-1}. Brukes til å beregne syn.overføring seinare i signal-cascade.
 	uLastCalculatedPeriod = (- log((dAktivitetsVariabel - FYRINGSTERSKEL) / dAktivitetsVariabel) / ALPHA);
@@ -766,7 +764,11 @@ cout 	<<"K_auron::doTask()\n"
 	// Resetter bEndraKappaDennePerioden. Blir satt til true når auron får nytt input.
 	bEndraKappaDennePerioden = false;
 	
-	skrivAktivitetsVarLogg();
+	// Setter v_0 til 0 og t_0 til [no]:
+	dDepolAtStartOfTimeWindow = 0;
+	ulStartOfTimewindow = time_class::getTid();
+	
+	writeDepolToLog();
 	
 	//Utskrift til skjerm:
 	cout<<"| | " <<sNavn <<" | | | " <<sNavn <<" | | | | " <<sNavn <<" | | | | " <<sNavn <<" | | | | " <<sNavn <<" | | | | " <<sNavn <<"| | | | | | | | |\t"
@@ -788,8 +790,8 @@ inline void K_axon::doTask()
 	}
 
 	
-	//pElementAvAuron->loggAktivitetsVar_i_AktivitetsVarLoggFil(); ENDRA TIL:
-	pElementAvAuron->skrivAktivitetsVarLogg();
+	// Gjøres i K_auron. Skal eg også gjøre det her (for å poengtere refraction time)?
+	pElementAvAuron->writeDepolToLog();
 } //}
 inline void K_synapse::doTask()
 { //{ ** SYNAPSE
@@ -822,34 +824,35 @@ inline void K_dendrite::doTask()
 ****** 														*******
 ******************************************************************/
 
-//TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
 void K_auron::doCalculation()
 { //{
+	DEBUG("DEBUG: K_auron::doCalculation()");
  	cout<<"dC():\tK_auron " <<sNavn <<".doCalculation()\t\t" <<sNavn <<".doCalculation()\n";
-	
 
 	//**********************************************
 	//*  Beregn ny depol og estimert fyringstid:   *
 	//**********************************************
-	// Beregne v_0 ved endring av kappa (nytt 'time window'):
-	// Beregner ny v_0 : depolarisasjon ved slutt av dette time window (før vi starter neste..) 								v_0 = (v_0,forrige - K)e^-at + K
-	dDepolAtStartOfTimeWindow = (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * ((time_class::getTid() - ulStartOfTimewindow))) + dAktivitetsVariabel ;
+	// Beregner ny v_0 : depolarisasjon ved slutt av dette time window (v_0 for neste 'time window'..) 								v_0 = (v_0,forrige - K)e^-at + K
+	dDepolAtStartOfTimeWindow = calculateDepol(); 
+	//(dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * ((time_class::getTid() - ulStartOfTimewindow))) + dAktivitetsVariabel ;
+	
 	// Skriver ny t_0 (start av 'time window')
 	ulStartOfTimewindow = time_class::getTid();
 
-
+	// if(K>T)
 	if( dAktivitetsVariabel > FYRINGSTERSKEL ) // if(kappa>tau)
 	{
+		
 		// Beregner nytt fyringsestimat:
 		lEstimatedTaskTime_for_object = ( - log((dAktivitetsVariabel-FYRINGSTERSKEL)/(dAktivitetsVariabel - dDepolAtStartOfTimeWindow)) / ALPHA ); //XXX TODO Trur det skal være med:  * 1000;
 		//cout<<"lEstimatedTaskTime_for_object     = \t" << lEstimatedTaskTime_for_object <<endl
 		//	<<"dDepolAtStartOfTimeWindow = \t" <<dDepolAtStartOfTimeWindow <<"\n\n\n\n";
-
+	
 		// Berenger dPeriodINVERSE og nChangeInPeriodINVERSE:
 		unsigned uPeriod_temp  = (- log((dAktivitetsVariabel - FYRINGSTERSKEL) / dAktivitetsVariabel) / ALPHA);
 		nChangeInPeriodINVERSE = uPeriod_temp - dPeriodINVERSE;
 		uLastCalculatedPeriod  = uPeriod_temp;
-
+	
 		/*********************************************************************************************
 		** 	Her er det veldig viktig at auronet fyrer når det skal, og ikkje seinare. 				**
 		** 		Dersom det sjekkes etter at det skulle fyre, vil verdien wrappe (pga unsigned) 		**
@@ -857,44 +860,37 @@ void K_auron::doCalculation()
 		** 		Av denne grunn endrer eg ulEstimatedTimeToFiring til lEstimertTidTilFyring 			**
 		** 		(Den får lov å være negativ også. Da kan problemet handteres seinare.. 				**
 		*********************************************************************************************/
-		
-		/* DEBUG:
+			
+		#if 0 	// DEBUG:
 		//{
 		cout 	<<"lEstimatedTaskTime_for_object = " <<lEstimatedTaskTime_for_object <<endl <<((dAktivitetsVariabel - FYRINGSTERSKEL)/(dAktivitetsVariabel-dDepolAtStartOfTimeWindow)) <<endl
 				<<"lEstimatedTaskTime_for_object = ( - log((dAktivitetsVariabel-FYRINGSTERSKEL)/(dAktivitetsVariabel - dDepolAtStartOfTimeWindow)) / ALPHA ) = "
 				<< ( - log((dAktivitetsVariabel-FYRINGSTERSKEL)/(dAktivitetsVariabel - dDepolAtStartOfTimeWindow)) / ALPHA ) <<endl
 				<<"\ndAktivitetsVariabel, FYRINGSTERSKEL = " <<dAktivitetsVariabel <<", " <<FYRINGSTERSKEL <<", depol = " <<dDepolAtStartOfTimeWindow <<"\n\n" ;
 		//} 
-		*/
-	
+		#endif
 		
+			
 		/**************************************
 		* Legg inn auron i pEstimatedTaskTime *
 		**************************************/
-
+	
 		/*
 		* 	- Siden auronet alltid ligger der, skal det bare flyttes.
 		* 		( Ved fyring av auronet flyttes det bare til 	[no] + [periode] i pEstimatedTaskTime )
 		*		Dette skjer i K_auron.doTask()
 		*/
-
+	
 		if( (lEstimatedTaskTime_for_object - time_class::getTid() ) > 0 )
 		 	time_class::moveTask_in_pEstimatedTaskTime( this, lEstimatedTaskTime_for_object-time_class::getTid() );
 		else
 			// XXX XXX Ikkje heilt sikker på om det er greitt å flytte denne til element 0. Men eg trur det.. XXX
 			time_class::moveTask_in_pEstimatedTaskTime( this, 0);
 	} // slutt: if(kappa>tau)
-	/*	else{  //TODO TA VEKK TENNE TAD DO TODO TODO
-		cout<<"dAktivitetsVariabel: " <<dAktivitetsVariabel <<endl;
-		exit(0); 
-	}	*/
 	
 	
 	// Skriver til log for depol:
 	writeDepolToLog();
-
-
-
 } //}
 
 // Rekalkulerer feil i Kappa for auronet.
@@ -928,17 +924,9 @@ void recalcKappaObj::doTask()
 // Gjøre denne til mdl.funk. av K_auron?
 void loggeFunk_K_auron()
 {
-		// Får den til å skrive til logg. Dersom 0 sendes inn i changeKappa(0) vil ikkje verdi endres heller.
-
 		// DEBUG: Skriver depol til log for alle K_auron (ved å kappe changeKappa(0) - denne beregner v og skriver til depol-loggfil).
 		for( std::list<K_auron*>::iterator iter = K_auron::pAllKappaAurons.begin(); iter != K_auron::pAllKappaAurons.end(); iter++ )
 		{
-			/*/ XXX TESTER dynamisk kappa XXX
-			if( !(time_class::getTid()%10) ){
-				(*iter)->changeKappa(10);
-				cout<<"pluss ti på kappa\n";
-			}else
-			// XXX TIL HIT: sjå forrige XXX */
 			(*iter) ->writeDepolToLog();
 		}
 }

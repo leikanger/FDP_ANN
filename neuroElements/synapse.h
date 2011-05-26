@@ -122,7 +122,8 @@ class K_synapse : public i_synapse{
 	//inline unsigned regnutPresynPeriode();
 
 	double dPresynPeriodINVERSE;
-	const inline double getWij(){} //TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+	const inline double getTransmission(){ 	return dPresynPeriodINVERSE*dSynapticWeight; }
+
 	public:
 	K_synapse(K_auron*, K_auron*, unsigned uSynVekt_Arg =1, bool bInhibEffekt_Arg =false) ;
 	~K_synapse();

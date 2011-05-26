@@ -10,7 +10,6 @@ CPPFLAGS=${CFLAGS}
 auroNett.out: main.o neuroElement.o
 	echo "\n\n\n\nmake auroNett.out:\n\n"
 	${CPP} ${CFLAGS} main.o neuroElement.o -o auroNett.out
-	echo "HURRA, HURRA, HURRA\nHURRA, HURRA, HURRA\nHURRA, HURRA, HURRA. ALT VEL!\n\n";
 
 neuroElement.o: andreKildefiler/time.h neuroElements/axon.h neuroElements/dendrite.h neuroElements/synapse.h
 	${CPP} ${CFLAGS} -c neuroElements/neuroElement.cpp -o neuroElement.o
@@ -22,7 +21,6 @@ main.o: andreKildefiler/main.cpp andreKildefiler/main.h andreKildefiler/time.h
 altI_en: andreKildefiler/*.cpp andreKildefiler/*.h neuroElements/*.cpp neuroElements/*.h
 	echo "\n\n\n\nmake altI_en:\n\n"
 	${CPP} ${CFLAGS} andreKildefiler/main.cpp neuroElements/neuroElement.cpp -o auroNett.out 
-	echo "HURRA, HURRA, HURRA\nHURRA, HURRA, HURRA\nHURRA, HURRA, HURRA. ALT VEL!\n\n";
 
 c:
 	make clean; clear; echo "\nHAR FJÆNA ALLE .out FILENE. Kjører make\n\n"; make altI_en

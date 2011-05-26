@@ -110,7 +110,8 @@ class time_class : public timeInterface {
 		// Undersøker om lengden på lista er kortere enn MIN_LENGDE_PAA_pEstimatedTaskTime:
 		if(pEstimatedTaskTime.size() < MIN_LENGDE_PAA_pEstimatedTaskTime )
 		{
- 			cerr<<"Legger inn manglende element for MIN_LENGDE_PAA_pEstimatedTaskTime i pEstimatedTaskTime\n";
+ 			//cerr<<"Legger inn manglende element for MIN_LENGDE_PAA_pEstimatedTaskTime i pEstimatedTaskTime\n";
+
 			// Legger inn MIN_LENGDE_PAA_pEstimatedTaskTime antall element.
 			for( int i=0; i<MIN_LENGDE_PAA_pEstimatedTaskTime; i++)
 				pEstimatedTaskTime.push_back( new std::list<timeInterface*> );
@@ -173,8 +174,10 @@ class time_class : public timeInterface {
 	inline void doCalculation()
 	{ //{
 		/**************************************************************************************
-		*** Gjennomføere kalkulering på alle kalkuleringsoppgaver (pCalculatationTaskQue) 	***
+		*** Gjennomføre kalkulering på alle kalkuleringsoppgaver (pCalculatationTaskQue) 	***
 		**************************************************************************************/
+
+		//DEBUG("Inne i time_class::doCalculation()\n");
 
 		if( pCalculatationTaskQue.empty() ) return;
 
