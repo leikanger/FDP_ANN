@@ -98,7 +98,7 @@ class s_synapse : public i_synapse{
 
 
 	public:
-	s_synapse(s_auron*, s_auron*, unsigned uSynVekt_Arg =1, bool bInhibEffekt_Arg =false) ;
+	s_synapse(s_auron*, s_auron*, double dSynVekt_Arg =1, bool bInhibEffekt_Arg =false) ;
 	~s_synapse();
 
 	friend std::ostream & operator<< (std::ostream & ut, s_axon* ); //XXX gjør om arg: (..., s_axon* => i_axon*) XXX
@@ -127,6 +127,10 @@ class K_synapse : public i_synapse{
 	public:
 	K_synapse(K_auron*, K_auron*, unsigned uSynVekt_Arg =1, bool bInhibEffekt_Arg =false) ;
 	~K_synapse();
+
+	friend class K_dendrite;
+	friend class K_auron;
+	friend class K_axon;
 
 	friend int main(int, char**);
 };

@@ -188,8 +188,10 @@ class K_auron : public i_auron
 	int nChangeInPeriodINVERSE;
 
 	inline void changeKappa( double );
-	inline double recalculateKappa();
 	inline double getKappa(){ return dAktivitetsVariabel; }
+	
+	// Rekalkulerer feil i Kappa for auronet.
+	inline double recalculateKappa();
 
 	// todo TODO TODO TODO For KANN trenger eg en bEndraKappaDennePerioden, som blir satt til false kvar fyring av auronet. XXX
 	bool bEndraKappaDennePerioden;
@@ -228,7 +230,8 @@ class K_auron : public i_auron
 	friend class K_dendrite;
 	friend class recalcKappaObj;
 
-	friend void testFunksjon_slett(s_auron*);
+	friend void neuroElement_testFunk(K_auron*);
+	//friend void testFunksjon_slett(s_auron*);
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
 	friend int main(int, char**); //TODO SLETT

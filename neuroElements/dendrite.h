@@ -137,16 +137,7 @@ class K_dendrite : public i_dendrite{
 	std::list<K_synapse*> pInnSynapser;
 	
 	// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-	inline double recalculateKappa()
-	{
-		double dKappa_temp = 0;
-	 	std::list<K_synapse*>::iterator iter = pInnSynapser.begin();
-		while(iter != pInnSynapser.end() )
-		{
-	 		//dKappa_temp += iter->dPresynPeriodINVERSE*dSynapticWeight;
-		}
-		return dKappa_temp;
-	}
+	inline double recalculateKappa();
 
 	
 	inline void newInputSignal(double);

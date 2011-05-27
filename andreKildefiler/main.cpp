@@ -62,6 +62,11 @@ std::ostream & operator<<(std::ostream& ut, i_auron* pAuronArg );
 
 
 
+
+void neuroElement_testFunk(K_auron* pK_arg);
+
+
+
 //extern std::list<timeInterface*> time_class::pWorkTaskQue;
 
 // Foreløpig testvariabel: 		Global variabel som skal lese inn fra argv**. 	
@@ -227,7 +232,7 @@ int main(int argc, char *argv[])
 	//}
 	#endif
 
-	#if 0  	//	SANN: 1-neurons testoppsett:
+	#if 1  	//	SANN: 1-neurons testoppsett:
 	//{ 	SANN - 1-auron
   	cout<<"\n\nLAGER SANN\n\n";
 	s_auron* s1 = new s_auron("s1");
@@ -237,8 +242,9 @@ int main(int argc, char *argv[])
 
 	s_auron* sA = new s_auron("sA");
 #define FORHOLD_MELLOM_ALPHA_OG_INPUT_FAKTOR ALPHA
-	new s_synapse(s1, sA, (1.5 * FORHOLD_MELLOM_ALPHA_OG_INPUT_FAKTOR * FYRINGSTERSKEL ) );
-	new s_synapse(s2, sA, (1.5 * FORHOLD_MELLOM_ALPHA_OG_INPUT_FAKTOR * FYRINGSTERSKEL ) ); 
+#define TALL 17.6
+	new s_synapse(s1, sA, TALL);//(1.5 * FORHOLD_MELLOM_ALPHA_OG_INPUT_FAKTOR * FYRINGSTERSKEL ) );
+	new s_synapse(s2, sA, TALL);//(1.5 * FORHOLD_MELLOM_ALPHA_OG_INPUT_FAKTOR * FYRINGSTERSKEL ) ); 
 	
 	s1->doTask();
 	//}
@@ -249,8 +255,10 @@ int main(int argc, char *argv[])
 
 	cout<<"\n\nLAGER KANN\n\n";
 
-	K_auron* A = new K_auron("A", 1.1*FYRINGSTERSKEL);
+	K_auron* A = new K_auron("A", 1.07*FYRINGSTERSKEL);
 	A->writeDepolToLog(); //bare for å fjærne en warning..
+	neuroElement_testFunk( A );
+
 /*
 	K_auron* K2 = new K_auron("K_2", 1.2*FYRINGSTERSKEL);
 	K_auron* K4 = new K_auron("K_4", 1.4*FYRINGSTERSKEL);
@@ -568,6 +576,9 @@ std::ostream & operator<< (std::ostream & ut, i_auron* pAuronArg )
 	return ut;
 } //}
 
+
+
+// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
 std::ostream & operator<< (std::ostream & ut, s_axon* pAxonArg ) //XXX Skal gjøres til i_axon* istaden for s_axon* som argument! XXX
 { //{
 	ut<<"Utsynapser fra axon tilhørende neuron " <<(pAxonArg->pElementAvAuron)->sNavn <<endl; 

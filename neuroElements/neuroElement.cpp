@@ -229,14 +229,14 @@ i_synapse::i_synapse(double dSynVekt_Arg, bool bInhibEffekt_Arg, std::string sKl
 } //}3
 //}2
 //{2 s_synapse
-s_synapse::s_synapse(s_auron* pPresynAuron_arg, s_auron* pPostsynAuron_arg, unsigned uSynVekt_Arg /*=1*/, bool bInhibEffekt_Arg /*=false*/) 
-			:  i_synapse(uSynVekt_Arg, bInhibEffekt_Arg, "s_synapse"), pPreNodeAxon(pPresynAuron_arg->pOutputAxon), pPostNodeDendrite(pPostsynAuron_arg->pInputDendrite) 
+s_synapse::s_synapse(s_auron* pPresynAuron_arg, s_auron* pPostsynAuron_arg, double dSynVekt_Arg /*=1*/, bool bInhibEffekt_Arg /*=false*/) 
+			:  i_synapse(dSynVekt_Arg, bInhibEffekt_Arg, "s_synapse"), pPreNodeAxon(pPresynAuron_arg->pOutputAxon), pPostNodeDendrite(pPostsynAuron_arg->pInputDendrite) 
 {//{3	
 
 
 
-cerr<<"Presyn. axon: " <<pPreNodeAxon->sClassName ;
-pPreNodeAxon->SLETTtypeId();
+	cerr<<"Presyn. axon: " <<pPreNodeAxon->sClassName ;
+	pPreNodeAxon->SLETTtypeId();
 	
 	cerr<<"Kaller s_synapse::s_synapse(" <<pPreNodeAxon->pElementAvAuron->sNavn <<".pOutputAxon, " <<pPostNodeDendrite->pElementAvAuron->sNavn <<".pInputDendrite, ...)\n";
 
@@ -893,8 +893,39 @@ void K_auron::doCalculation()
 	writeDepolToLog();
 } //}
 
-// Rekalkulerer feil i Kappa for auronet.
-double K_auron::recalculateKappa()
+
+
+
+
+/******************************
+**   Recalculate Kappa :     **
+******************************/
+void recalcKappaObj::doTask()
+{
+	// Rekalkuler Kappa.
+	// Trenger en funksjon K_auron::recalculateKappa() som
+	// 	- rekalkulerer kappa for auronet.
+	// 	- returnerer rekalkulert kappa.
+	double dFeil;
+
+	dFeil = pKappaAuron_obj->recalculateKappa();
+
+	// TODO TODO TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO 
+	// Sjå kva feilen er, og la feilen bestemme kor lenge vi skal vente til neste rekalk. Kanskje også ha en slags FIR-effekt her?
+}
+
+inline double K_dendrite::recalculateKappa()
+{
+	double dKappa_temp = 0;
+ 	std::list<K_synapse*>::iterator iter = pInnSynapser.begin();
+	while(iter != pInnSynapser.end() )
+	{
+ 		dKappa_temp += (*iter)->dPresynPeriodINVERSE * (*iter)->dSynapticWeight;
+	}
+	return dKappa_temp;
+}
+
+inline double K_auron::recalculateKappa()
 {
 	// Plan:
 	//  - Rekalkulerer kappa for dendrite.
@@ -904,20 +935,15 @@ double K_auron::recalculateKappa()
 
 	dAktivitetsVariabel = dKappa_temp;
 
-	return dKappaFeil_temp;
-	
+	return dKappaFeil_temp;	
 }
 
-void recalcKappaObj::doTask()
-{
-	// Rekalkuler Kappa.
-	// Trenger en funksjon K_auron::recalculateKappa() som
-	// 	- rekalkulerer kappa for auronet.
-	// 	- returnerer rekalkulert kappa.
-	
-	pKappaAuron_obj->recalculateKappa();
-	// Sjå kva feilen er, og la feilen bestemme kor lenge vi skal vente til neste rekalk. Kanskje også ha en slags FIR-effekt her?
-}
+
+
+
+
+
+
 
 
 
@@ -931,6 +957,10 @@ void loggeFunk_K_auron()
 		}
 }
 
+void neuroElement_testFunk(K_auron* pK_arg)
+{
+	pK_arg->recalculateKappa();
+}
 
 
 // vim:fdm=marker:fmr=//{,//}
