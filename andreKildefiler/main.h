@@ -41,6 +41,10 @@
 
 //Defines:
 #define DEFAULT_ANTALL_TIDSITERASJONER 1000
+#define UTSKRIFT_AV_TID false
+#define MAKS_LENGDE_PAA_pEstimatedTaskTime_JOBBER 100 // Dersom eg jobb er planlagt etter om [dette tallet] tidssteg, går den ikkje inn i pEstimatedTaskTime.
+
+#define DEBUG_UTSKRIFTS_NIVAA 1
 
 #define ALPHA (double)0.004
 #define LEKKASJEFAKTOR_FOR_DEPOL (double)1-ALPHA
@@ -50,7 +54,8 @@
 #define FYRINGSTERSKEL 1000
 
 #define DEBUG_EXIT(tekst) cerr<<"\n\nDEBUG_EXIT :\t" <<tekst <<"\nexit(99);\n\n"; exit(99);
-#define DEBUG(tekst) cerr<<"DEBUG :\t" <<tekst <<"\n";
+//#define DEBUG(tekst) cerr<<"DEBUG :\t" <<tekst <<"\n";
+#define DEBUG(tekst) ;
 
 #ifndef MAIN_H_
 #define MAIN_H_

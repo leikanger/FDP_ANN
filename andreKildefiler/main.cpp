@@ -42,7 +42,6 @@ Haha! Fett. Ny måte å kommentere ut ting på! Thank you, K.
  */
 #include "main.h"
 #include "time.h"
-//#include "../neuroElements/dendrite.h" //KAANSKJE DEN SKAL VÆRE MED? XXX
 
 void initialiserArbeidsKoe();
 void skrivUtArgumentKonvensjoner(std::string);
@@ -55,6 +54,8 @@ extern std::list< std::list<timeInterface*>* > 	time_class::pEstimatedTaskTime;
 
 extern std::list<i_auron*> i_auron::pAllAurons;
 extern std::list<K_auron*> K_auron::pAllKappaAurons;
+extern std::list<K_sensor_auron*> K_sensor_auron::pAllSensorAurons;
+
 extern unsigned long time_class::ulTidsiterasjoner;
 extern unsigned long ulAntallTidsiterasjonerTESTING_SLETT;
 
@@ -65,7 +66,20 @@ std::ostream & operator<<(std::ostream& ut, i_auron* pAuronArg );
 
 void neuroElement_testFunk(K_auron* pK_arg);
 
-
+#define PI 3.14159
+// Sensorfunk. Skal være til sensorneurons.. (i fremtida. Dette er en plan..)
+inline double sensorFunk1()
+{
+#define SVINGNINGS_AMP 2
+// Når K er ca lik T begynner han å fyre maksfrekvent. Vettafaen kvifor!
+// Eller: når den er lik, og ei stund etter..
+	return ( FYRINGSTERSKEL*( SVINGNINGS_AMP*(.9 + sin( 3.14*(float)time_class::getTid()/1000    -   PI/2))) );
+}
+inline double sensorFunk2()
+{
+	//return (((float)time_class::getTid() / 300) * FYRINGSTERSKEL);
+	return (( 1+((float)time_class::getTid() / 30000) ) * FYRINGSTERSKEL);
+}
 
 //extern std::list<timeInterface*> time_class::pWorkTaskQue;
 
@@ -232,7 +246,7 @@ int main(int argc, char *argv[])
 	//}
 	#endif
 
-	#if 1  	//	SANN: 1-neurons testoppsett:
+	#if 0  	//	SANN: 1-neurons testoppsett: (med 2-aurons oscillator-krets som input)
 	//{ 	SANN - 1-auron
   	cout<<"\n\nLAGER SANN\n\n";
 	s_auron* s1 = new s_auron("s1");
@@ -255,11 +269,16 @@ int main(int argc, char *argv[])
 
 	cout<<"\n\nLAGER KANN\n\n";
 
-	K_auron* A = new K_auron("A", 1.07*FYRINGSTERSKEL);
-	A->writeDepolToLog(); //bare for å fjærne en warning..
-	neuroElement_testFunk( A );
+	K_auron* kA = new K_auron("kA", 1.07*FYRINGSTERSKEL);
 
-/*
+	// neuroElement_testFunk() ER FARLIG! Når denne er med, blir v konst lik 0
+	// NEI. Problemet er selvfølgelig at neuronet ikkje har input => kappa blir rekalkulert til null! FETT!
+	//neuroElement_testFunk( kA );
+
+	K_sensor_auron* Ks1 = new K_sensor_auron( &sensorFunk1, "Ks1" );
+	//K_sensor_auron* Ks2 = new K_sensor_auron( &sensorFunk2, "Ks2" );
+
+/* //{
 	K_auron* K2 = new K_auron("K_2", 1.2*FYRINGSTERSKEL);
 	K_auron* K4 = new K_auron("K_4", 1.4*FYRINGSTERSKEL);
 	K_auron* K9 = new K_auron("K_9", 1.9*FYRINGSTERSKEL);
@@ -271,8 +290,8 @@ int main(int argc, char *argv[])
 	K_auron* E = new K_auron("E", 4*FYRINGSTERSKEL);
 	new K_synapse(K2, E, 100);
 	new K_synapse(K4, E, 500, true);
-*/
-	//} /**/
+*/ //}
+	//} Slutt KANN-testopplegg
 	#endif
 
   	#if 0 	// pEstimatedTaskTime Testoppsett:
@@ -456,7 +475,15 @@ int main(int argc, char *argv[])
 
 
 
+
+//XXXXXXXXXXXXXX TEST XXXXXXXXXXXXXXXXx
+//cout<<"sensed value: " <<Ks1->getSensedValue() <<"\n\n\n";
+
+
+
+
 	cout<<"\n\n\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\nAvslutter.\n\n\n";
+#if 0  // GAMMELT: Flytta over i i_auron::callDestructorForAllAurons();
 /****************************************** Kaller destructor for alle gjenværande udestruerte auron ***************************************/
 	// Sletter alle auron i i_auron::pAllAurons
 	while( ! i_auron::pAllAurons.empty() )
@@ -466,6 +493,14 @@ int main(int argc, char *argv[])
 	 	delete (*i_auron::pAllAurons.begin());
 	}
 /********************************************************************************************************************************************/
+#endif
+
+	
+	// Skriv ut pEstimatedTaskTime
+	time_class::TEST_skrivUt_pEstimatedTaskTime();
+
+	// Avlutt alle loggane rett:
+	i_auron::callDestructorForAllAurons();
 
 
 	cout<<"\n\nWIN!\n\n\n";
@@ -578,7 +613,7 @@ std::ostream & operator<< (std::ostream & ut, i_auron* pAuronArg )
 
 
 
-// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+// TODO TODO 
 std::ostream & operator<< (std::ostream & ut, s_axon* pAxonArg ) //XXX Skal gjøres til i_axon* istaden for s_axon* som argument! XXX
 { //{
 	ut<<"Utsynapser fra axon tilhørende neuron " <<(pAxonArg->pElementAvAuron)->sNavn <<endl; 

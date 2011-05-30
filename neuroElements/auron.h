@@ -61,7 +61,7 @@ class s_axon;
 class i_auron : public timeInterface
 { 	//{		
 	// Variablana pOutputAxon og pInputDendrite overlagres i underklassene. F.eks. i s_auron lages pOutputAxon som en s_axon*. 
-	// 		Effekten av dette blir at alle funksjoner og variabler fra i_axon kan kalles fra utsida (for i_axon--peikerar), mens også de modellspesifikke kan kalles fra andre modellspesifikke element (s_axon-funker kan kalles fra s_auron)!
+	// 	   Effekten av dette blir at alle funksjoner og variabler fra i_axon kan kalles fra utsida (for i_axon--peikerar), mens også de modellspesifikke kan kalles fra andre modellspesifikke element (s_axon-funker kan kalles fra s_auron)!
 
 	//Deler av auronet: (Ligger som s_axon og s_dendrite i s_auron. Samme for K_auron..) TODO SKal ligge der også ?
 	i_axon* pOutputAxon; 			// Trenger å ha dei meir spesifikk for contruction av bl.a. synapse - s_synapse legger til pElementAvAuron->pInputDendrite (som må være av typen ?? XXX prøver igjen..
@@ -78,30 +78,34 @@ class i_auron : public timeInterface
 	unsigned long ulTimestampForrigeFyring;  //Er begge naudsynt? sjø gjennom!
 
 
-	// aktivitetsobjekt: Om dette er KANN eller SANN er avhengig av kva dAktivitetsVariabel skal bety (kappa eller depol..).
-	// Tidligere: 	int nAktivitetsVariabel;
-	double dAktivitetsVariabel;
-
 	//dopamin: for å styre synaptisk plastisitet. En ide inspirert av naturen.
 	//også her kan eg bruke \kappa for å finne nivået i kvart neuron..
 
 
 	std::ofstream depol_logFile;
- 	
-	// Overlagres forskjellig i s_auron og K_auron for å finne depol.
-	virtual const void writeDepolToLog() =0;
-//	{
-//	 	depol_logFile 	<<time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"; \t #Activity variable\n" ;
-//	 	depol_logFile.flush();
-//	}
 	
+	// For å lage fin vertikal "strek" ved AP:
+	inline virtual const void writeAPtoLog()
+	{
+		// Lager en vertikal "strek" fra v=0 til v=Terskel*(110%)
+		for(float fTerkelProsent_temp = 0; fTerkelProsent_temp<1.2; fTerkelProsent_temp+=0.001)
+		{
+			depol_logFile 	<<time_class::getTid() <<"\t" <<fTerkelProsent_temp*FYRINGSTERSKEL <<"; \t #Depol\n" ;
+		}
+	 	depol_logFile.flush();
+	}
+
 
 	protected:
 	virtual inline void doTask() =0;
 
 	//container som inneholder alle auron som har vore til ila. programkjøringa:
 	static std::list<i_auron*> pAllAurons;
+	//static mdl. funk som destruerer alle i denne lista, men først de modellspesifikke K_auron og s_auron.
+	static void callDestructorForAllAurons();
 
+	// aktivitetsobjekt: Om dette er KANN eller SANN er avhengig av kva dAktivitetsVariabel skal bety (kappa eller depol..).
+	double dAktivitetsVariabel;
 
 	public:
 	i_auron(std::string sNavn_Arg ="unnamed", double dStartAktVar = 0); 		//: timeInterface("auron"), ao_AuronetsAktivitet(this), sNavn(sNavn_Arg) {
@@ -111,6 +115,9 @@ class i_auron : public timeInterface
 	const std::string getNavn(){ return sNavn; }
 
 	int getAktivityVar(){ return dAktivitetsVariabel; }
+
+	// Overlagres forskjellig i s_auron og K_auron for å finne depol.
+	virtual inline const void writeDepolToLog() =0;
 
 	//testfunksjon:
 	void exiterNeuronTilFyringGjennomElectrode()
@@ -144,7 +151,7 @@ class s_auron : public i_auron
 	s_axon* pOutputAxon; 			// Overlagrer i_auron::i_axon til s_auron::s_axon. Dette er alternativ til å caste pOutputAxon ved accessering til s_auron::pOutputAxon
  	s_dendrite* pInputDendrite;  	// Samme for pInputDendrite.
 
-void slettTESTfunk(){ cout<<"s_auron::TESTfunk()\n"; } 			//TODO TODO TDOD TODO SLETT
+//void slettTESTfunk(){ cout<<"s_auron::TESTfunk()\n"; } 			//TODO TODO TDOD TODO SLETT
 	inline void doTask();
 	inline void doCalculation() { cout<<"s_auron::doCalculation()\n";} 		//XXX UTSETTER. Foreløpig gjør denne ingenting (anna enn å gjøre at s_auron ikkje er abstract)
 
@@ -153,9 +160,10 @@ void slettTESTfunk(){ cout<<"s_auron::TESTfunk()\n"; } 			//TODO TODO TDOD TODO 
 	s_auron(std::string sNavn_Arg ="unnamed", int nStartDepol = 0); 	
 	~s_auron();
 
-	virtual const void writeDepolToLog()
+
+	inline virtual const void writeDepolToLog()
 	{
-	 	depol_logFile 	<<time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"; \t #Activity variable\n" ;
+	 	depol_logFile 	<<time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"; \t #Depol\n" ;
 	 	depol_logFile.flush();
 	}
 //{friend
@@ -176,6 +184,14 @@ class K_auron : public i_auron
 	K_axon* pOutputAxon; 			// Overlagrer i_auron::i_axon til K_auron::K_axon. Dette er alternativ til å caste pOutputAxon ved accessering til K_auron::pOutputAxon
  	K_dendrite* pInputDendrite;  	// Samme for pInputDendrite.
 	
+	// Kappa - loggfil:
+	std::ofstream kappa_logFile;
+
+	//Liste over alle Kappa auron: 				TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+	// TOOD TODO HER ER EG . Fortsett med pAlleKappaAuron, og static destructor for alle aurona (en i_auron-static, som kaller en K_auron-static-funk, som kaller en K_sensor_auron-static-funk som destruerer alle auron av den typen.
+	std::list<K_auron*> pAlleKappaAuron;
+	// PLAN: 
+	// static void destructAllKappaAurons();
 
 	inline void doTask();
 	inline void doCalculation();
@@ -187,11 +203,11 @@ class K_auron : public i_auron
 	double dPeriodINVERSE;
 	int nChangeInPeriodINVERSE;
 
-	inline void changeKappa( double );
 	inline double getKappa(){ return dAktivitetsVariabel; }
 	
 	// Rekalkulerer feil i Kappa for auronet.
 	inline double recalculateKappa();
+	bool bKappaLargerThanThreshold_lastIter;
 
 	// todo TODO TODO TODO For KANN trenger eg en bEndraKappaDennePerioden, som blir satt til false kvar fyring av auronet. XXX
 	bool bEndraKappaDennePerioden;
@@ -200,18 +216,23 @@ class K_auron : public i_auron
 	// For debugging: trenger ei liste over alle K_auron, slik at eg kan skrive log for depol kvar tidsiterasjon:
 	// Legger til i constructor og fjærner i destructor (akkurat som for i_auron::pAllAurons)
 	static std::list<K_auron*> pAllKappaAurons;
+	static void callDestructorForAllKappaAurons();
 
+	protected:
+	inline void changeKappa( double );
 
 	public:
-	K_auron(std::string sNavn_Arg ="unnamed", int nStartKappa = FYRINGSTERSKEL, unsigned uStartDepol_prosent =0); 	
+	K_auron(std::string sNavn_Arg ="unnamed", double dStartKappa_arg = FYRINGSTERSKEL, unsigned uStartDepol_prosent =0); 	
 	~K_auron();
 
 
 	inline double calculateDepol()
 	{
+		#if 0
 		/*DEBUG*/cout<<"Depol: " <<(dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * ((time_class::getTid() - ulStartOfTimewindow))) + dAktivitetsVariabel ;
 		cout<<"dDepolAtStartOfTimeWindow: " <<dDepolAtStartOfTimeWindow <<"\tulStartOfTimeWindow: " <<ulStartOfTimewindow <<endl
 			<<"dAktivitetsVariabel:\t" <<dAktivitetsVariabel <<"\ttid: " <<time_class::getTid() <<endl;
+		#endif
 
 		return (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * ((time_class::getTid() - ulStartOfTimewindow))) + dAktivitetsVariabel ;
 	}
@@ -223,15 +244,36 @@ class K_auron : public i_auron
 		depol_logFile 	<<time_class::getTid() <<"\t" <<calculateDepol() <<"; \t #Depol\n" ;
 		depol_logFile.flush();
 	}
+	const inline void writeKappaToLog()
+	{
+		// Skriver dDepolAtStartOfTimeWindow til logg:
+		kappa_logFile 	<<time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"; \t #Kappa\n" ;
+		kappa_logFile.flush();
+	}
+
+	static const inline void loggeFunk_K_auron()
+	{
+		// DEBUG: Skriver depol og kappa til log for alle K_auron:
+		for( std::list<K_auron*>::iterator iter = K_auron::pAllKappaAurons.begin(); iter != K_auron::pAllKappaAurons.end(); iter++ )
+		{
+			(*iter) ->calculateDepol();
+			(*iter) ->writeDepolToLog();
+
+			//(*iter) ->recalculateKappa() ELLER NOKE. TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+			// Det er i doCalculation()  feilen er
+			(*iter) ->writeKappaToLog();
+		}
+	}
+
 
 //{2 friend
+	friend class i_auron;
 	friend class K_axon;
 	friend class K_synapse;
 	friend class K_dendrite;
 	friend class recalcKappaObj;
 
 	friend void neuroElement_testFunk(K_auron*);
-	//friend void testFunksjon_slett(s_auron*);
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
 	friend int main(int, char**); //TODO SLETT
@@ -239,6 +281,34 @@ class K_auron : public i_auron
 //}1
 
 }; // }
+
+class K_sensor_auron : public K_auron{
+	// Function pointer:
+	double (*pSensorFunction)(void);
+
+	double dSensedValue;
+	double dLastSensedValue;
+
+	static std::list<K_sensor_auron*> pAllSensorAurons;
+
+	inline void updateSensorValue();
+	static void updateAllSensorAurons();
+
+	public:
+		K_sensor_auron( double (*pFunk_arg)(void) , std::string sNavn_Arg ="K_sensor_auron" );
+
+		double getSensedValue()
+		{
+	 		return (*pSensorFunction)();
+		}
+
+	friend class time_class;
+};
+
+
+
+
+
 
 class recalcKappaObj : public timeInterface
 {
