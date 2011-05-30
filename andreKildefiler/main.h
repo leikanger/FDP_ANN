@@ -27,7 +27,7 @@
 #include <string>
 //#include <vector>
 #include <list>
-//#include <map>
+#include <map>
 #include <vector>
 //#include <set>
 
@@ -40,11 +40,13 @@
 
 
 //Defines:
+#define KOMMENTER_UT_pEstimatedTaskTime 1
+
 #define DEFAULT_ANTALL_TIDSITERASJONER 1000
 #define UTSKRIFT_AV_TID false
 #define MAKS_LENGDE_PAA_pEstimatedTaskTime_JOBBER 100 // Dersom eg jobb er planlagt etter om [dette tallet] tidssteg, går den ikkje inn i pEstimatedTaskTime.
 
-#define DEBUG_UTSKRIFTS_NIVAA 1
+#define DEBUG_UTSKRIFTS_NIVAA 2
 
 #define ALPHA (double)0.004
 #define LEKKASJEFAKTOR_FOR_DEPOL (double)1-ALPHA

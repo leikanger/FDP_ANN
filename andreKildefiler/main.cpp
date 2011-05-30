@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
 
 	cout<<"\n\nLAGER KANN\n\n";
 
-	K_auron* kA = new K_auron("kA", 1.07*FYRINGSTERSKEL);
+	K_auron* kA = new K_auron("kA", 2.07*FYRINGSTERSKEL);
 
 	// neuroElement_testFunk() ER FARLIG! Når denne er med, blir v konst lik 0
 	// NEI. Problemet er selvfølgelig at neuronet ikkje har input => kappa blir rekalkulert til null! FETT!
@@ -497,7 +497,9 @@ int main(int argc, char *argv[])
 
 	
 	// Skriv ut pEstimatedTaskTime
-	time_class::TEST_skrivUt_pEstimatedTaskTime();
+	#if ! KOMMENTER_UT_pEstimatedTaskTime
+	time_class::TEST_skrivUt_pEstimatedTaskTime_list();
+	#endif
 
 	// Avlutt alle loggane rett:
 	i_auron::callDestructorForAllAurons();

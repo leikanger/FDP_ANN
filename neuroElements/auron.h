@@ -273,6 +273,8 @@ class K_auron : public i_auron
 	friend class K_dendrite;
 	friend class recalcKappaObj;
 
+	friend class time_class;
+
 	friend void neuroElement_testFunk(K_auron*);
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 

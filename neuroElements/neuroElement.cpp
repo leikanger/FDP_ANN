@@ -28,6 +28,7 @@
 #include "synapse.h"
 #include "auron.h"
 #include "../andreKildefiler/main.h"
+#include "../andreKildefiler/time.h"
 
 
 
@@ -711,7 +712,6 @@ inline void s_dendrite::calculateLeakage()
 
 
 
-
 /*************************************************************
 ****** 													******
 ******  		doTask() -- samla på en plass. 			******
@@ -895,9 +895,14 @@ inline void K_auron::doTask()
 		#endif
 
 		// Legger seg selv til i pEstimatedTaskTime om uLastCalculatedPeriod time iterations: (forrige peiker i fra pEstimatedTaskTime til dette K_auron ble fjærnet når peiker til dette obj ble lagt inn i pWorkTaskQue).
-		time_class::addTask_in_pEstimatedTaskTime( this,  uLastCalculatedPeriod );
+		#if ! KOMMENTER_UT_pEstimatedTaskTime
+		time_class::addTask_in_pEstimatedTaskTime_list( this,  uLastCalculatedPeriod );
+		#endif
+		// evt TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+		
 	}else{
-		uLastCalculatedPeriod = 9999; // Bare for å gi en gjennkjennelig output. TODO fjærn..
+		// For å få den vekk fra planlagte tasks (legges til som [no]+[periode], og sjekkes om element ligger på plass [no]+1 i time_class::doTask()..
+		uLastCalculatedPeriod = 0;
 		dPeriodINVERSE = 0;
 		//nChangeInPeriodINVERSE = ???
 
@@ -967,51 +972,53 @@ void time_class::doTask()
 	doCalculation();
 
 
-	// pEstimatedTaskTime opplegg ************* 	****** 		********* 		*************  ************************************
-
-	// Undersøker om lengden på lista er kortere enn MIN_LENGDE_PAA_pEstimatedTaskTime:
-	if(pEstimatedTaskTime.size() < MIN_LENGDE_PAA_pEstimatedTaskTime )
-	{ //{
-		//cerr<<"Legger inn manglende element for MIN_LENGDE_PAA_pEstimatedTaskTime i pEstimatedTaskTime\n";
-
-		// Legger inn MIN_LENGDE_PAA_pEstimatedTaskTime antall element.
-		for( int i=0; i<MIN_LENGDE_PAA_pEstimatedTaskTime; i++)
-			pEstimatedTaskTime.push_back( new std::list<timeInterface*> );
-	} //}
-	// Greit. pEstimatedTaskTime er minimum MIN_LENGDE_PAA_pEstimatedTaskTime lang.
-
-	#if DEBUG_UTSKRIFTS_NIVAA > 3
-	if( ! pEstimatedTaskTime.front()->empty() ){
-		cout<<"* * * * * * * * * * * * * * * * * * *\n* *  Planlagt oppgave i tid: " <<time_class::getTid() <<"  * *\n* * * * * * * * * * * * * * * * * * * \n\n";
-	}
-	#endif
-		
-	timeInterface* pTI_temp;
-	while( ! (pEstimatedTaskTime.front())->empty() ) // Kjør alle element i FØRSTE element av pEstimatedTaskTime.
-	{
-		// pTI_temp peiker får verdien til første timeInterface*-element i pEstimatedTaskTime.front()->front():
-		pTI_temp = (pEstimatedTaskTime.front())->front();
-
-		#if DEBUG_UTSKRIFTS_NIVAA > 2
-		cout<<"pEstimatedTaskTime fører til at eg legger til " <<pTI_temp->sClassName <<" i pWorkTaskQue\n";
+	#if ! KOMMENTER_UT_pEstimatedTaskTime
+		// pEstimatedTaskTime opplegg ************* 	****** 		********* 		*************  ************************************
+	
+		// Undersøker om lengden på lista er kortere enn MIN_LENGDE_PAA_pEstimatedTaskTime:
+		if(pEstimatedTaskTime.size() < MIN_LENGDE_PAA_pEstimatedTaskTime )
+		{ //{
+			//cerr<<"Legger inn manglende element for MIN_LENGDE_PAA_pEstimatedTaskTime i pEstimatedTaskTime\n";
+	
+				// Legger inn MIN_LENGDE_PAA_pEstimatedTaskTime antall element.
+			for( int i=0; i<MIN_LENGDE_PAA_pEstimatedTaskTime; i++)
+				pEstimatedTaskTime.push_back( new std::list<timeInterface*> );
+		} //}
+		// Greit. pEstimatedTaskTime er minimum MIN_LENGDE_PAA_pEstimatedTaskTime lang.
+	
+		#if DEBUG_UTSKRIFTS_NIVAA > 3
+		if( ! pEstimatedTaskTime.front()->empty() ){
+			cout<<"* * * * * * * * * * * * * * * * * * *\n* *  Planlagt oppgave i tid: " <<time_class::getTid() <<"  * *\n* * * * * * * * * * * * * * * * * * * \n\n";
+		}
 		#endif
-
-		pWorkTaskQue.push_back( pTI_temp ); //Legger til første element av første liste i pWorkTaskQue
-		// legg elementet i pEstimatedTaskTime om [periode] tid
-			
-		// fjærner element fra { pEstimatedTaskTime.[dette tidssteget] }
-		(pEstimatedTaskTime.front()) ->pop_front(); 			//Fjærn første element (av første lista).
-
-		// Legger til element om [periode] tidsiterasjoner. (Skjer i [element].doTask()
-
-	}
 		
-	// Organiserer pEstimatedTaskTime. Fjærner første ledd:
-		// free minnet fra førte element (ligger nemmelig i frie lageret)
-	delete pEstimatedTaskTime.front();  // XXX XXX XXX Blir dette rett? XXX (laga den med new std::list<timeInterface*> (den er bare en peiker til list<> i frie lageret..))
-		// pop element (ta vekk fra liste)
-	pEstimatedTaskTime.pop_front(); //Fjærn heile lista med estimerte oppgaver for neste time_iteration.
+		timeInterface* pTI_temp;
+		while( ! (pEstimatedTaskTime.front())->empty() ) // Kjør alle element i FØRSTE element av pEstimatedTaskTime.
+		{
+			// pTI_temp peiker får verdien til første timeInterface*-element i pEstimatedTaskTime.front()->front():
+			pTI_temp = (pEstimatedTaskTime.front())->front();
+	
+			#if DEBUG_UTSKRIFTS_NIVAA > 2
+			cout<<"pEstimatedTaskTime fører til at eg legger til " <<pTI_temp->sClassName <<" i pWorkTaskQue\n";
+			#endif
+	
+			pWorkTaskQue.push_back( pTI_temp ); //Legger til første element av første liste i pWorkTaskQue
+			// legg elementet i pEstimatedTaskTime om [periode] tid
+				
+			// fjærner element fra { pEstimatedTaskTime.[dette tidssteget] }
+			(pEstimatedTaskTime.front()) ->pop_front(); 			//Fjærn første element (av første lista).
+	
+			// Legger til element om [periode] tidsiterasjoner. (Skjer i [element].doTask()
+	
+		}
+		
+		// Organiserer pEstimatedTaskTime. Fjærner første ledd:
+			// free minnet fra førte element (ligger nemmelig i frie lageret)
+		delete pEstimatedTaskTime.front();  // XXX XXX XXX Blir dette rett? XXX (laga den med new std::list<timeInterface*> (den er bare en peiker til list<> i frie lageret..))
+			// pop element (ta vekk fra liste)
+		pEstimatedTaskTime.pop_front(); //Fjærn heile lista med estimerte oppgaver for neste time_iteration.
 			
+	#endif
 	// Ferdig: pEstimatedTaskTime opplegg ************* 	****** 		********* 		*************  ************************************
 
 
@@ -1036,12 +1043,31 @@ void time_class::doTask()
 	*******************************/
 	K_sensor_auron::updateAllSensorAurons();
 
+	
+	/*************************************************
+	* Flytter planlagde oppgaver over i pWorkTaskQue *
+	*************************************************/
+	for( std::list<K_auron*>::iterator K_iter = K_auron::pAllKappaAurons.begin() ; K_iter != K_auron::pAllKappaAurons.end() ; K_iter++ )
+	{
+		if( (*K_iter)->lEstimatedTaskTime_for_object == ulTidsiterasjoner+1 )
+		{
+			addTaskIn_pWorkTaskQue( (*K_iter) );
+		}
+ 	}
+	// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+	// HUGS å legge inn ei ekstra liste for tidselement (element som kan planlegges) som ikkje er K_auron.
+	// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+
+
+
+
 	/*XXXXXXXXXXXXXXX
 	X 	 TESTING 	X
 	XXXXXXXXXXXXXXXX*/
 	// Kaller testfunk for å teste K_auron. 
 	//loggeFunk_K_auron();
 
+	
 
 }//}
 
@@ -1090,7 +1116,7 @@ void K_auron::doCalculation()
 		//lEstimatedTaskTime_for_object = time_class::getTid() + ( log( (dAktivitetsVariabel-dDepolAtStartOfTimeWindow)/(dAktivitetsVariabel-FYRINGSTERSKEL) )   /  ALPHA );
 
 		#if DEBUG_UTSKRIFTS_NIVAA > 3
-/*XXX*/	cout<<"lEstimatedTaskTime_for_object     = \t" <<( log( (dAktivitetsVariabel-dDepolAtStartOfTimeWindow)/(dAktivitetsVariabel-FYRINGSTERSKEL) )   /  ALPHA ) <<"\n\n\n\n";
+/*XXX*/	cout<<"lEstimatedTaskTime_for_object     = \t" <<( time_class::getTid() + log( (dAktivitetsVariabel-dDepolAtStartOfTimeWindow)/(dAktivitetsVariabel-FYRINGSTERSKEL) )   /  ALPHA ) <<"\n\n\n\n";
 		#endif
 	
 		// Berenger dPeriodINVERSE og nChangeInPeriodINVERSE:
@@ -1105,21 +1131,14 @@ void K_auron::doCalculation()
 			#if DEBUG_UTSKRIFTS_NIVAA > 3
 				cout<<"K>T, forrige iter og no: lEstimatedTaskTime_for_object = " <<lEstimatedTaskTime_for_object <<endl;
 			#endif
-		 // time_class::moveTask_in_pEstimatedTaskTime( this, lEstimatedTaskTime_for_object - time_class::getTid() ); // lEstimatedTaskTime_for_object -1 ?
-		 	time_class::moveTask_in_pEstimatedTaskTime( this, ( log( (dAktivitetsVariabel-dDepolAtStartOfTimeWindow)/(dAktivitetsVariabel-FYRINGSTERSKEL) )   /  ALPHA ) );
+			#if ! KOMMENTER_UT_pEstimatedTaskTime
+		 	time_class::moveTask_in_pEstimatedTaskTime_list( this, ( log( (dAktivitetsVariabel-dDepolAtStartOfTimeWindow)/(dAktivitetsVariabel-FYRINGSTERSKEL) )   /  ALPHA ) );
+			#endif
 		}else{ // Forrige iter: K var mindre enn Tau.
 			#if DEBUG_UTSKRIFTS_NIVAA > 1
 				cout<<"K>T no, men ikkje forrige iter: lEstimatedTaskTime_for_object = " <<lEstimatedTaskTime_for_object <<endl;
 			#endif
 		}
-		/*********************************************************************************************
-		** 	Her er det veldig viktig at auronet fyrer når det skal, og ikkje seinare. 				**
-		** 		Dersom det sjekkes etter at det skulle fyre, vil verdien wrappe (pga unsigned) 		**
-		** 		Case: depol er 999, Kappa endres til høg, => auronet skulle fyrt for "lenge siden". **
-		** 		Av denne grunn endrer eg ulEstimatedTimeToFiring til lEstimertTidTilFyring 			**
-		** 		(Den får lov å være negativ også. Da kan problemet handteres seinare.. 				**
-		*********************************************************************************************/
-				
 
 		bKappaLargerThanThreshold_lastIter=true;
 		
@@ -1127,12 +1146,19 @@ void K_auron::doCalculation()
 	else{ // Kappa < Tau
 DEBUG("HERHER HER HER HER HER\n\nHERN HER\n\n");
 		if( bKappaLargerThanThreshold_lastIter ){
-			time_class::removeTask_in_pEstimatedTaskTime( this );
+			#if ! KOMMENTER_UT_pEstimatedTaskTime
+			time_class::removeTask_in_pEstimatedTaskTime_list( this );
+			#endif
 		}
 		bKappaLargerThanThreshold_lastIter = false;
 	}
 
-
+	// TODO XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX
+	// Hugs å sette lEstimatedTaskTime_for_object ! 
+	// 	For K_auron trenger vi ikkje legge til elementet i [liste som skal sjekkes]. pAllKappaAurons sjekkes alltid..
+	#if KOMMENTER_UT_pEstimatedTaskTime
+	lEstimatedTaskTime_for_object = ( time_class::getTid() + log( (dAktivitetsVariabel-dDepolAtStartOfTimeWindow)/(dAktivitetsVariabel-FYRINGSTERSKEL) )   /  ALPHA ) ;
+	#endif
 
 	
 	// Skriver til log for depol:

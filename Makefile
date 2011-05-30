@@ -23,7 +23,7 @@ altI_en: andreKildefiler/*.cpp andreKildefiler/*.h neuroElements/*.cpp neuroElem
 	${CPP} ${CFLAGS} andreKildefiler/main.cpp neuroElements/neuroElement.cpp -o auroNett.out 
 
 c:
-	make clean; clear; echo "\nHAR FJÆNA ALLE .out FILENE. Kjører make\n\n"; make altI_en
+	make clean; clear; echo "\nHAR FJÆNA ALLE .out FILENE. Kjører make\n\n"; make
 
 
 clean:
