@@ -43,17 +43,20 @@
 #define KOMMENTER_UT_pEstimatedTaskTime 1
 
 #define DEFAULT_ANTALL_TIDSITERASJONER 1000
+#define DEFAULT_PERIODE_MELLOM_RECALC_KAPPA 100
 #define UTSKRIFT_AV_TID false
-#define MAKS_LENGDE_PAA_pEstimatedTaskTime_JOBBER 100 // Dersom eg jobb er planlagt etter om [dette tallet] tidssteg, går den ikkje inn i pEstimatedTaskTime.
 
-#define DEBUG_UTSKRIFTS_NIVAA 2
+#define DEBUG_UTSKRIFTS_NIVAA 1
 
 #define ALPHA (double)0.004
 #define LEKKASJEFAKTOR_FOR_DEPOL (double)1-ALPHA
 
-#define MIN_LENGDE_PAA_pEstimatedTaskTime 20
+//#define MIN_LENGDE_PAA_pEstimatedTaskTime 20
+//#define MAKS_LENGDE_PAA_pEstimatedTaskTime_JOBBER 100 // Dersom eg jobb er planlagt etter om [dette tallet] tidssteg, går den ikkje inn i pEstimatedTaskTime.
 
 #define FYRINGSTERSKEL 1000
+
+#define OCTAVE_SLEEP_ETTER_PLOTTA 5
 
 #define DEBUG_EXIT(tekst) cerr<<"\n\nDEBUG_EXIT :\t" <<tekst <<"\nexit(99);\n\n"; exit(99);
 //#define DEBUG(tekst) cerr<<"DEBUG :\t" <<tekst <<"\n";

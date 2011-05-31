@@ -42,6 +42,7 @@ Haha! Fett. Ny måte å kommentere ut ting på! Thank you, K.
  */
 #include "main.h"
 #include "time.h"
+#include <sstream> //Testing
 
 void initialiserArbeidsKoe();
 void skrivUtArgumentKonvensjoner(std::string);
@@ -52,9 +53,10 @@ extern std::list<timeInterface*> 				time_class::pWorkTaskQue;
 extern std::list<timeInterface*> 				time_class::pCalculatationTaskQue;
 extern std::list< std::list<timeInterface*>* > 	time_class::pEstimatedTaskTime;
 
-extern std::list<i_auron*> i_auron::pAllAurons;
-extern std::list<K_auron*> K_auron::pAllKappaAurons;
-extern std::list<K_sensor_auron*> K_sensor_auron::pAllSensorAurons;
+extern std::vector<i_auron*> i_auron::pAllAurons;
+extern std::vector<K_auron*> K_auron::pAllKappaAurons;
+extern std::vector<K_sensor_auron*> K_sensor_auron::pAllSensorAurons;
+extern std::vector<recalcKappaClass*> recalcKappaClass::pAllRecalcObj;
 
 extern unsigned long time_class::ulTidsiterasjoner;
 extern unsigned long ulAntallTidsiterasjonerTESTING_SLETT;
@@ -269,7 +271,16 @@ int main(int argc, char *argv[])
 
 	cout<<"\n\nLAGER KANN\n\n";
 
-	K_auron* kA = new K_auron("kA", 2.07*FYRINGSTERSKEL);
+	//K_auron* kA = new K_auron("kA", 2.07*FYRINGSTERSKEL);
+
+#if 1 //{
+	for(int i=0; i<100; i++){
+		std::ostringstream tempString;
+		tempString<<"K" <<i;
+	
+		K_auron* kA = new K_auron(tempString.str(), 2.07*FYRINGSTERSKEL);
+	} 
+#endif //}
 
 	// neuroElement_testFunk() ER FARLIG! Når denne er med, blir v konst lik 0
 	// NEI. Problemet er selvfølgelig at neuronet ikkje har input => kappa blir rekalkulert til null! FETT!
@@ -277,6 +288,8 @@ int main(int argc, char *argv[])
 
 	K_sensor_auron* Ks1 = new K_sensor_auron( &sensorFunk1, "Ks1" );
 	//K_sensor_auron* Ks2 = new K_sensor_auron( &sensorFunk2, "Ks2" );
+	K_auron* K1 = new K_auron("K1", 0);
+	new K_synapse( Ks1, K1, 1000 );
 
 /* //{
 	K_auron* K2 = new K_auron("K_2", 1.2*FYRINGSTERSKEL);
@@ -469,7 +482,6 @@ int main(int argc, char *argv[])
 
 
 
-
 /******************************************* Starter void taskSchedulerFunction(void*); ****************************************************/
 	taskSchedulerFunction(0);
 
@@ -477,29 +489,26 @@ int main(int argc, char *argv[])
 
 
 //XXXXXXXXXXXXXX TEST XXXXXXXXXXXXXXXXx
+neuroElement_testFunk(K1);
 //cout<<"sensed value: " <<Ks1->getSensedValue() <<"\n\n\n";
 
 
 
 
 	cout<<"\n\n\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\nAvslutter.\n\n\n";
-#if 0  // GAMMELT: Flytta over i i_auron::callDestructorForAllAurons();
-/****************************************** Kaller destructor for alle gjenværande udestruerte auron ***************************************/
-	// Sletter alle auron i i_auron::pAllAurons
-	while( ! i_auron::pAllAurons.empty() )
-	{
-		cout<<"Calls destructor for auron " <<i_auron::pAllAurons.front()->sNavn <<endl;
-		// remove element from pAllAurons.
-	 	delete (*i_auron::pAllAurons.begin());
-	}
-/********************************************************************************************************************************************/
-#endif
 
 	
 	// Skriv ut pEstimatedTaskTime
 	#if ! KOMMENTER_UT_pEstimatedTaskTime
 	time_class::TEST_skrivUt_pEstimatedTaskTime_list();
 	#endif
+
+	cout<<"Skriver ut alle auron: \t\t";
+	for( std::vector<i_auron*>::iterator iter = i_auron::pAllAurons.begin() ;  iter != i_auron::pAllAurons.end() ;  iter++ )
+	{
+		cout<<"[ " <<(*iter)->sNavn <<" ]\t";
+	}
+	cout<<"\n\n";
 
 	// Avlutt alle loggane rett:
 	i_auron::callDestructorForAllAurons();

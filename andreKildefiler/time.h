@@ -100,9 +100,6 @@ class time_class : public timeInterface {
 				addTaskIn_pWorkTaskQue( (*K_iter) );
 			}
 		}
-		// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-		// HUGS å legge inn ei ekstra liste for tidselement (element som kan planlegges) som ikkje er K_auron.
-		// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
 	}
 	#endif
 

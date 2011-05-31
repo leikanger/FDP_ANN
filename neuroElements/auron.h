@@ -53,11 +53,37 @@ class s_dendrite;
 class i_axon;
 class s_axon;
 
+/*******************
+recalcKappaClass brukes for å rekalkulere kappa for K_auron. Dette for å fjærne integralfeil..
+*******************/
+class recalcKappaClass : public timeInterface
+{
+	public:
+	recalcKappaClass(K_auron* pKnyttaTilKappaAuron_arg) : timeInterface("Kappa-recalc. obj."), pKappaAuron_obj(pKnyttaTilKappaAuron_arg){
+		lEstimatedTaskTime_for_object = DEFAULT_PERIODE_MELLOM_RECALC_KAPPA;	
+		pAllRecalcObj.push_back(this);
+	}
+
+	inline void doTask();
+	virtual void doCalculation(){
+		// Bruker bare .doTask() ... enda.
+		cout<<"Brutal Feilsjekk. recalculateKappa::doCalculation() er ikkje i bruk. Feilmelding dj331 @ neuroElemen.cpp\n\n\n";
+		exit(0);
+	}
+
+	K_auron* pKappaAuron_obj;
+	// Og fra timeInterface:  long ulEstimatedTaskTime_for_object; 
+
+	static std::vector<recalcKappaClass*> pAllRecalcObj;
+
+};
 
 
-/*
- * 	Skriver først auron for spiking ANN
- */
+
+/*********************
+**   	Auron 		**
+*********************/
+
 class i_auron : public timeInterface
 { 	//{		
 	// Variablana pOutputAxon og pInputDendrite overlagres i underklassene. F.eks. i s_auron lages pOutputAxon som en s_axon*. 
@@ -72,7 +98,7 @@ class i_auron : public timeInterface
 	
 	// Treng eg desse i i_auron? Bare for SANN? Vettafaen! XXX Kan kanskje ligge i s_auron.
 
-	// BARE FOR SANN: ... og for KANN trenger eg en bEndraKappaDennePerioden, som blir satt til false kvar fyring av auronet. XXX
+	// BARE FOR SANN: ... og for KANN trenger eg en b EndraKappaDennePerioden, som blir satt til false kvar fyring av auronet. XXX
 	unsigned long ulTimestampForrigeInput; 	 //Er begge naudsynt? sjå gjennom!
 	// FOR BEGGE (SANN og KANN)
 	unsigned long ulTimestampForrigeFyring;  //Er begge naudsynt? sjø gjennom!
@@ -100,7 +126,7 @@ class i_auron : public timeInterface
 	virtual inline void doTask() =0;
 
 	//container som inneholder alle auron som har vore til ila. programkjøringa:
-	static std::list<i_auron*> pAllAurons;
+	static std::vector<i_auron*> pAllAurons;
 	//static mdl. funk som destruerer alle i denne lista, men først de modellspesifikke K_auron og s_auron.
 	static void callDestructorForAllAurons();
 
@@ -189,7 +215,7 @@ class K_auron : public i_auron
 
 	//Liste over alle Kappa auron: 				TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
 	// TOOD TODO HER ER EG . Fortsett med pAlleKappaAuron, og static destructor for alle aurona (en i_auron-static, som kaller en K_auron-static-funk, som kaller en K_sensor_auron-static-funk som destruerer alle auron av den typen.
-	std::list<K_auron*> pAlleKappaAuron;
+	std::vector<K_auron*> pAlleKappaAuron;
 	// PLAN: 
 	// static void destructAllKappaAurons();
 
@@ -199,30 +225,31 @@ class K_auron : public i_auron
 	double dDepolAtStartOfTimeWindow;
 	unsigned long ulStartOfTimewindow;
 
-	unsigned uLastCalculatedPeriod;
+	double dLastCalculatedPeriod;
 	double dPeriodINVERSE;
-	int nChangeInPeriodINVERSE;
+	double dChangeInPeriodINVERSE;
 
 	inline double getKappa(){ return dAktivitetsVariabel; }
 	
 	// Rekalkulerer feil i Kappa for auronet.
 	inline double recalculateKappa();
-	bool bKappaLargerThanThreshold_lastIter;
+	recalcKappaClass kappaRecalculator;
+	//bool bKappaLargerThanThreshold_lastIter;
 
 	// todo TODO TODO TODO For KANN trenger eg en bEndraKappaDennePerioden, som blir satt til false kvar fyring av auronet. XXX
-	bool bEndraKappaDennePerioden;
+	//bool bEndraKappaDennePerioden;
 
 
 	// For debugging: trenger ei liste over alle K_auron, slik at eg kan skrive log for depol kvar tidsiterasjon:
 	// Legger til i constructor og fjærner i destructor (akkurat som for i_auron::pAllAurons)
-	static std::list<K_auron*> pAllKappaAurons;
+	static std::vector<K_auron*> pAllKappaAurons;
 	static void callDestructorForAllKappaAurons();
 
 	protected:
 	inline void changeKappa( double );
 
 	public:
-	K_auron(std::string sNavn_Arg ="unnamed", double dStartKappa_arg = FYRINGSTERSKEL, unsigned uStartDepol_prosent =0); 	
+	K_auron(std::string sNavn_Arg ="unnamed", double dStartKappa_arg = 0, unsigned uStartDepol_prosent =0); 	
 	~K_auron();
 
 
@@ -234,7 +261,16 @@ class K_auron : public i_auron
 			<<"dAktivitetsVariabel:\t" <<dAktivitetsVariabel <<"\ttid: " <<time_class::getTid() <<endl;
 		#endif
 
-		return (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * ((time_class::getTid() - ulStartOfTimewindow))) + dAktivitetsVariabel ;
+		double dDepol_temp = (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * ((time_class::getTid() - ulStartOfTimewindow))) + dAktivitetsVariabel ;
+		if(dDepol_temp > FYRINGSTERSKEL){
+			cout<<"depol over fyringsterskel.\n";
+			//cout<<"Avslutter..\n\n"; 			exit(0);
+
+			// TODO TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO 
+			// Dette er quick-fix. Dårlig stil!
+			time_class::addTaskIn_pWorkTaskQue( this );
+		}
+		return dDepol_temp;
 	}
 
 	
@@ -254,9 +290,9 @@ class K_auron : public i_auron
 	static const inline void loggeFunk_K_auron()
 	{
 		// DEBUG: Skriver depol og kappa til log for alle K_auron:
-		for( std::list<K_auron*>::iterator iter = K_auron::pAllKappaAurons.begin(); iter != K_auron::pAllKappaAurons.end(); iter++ )
+		for( std::vector<K_auron*>::iterator iter = K_auron::pAllKappaAurons.begin(); iter != K_auron::pAllKappaAurons.end(); iter++ )
 		{
-			(*iter) ->calculateDepol();
+			// Denne er kjøres inne i writeDepolToLog() :  (*iter) ->calculateDepol();
 			(*iter) ->writeDepolToLog();
 
 			//(*iter) ->recalculateKappa() ELLER NOKE. TODO TODO TODO TODO TODO TODO TODO TODO TODO 
@@ -271,7 +307,7 @@ class K_auron : public i_auron
 	friend class K_axon;
 	friend class K_synapse;
 	friend class K_dendrite;
-	friend class recalcKappaObj;
+	friend class recalcKappaClass;
 
 	friend class time_class;
 
@@ -291,7 +327,7 @@ class K_sensor_auron : public K_auron{
 	double dSensedValue;
 	double dLastSensedValue;
 
-	static std::list<K_sensor_auron*> pAllSensorAurons;
+	static std::vector<K_sensor_auron*> pAllSensorAurons;
 
 	inline void updateSensorValue();
 	static void updateAllSensorAurons();
@@ -310,23 +346,6 @@ class K_sensor_auron : public K_auron{
 
 
 
-
-
-class recalcKappaObj : public timeInterface
-{
-	public:
-	recalcKappaObj(K_auron* pKnyttaTilKappaAuron_arg) : timeInterface("Kappa-recalc. obj."), pKappaAuron_obj(pKnyttaTilKappaAuron_arg){}
-
-	inline void doTask();
-	virtual void doCalculation(){
-		cout<<"Brutal Feilsjekk. recalculateKappa::doCalculation() er ikkje i bruk. Feilmelding dj331 @ neuroElemen.cpp\n\n\n";
-		exit(0);
-	}
-
-	K_auron* pKappaAuron_obj;
-	// Og fra timeInterface:  long ulEstimatedTaskTime_for_object; 
-
-};
 
 
 

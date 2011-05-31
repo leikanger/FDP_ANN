@@ -122,10 +122,10 @@ class K_synapse : public i_synapse{
 	//inline unsigned regnutPresynPeriode();
 
 	double dPresynPeriodINVERSE;
-	const inline double getTransmission(){ 	return dPresynPeriodINVERSE*dSynapticWeight; }
+	const inline double getTransmission(){ return dPresynPeriodINVERSE*dSynapticWeight; }
 
 	public:
-	K_synapse(K_auron*, K_auron*, unsigned uSynVekt_Arg =1, bool bInhibEffekt_Arg =false) ;
+	K_synapse(K_auron*, K_auron*, double dSynVekt_Arg =1, bool bInhibEffekt_Arg =false) ;
 	~K_synapse();
 
 	friend class K_dendrite;
