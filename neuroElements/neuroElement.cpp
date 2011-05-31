@@ -108,7 +108,8 @@ i_auron::~i_auron()
 	cout<<"\tDESTRUCTOR: \ti_auron::~i_auron() : \t" <<sNavn <<"\t * * * * * * * * * * * * * * * * * * * * * * * * * \n";
 	
 	//Finner seg selv i pAllKappaAurons
-	for( std::vector<i_auron*>::iterator iter = pAllAurons.begin() ; iter != pAllAurons.end() ; iter++ )
+	#if 0
+	for( std::list<i_auron*>::iterator iter = pAllAurons.begin() ; iter != pAllAurons.end() ; iter++ )
 	{
 		static int i=0; cout<<"Her: " <<i++ <<endl;
 		if( (*iter) == this )
@@ -118,8 +119,10 @@ i_auron::~i_auron()
 			break; // Farlig farlig. Før eg satt inn break fekk eg segfault. 	Yess! Eg har det! : Fordi da blir iterator ugyldig!
 		}
 	}
+	#else
 	//fjærner seg fra pAllAurons   Listevariant:
-	//pAllAurons.remove(this);
+	pAllAurons.remove(this);
+	#endif
 
 	// Rett slutt på utskriftsfil-logg:
 	// no er data slik: [time, synWeight ] i synapse-logg
@@ -228,8 +231,6 @@ K_auron::K_auron(std::string sNavn_Arg /*="unnamed"*/, double dStartKappa_arg /*
 } //}
 K_auron::~K_auron()
 {
-	// pAllAurons - element fjærnes i i_auron. Fjærner pAllKappaAurons-element i K_auron::~K_auron() :
-	//pAllKappaAurons.remove(this);
 	
 
 	cout<<"Destructor:\tK_auron::~K_auron()\n";
@@ -238,6 +239,7 @@ K_auron::~K_auron()
 	//pAllKappaAurons.remove(this);
 
 	//Finner seg selv i pAllKappaAurons (vector-variant):
+	#if 0
 	for( std::vector<K_auron*>::iterator iter = pAllKappaAurons.begin() ; iter != pAllKappaAurons.end() ; iter++ )
 	{
 		if( (*iter) == this )
@@ -247,9 +249,13 @@ K_auron::~K_auron()
 			break; // Farlig farlig! Før eg satt inn break fekk eg segfault. Yess! Fordi da blir iterator ugyldig!
 		}
 	}
+	#else
+		// pAllAurons - element fjærnes i i_auron. Fjærner pAllKappaAurons-element i K_auron::~K_auron() :
+		pAllKappaAurons.remove(this);
+	#endif
 
 	// Kanskje det er bedre å la ~i_auron kjøre? Korleis kan dette garanteres? Gjøres det uansett, kanskje?
-	//pAllAurons.remove(this);
+	// pAllAurons.re move(this);
 
 	// Rett slutt på utskriftsfil-logg:
 	// no er data slik: [time, synWeight ] i synapse-logg
@@ -1014,7 +1020,7 @@ void time_class::doTask()
 	* Flytter planlagde oppgaver over i pWorkTaskQue *
 	*************************************************/
 	// Sjekker alle K_auron:
-	for( std::vector<K_auron*>::iterator K_iter = K_auron::pAllKappaAurons.begin() ; K_iter != K_auron::pAllKappaAurons.end() ; K_iter++ )
+	for( std::list<K_auron*>::iterator K_iter = K_auron::pAllKappaAurons.begin() ; K_iter != K_auron::pAllKappaAurons.end() ; K_iter++ )
 	{
 		if( (*K_iter)->lEstimatedTaskTime_for_object == ulTidsiterasjoner+1 )
 		{
@@ -1166,7 +1172,7 @@ inline void K_sensor_auron::updateAllSensorAurons()
 {
 
 	// Itererer gjennom lista pAllSensorAurons, og kaller updateSensorValue() for de.
-	for( std::vector<K_sensor_auron*>::iterator sensorIter = pAllSensorAurons.begin() 	; 	sensorIter != pAllSensorAurons.end() ; sensorIter++)
+	for( std::list<K_sensor_auron*>::iterator sensorIter = pAllSensorAurons.begin() 	; 	sensorIter != pAllSensorAurons.end() ; sensorIter++)
 	{
 		(*sensorIter)->updateSensorValue();
 	}

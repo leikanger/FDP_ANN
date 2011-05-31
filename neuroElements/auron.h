@@ -74,7 +74,7 @@ class recalcKappaClass : public timeInterface
 	K_auron* pKappaAuron_obj;
 	// Og fra timeInterface:  long ulEstimatedTaskTime_for_object; 
 
-	static std::vector<recalcKappaClass*> pAllRecalcObj;
+	static std::list<recalcKappaClass*> pAllRecalcObj;
 
 };
 
@@ -126,7 +126,7 @@ class i_auron : public timeInterface
 	virtual inline void doTask() =0;
 
 	//container som inneholder alle auron som har vore til ila. programkjøringa:
-	static std::vector<i_auron*> pAllAurons;
+	static std::list<i_auron*> pAllAurons;
 	//static mdl. funk som destruerer alle i denne lista, men først de modellspesifikke K_auron og s_auron.
 	static void callDestructorForAllAurons();
 
@@ -215,7 +215,7 @@ class K_auron : public i_auron
 
 	//Liste over alle Kappa auron: 				TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
 	// TOOD TODO HER ER EG . Fortsett med pAlleKappaAuron, og static destructor for alle aurona (en i_auron-static, som kaller en K_auron-static-funk, som kaller en K_sensor_auron-static-funk som destruerer alle auron av den typen.
-	std::vector<K_auron*> pAlleKappaAuron;
+	std::list<K_auron*> pAlleKappaAuron;
 	// PLAN: 
 	// static void destructAllKappaAurons();
 
@@ -242,7 +242,7 @@ class K_auron : public i_auron
 
 	// For debugging: trenger ei liste over alle K_auron, slik at eg kan skrive log for depol kvar tidsiterasjon:
 	// Legger til i constructor og fjærner i destructor (akkurat som for i_auron::pAllAurons)
-	static std::vector<K_auron*> pAllKappaAurons;
+	static std::list<K_auron*> pAllKappaAurons;
 	static void callDestructorForAllKappaAurons();
 
 	protected:
@@ -290,7 +290,7 @@ class K_auron : public i_auron
 	static const inline void loggeFunk_K_auron()
 	{
 		// DEBUG: Skriver depol og kappa til log for alle K_auron:
-		for( std::vector<K_auron*>::iterator iter = K_auron::pAllKappaAurons.begin(); iter != K_auron::pAllKappaAurons.end(); iter++ )
+		for( std::list<K_auron*>::iterator iter = K_auron::pAllKappaAurons.begin(); iter != K_auron::pAllKappaAurons.end(); iter++ )
 		{
 			// Denne er kjøres inne i writeDepolToLog() :  (*iter) ->calculateDepol();
 			(*iter) ->writeDepolToLog();
@@ -327,7 +327,7 @@ class K_sensor_auron : public K_auron{
 	double dSensedValue;
 	double dLastSensedValue;
 
-	static std::vector<K_sensor_auron*> pAllSensorAurons;
+	static std::list<K_sensor_auron*> pAllSensorAurons;
 
 	inline void updateSensorValue();
 	static void updateAllSensorAurons();
