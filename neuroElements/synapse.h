@@ -62,7 +62,7 @@ class i_synapse : public timeInterface{
 //	int nSynapticWeightChange_promille;
 
 
-	std::ofstream synWeight_loggFil;
+	std::ofstream synTransmission_logFile;
 
 	// Overlagrer i underklasseene, s_synapse og K_synapse. 	 Gjør at underelement som er sammenkobbla til samme s_[element], veit dette.
  	i_axon* pPreNodeAxon;
@@ -122,11 +122,14 @@ class K_synapse : public i_synapse{
 	//inline unsigned regnutPresynPeriode();
 
 	double dPresynPeriodINVERSE;
-	const inline double getTransmission(){ return dPresynPeriodINVERSE*dSynapticWeight; }
+	const inline double getDerivedTransmission();
+	const inline double getTotalTransmission();
 
 	public:
 	K_synapse(K_auron*, K_auron*, double dSynVekt_Arg =1, bool bInhibEffekt_Arg =false) ;
 	~K_synapse();
+	
+	inline void skrivUt();
 
 	friend class K_dendrite;
 	friend class K_auron;

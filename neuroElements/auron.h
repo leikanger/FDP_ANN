@@ -60,8 +60,13 @@ class recalcKappaClass : public timeInterface
 {
 	public:
 	recalcKappaClass(K_auron* pKnyttaTilKappaAuron_arg) : timeInterface("Kappa-recalc. obj."), pKappaAuron_obj(pKnyttaTilKappaAuron_arg){
-		lEstimatedTaskTime_for_object = DEFAULT_PERIODE_MELLOM_RECALC_KAPPA;	
+		ulEstimatedTaskTime_for_object = DEFAULT_PERIODE_MELLOM_RECALC_KAPPA;	
+		//TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO  
+		// Fjærn neste linje (om eg ikkje finner en nytte for pAllRecalcObj-liste).
 		pAllRecalcObj.push_back(this);
+
+		// Legger til element-peiker i std::list<timeInterface*> pPeriodicElements:
+		time_class::addElementIn_pPeriodicElements( this );
 	}
 
 	inline void doTask();
@@ -72,10 +77,12 @@ class recalcKappaClass : public timeInterface
 	}
 
 	K_auron* pKappaAuron_obj;
-	// Og fra timeInterface:  long ulEstimatedTaskTime_for_object; 
+	// Og fra timeInterface:  long uulEstimatedTaskTime_for_object; 
 
 	static std::list<recalcKappaClass*> pAllRecalcObj;
 
+	friend class K_auron;
+	//friend class K_sensor_auron;
 };
 
 
@@ -231,9 +238,6 @@ class K_auron : public i_auron
 
 	inline double getKappa(){ return dAktivitetsVariabel; }
 	
-	// Rekalkulerer feil i Kappa for auronet.
-	inline double recalculateKappa();
-	recalcKappaClass kappaRecalculator;
 	//bool bKappaLargerThanThreshold_lastIter;
 
 	// todo TODO TODO TODO For KANN trenger eg en bEndraKappaDennePerioden, som blir satt til false kvar fyring av auronet. XXX
@@ -247,13 +251,16 @@ class K_auron : public i_auron
 
 	protected:
 	inline void changeKappa( double );
+	// Rekalkulerer feil i Kappa for auronet.
+	inline virtual double recalculateKappa();
+	recalcKappaClass kappaRecalculator;
 
 	public:
 	K_auron(std::string sNavn_Arg ="unnamed", double dStartKappa_arg = 0, unsigned uStartDepol_prosent =0); 	
 	~K_auron();
 
 
-	inline double calculateDepol()
+	inline const double calculateDepol()
 	{
 		#if 0
 		/*DEBUG*/cout<<"Depol: " <<(dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * ((time_class::getTid() - ulStartOfTimewindow))) + dAktivitetsVariabel ;
@@ -261,7 +268,14 @@ class K_auron : public i_auron
 			<<"dAktivitetsVariabel:\t" <<dAktivitetsVariabel <<"\ttid: " <<time_class::getTid() <<endl;
 		#endif
 
-		double dDepol_temp = (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * ((time_class::getTid() - ulStartOfTimewindow))) + dAktivitetsVariabel ;
+		double dDepol_temp = (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * (double)(time_class::getTid() - ulStartOfTimewindow)) + dAktivitetsVariabel ;
+cerr<<sNavn <<"\t";
+cerr<<"dDepolAtStartOfTimeWindow:\t" <<dDepolAtStartOfTimeWindow <<"\tulStartOfTimeWindow:\t" <<ulStartOfTimewindow <<"\t\t dDepol_temp:\t" <<dDepol_temp <<endl;
+cerr<<"Tid: " <<time_class::getTid() <<"\tdAktivitetsVariabel:\t" <<dAktivitetsVariabel <<"\t\tGIR:\n";
+cerr<<"( " <<dDepol_temp <<" - " <<dAktivitetsVariabel <<" )*exp(-" <<ALPHA <<" * ( " <<time_class::getTid() <<" - " <<ulStartOfTimewindow <<" ) ) + " <<dAktivitetsVariabel 
+	<<" \t=\t\t" <<dDepol_temp <<endl;
+usleep(70000);
+
 		if(dDepol_temp > FYRINGSTERSKEL){
 			cout<<"depol over fyringsterskel.\n";
 			//cout<<"Avslutter..\n\n"; 			exit(0);
@@ -331,6 +345,9 @@ class K_sensor_auron : public K_auron{
 
 	inline void updateSensorValue();
 	static void updateAllSensorAurons();
+	
+	protected:
+	inline double recalculateKappa();
 
 	public:
 		K_sensor_auron( double (*pFunk_arg)(void) , std::string sNavn_Arg ="K_sensor_auron" );

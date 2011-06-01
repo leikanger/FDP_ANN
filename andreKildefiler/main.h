@@ -44,9 +44,9 @@
 
 #define DEFAULT_ANTALL_TIDSITERASJONER 1000
 #define DEFAULT_PERIODE_MELLOM_RECALC_KAPPA 100
-#define UTSKRIFT_AV_TID false
+#define UTSKRIFT_AV_TID true
 
-#define DEBUG_UTSKRIFTS_NIVAA 1
+#define DEBUG_UTSKRIFTS_NIVAA 0
 
 #define ALPHA (double)0.004
 #define LEKKASJEFAKTOR_FOR_DEPOL (double)1-ALPHA
@@ -56,7 +56,7 @@
 
 #define FYRINGSTERSKEL 1000
 
-#define OCTAVE_SLEEP_ETTER_PLOTTA 5
+#define OCTAVE_SLEEP_ETTER_PLOTTA 0
 
 #define DEBUG_EXIT(tekst) cerr<<"\n\nDEBUG_EXIT :\t" <<tekst <<"\nexit(99);\n\n"; exit(99);
 //#define DEBUG(tekst) cerr<<"DEBUG :\t" <<tekst <<"\n";
