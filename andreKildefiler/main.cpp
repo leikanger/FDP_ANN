@@ -76,15 +76,24 @@ void neuroElement_syn_testFunk(K_synapse* pK_syn_arg);
 // Sensorfunk. Skal være til sensorneurons.. (i fremtida. Dette er en plan..)
 inline double sensorFunk1()
 {
-#define SVINGNINGS_AMP 2
+//#define SVINGNINGS_AMP 2.133
+#define SVINGNINGS_AMP 1
 // Når K er ca lik T begynner han å fyre maksfrekvent. Vettafaen kvifor!
 // Eller: når den er lik, og ei stund etter..
-	return ( FYRINGSTERSKEL*( SVINGNINGS_AMP*(1 + sin( 3.14*(float)time_class::getTid()/1000 -PI/2 ))) );
+	return ( FYRINGSTERSKEL*( SVINGNINGS_AMP*(1 + sin( 3.14*(float)time_class::getTid()/1100 -PI/2 ))) );
 }
 inline double sensorFunk2()
 {
-	//return (((float)time_class::getTid() / 300) * FYRINGSTERSKEL);
-	return (( 1+((float)time_class::getTid() / 30000) ) * FYRINGSTERSKEL);
+	return ( FYRINGSTERSKEL*( 2 * (1 + sin( 3.14*(float)time_class::getTid()/800 ))) );
+}
+inline double sensorFunk4()
+{
+	//return (( 1+((float)time_class::getTid() / 300) ) * FYRINGSTERSKEL);
+	return ( FYRINGSTERSKEL*( 2 * (1 + sin( 3.14*(float)time_class::getTid()/4000 ))) );
+}
+inline double statiskSensorFunk()
+{
+	return 3*FYRINGSTERSKEL;
 }
 
 //extern std::list<timeInterface*> time_class::pWorkTaskQue;
@@ -289,14 +298,21 @@ int main(int argc, char *argv[])
 	// neuroElement_testFunk() ER FARLIG! Når denne er med, blir v konst lik 0
 	// NEI. Problemet er selvfølgelig at neuronet ikkje har input => kappa blir rekalkulert til null! FETT!
 	//neuroElement_testFunk( kA );
+#if 1
 
-	K_sensor_auron* Ks1 = new K_sensor_auron( &sensorFunk1, "Ks1" );
-	//K_sensor_auron* Ks2 = new K_sensor_auron( &sensorFunk2, "Ks2" );
-	K_auron* K1 = new K_auron("K1", 0);
-	K_synapse* Ksyn1 = new K_synapse( Ks1, K1, 1E5 );
+	K_auron* K1 = new K_auron("K1" /*, arg2 = 0? */);
+	//K_synapse* Ksyn1 = new K_synapse( Ks1, K1, 1.8E5 );
+//	K_synapse* Ksyn1 = new K_synapse( Ks1, K1, 0 );
 
-	//K_auron* K2 = new K_auron("K2", 1.2*FYRINGSTERSKEL);
-	//new K_synapse( K2, K1, 10E6);
+	K_sensor_auron* KsStatisk = new K_sensor_auron("KsStatisk", &statiskSensorFunk);
+	new K_synapse(KsStatisk, K1, 2E5);
+
+	K_sensor_auron* Ks1 = new K_sensor_auron( "Ks1", &sensorFunk1 );
+	new K_synapse( Ks1, K1, 4E4 ); 
+	
+	K_sensor_auron* Ks4 = new K_sensor_auron( "Ks4", &sensorFunk4 );
+	new K_synapse( Ks4, K1, 2E5, true ); //Inhibitorisk synapse
+#endif
 
 /* //{
 	K_auron* K2 = new K_auron("K_2", 1.2*FYRINGSTERSKEL);
@@ -328,10 +344,8 @@ int main(int argc, char *argv[])
 
 
 //XXXXXXXXXXXXXX TEST XXXXXXXXXXXXXXXXx
-	neuroElement_testFunk(K1);
+	//neuroElement_testFunk(K1);
 //cout<<"sensed value: " <<Ks1->getSensedValue() <<"\n\n\n";
-
-	neuroElement_syn_testFunk(Ksyn1);
 
 
 
@@ -346,16 +360,19 @@ int main(int argc, char *argv[])
 	time_class::TEST_skrivUt_pEstimatedTaskTime_list();
 	#endif
 
-	cout<<"Skriver ut alle auron: \t\t";
+	cout<<"\n\n\n\nSkriver ut alle auron: \t\t";
 	for( std::list<i_auron*>::iterator iter = i_auron::pAllAurons.begin() ;  iter != i_auron::pAllAurons.end() ;  iter++ )
 	{
 		cout<<"[ " <<(*iter)->sNavn <<" ]\t";
 	}
 	cout<<"\n\n";
 
+	#if DEBUG_UTSKRIFTS_NIVAA > 3
+		time_class::TEST_skrivUt_pWorkTaskQue();
 
+		time_class::skrivUt_pPeriodicElements();
+	#endif
 
-	time_class::skrivUt_pPeriodicElements();
 
 
 	// Avlutt alle loggane rett:
@@ -416,6 +433,9 @@ void initialiserArbeidsKoe()
 *****************************************************************/
 void* taskSchedulerFunction(void* )
 { //{1
+	// Itererer tid, slik at eg begynner på iter 1. Dette er viktig for å få rett initiering av K_auron som begynner med en konst kappa (gir K=(v_0-K)e^(-a*(1-0)) istedenfor K=..*e^0)
+	time_class::ulTidsiterasjoner ++;
+
 	cout<<"\n\n\t\t\t\t\tKjører void* taskSchedulerFunction(void*);\n";
 
 cerr<<"pWorkTaskQue.size() :  " <<time_class::pWorkTaskQue.size() <<"\n";
@@ -443,7 +463,6 @@ cerr<<"pWorkTaskQue.size() :  " <<time_class::pWorkTaskQue.size() <<"\n";
 
 			// For KANN: skal også sjekke om noko neuron er estimert til å fyre denne iterasjonen.
 	}
-time_class::TEST_skrivUt_pWorkTaskQue();
 
 	return 0;
 } //}1

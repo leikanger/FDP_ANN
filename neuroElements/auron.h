@@ -223,8 +223,8 @@ class K_auron : public i_auron
 	//Liste over alle Kappa auron: 				TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
 	// TOOD TODO HER ER EG . Fortsett med pAlleKappaAuron, og static destructor for alle aurona (en i_auron-static, som kaller en K_auron-static-funk, som kaller en K_sensor_auron-static-funk som destruerer alle auron av den typen.
 	std::list<K_auron*> pAlleKappaAuron;
-	// PLAN: 
-	// static void destructAllKappaAurons();
+
+	double dChangeInKappa_this_iter;
 
 	inline void doTask();
 	inline void doCalculation();
@@ -260,7 +260,7 @@ class K_auron : public i_auron
 	~K_auron();
 
 
-	inline const double calculateDepol()
+	inline const double getCalculateDepol()
 	{
 		#if 0
 		/*DEBUG*/cout<<"Depol: " <<(dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * ((time_class::getTid() - ulStartOfTimewindow))) + dAktivitetsVariabel ;
@@ -268,13 +268,14 @@ class K_auron : public i_auron
 			<<"dAktivitetsVariabel:\t" <<dAktivitetsVariabel <<"\ttid: " <<time_class::getTid() <<endl;
 		#endif
 
-		double dDepol_temp = (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * (double)(time_class::getTid() - ulStartOfTimewindow)) + dAktivitetsVariabel ;
-cerr<<sNavn <<"\t";
-cerr<<"dDepolAtStartOfTimeWindow:\t" <<dDepolAtStartOfTimeWindow <<"\tulStartOfTimeWindow:\t" <<ulStartOfTimewindow <<"\t\t dDepol_temp:\t" <<dDepol_temp <<endl;
-cerr<<"Tid: " <<time_class::getTid() <<"\tdAktivitetsVariabel:\t" <<dAktivitetsVariabel <<"\t\tGIR:\n";
-cerr<<"( " <<dDepol_temp <<" - " <<dAktivitetsVariabel <<" )*exp(-" <<ALPHA <<" * ( " <<time_class::getTid() <<" - " <<ulStartOfTimewindow <<" ) ) + " <<dAktivitetsVariabel 
-	<<" \t=\t\t" <<dDepol_temp <<endl;
-usleep(70000);
+		double dDepol_temp = (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * (time_class::getTid() - ulStartOfTimewindow)) + dAktivitetsVariabel ;
+
+		#if DEBUG_UTSKRIFTS_NIVAA > 5
+		cerr<<sNavn <<"\t";
+		cerr<<"( " <<dDepol_temp <<" - " <<dAktivitetsVariabel <<" )*exp(-" <<ALPHA <<" * ( " <<time_class::getTid() <<" - " <<ulStartOfTimewindow <<" ) ) + " <<dAktivitetsVariabel 
+			<<" \t=\t\t" <<dDepol_temp <<"\n\n";
+		usleep(70000);
+		#endif
 
 		if(dDepol_temp > FYRINGSTERSKEL){
 			cout<<"depol over fyringsterskel.\n";
@@ -291,7 +292,7 @@ usleep(70000);
 	const inline void writeDepolToLog()
 	{
 		// Skriver dDepolAtStartOfTimeWindow til logg:
-		depol_logFile 	<<time_class::getTid() <<"\t" <<calculateDepol() <<"; \t #Depol\n" ;
+		depol_logFile 	<<time_class::getTid() <<"\t" <<getCalculateDepol() <<"; \t #Depol\n" ;
 		depol_logFile.flush();
 	}
 	const inline void writeKappaToLog()
@@ -310,7 +311,6 @@ usleep(70000);
 			(*iter) ->writeDepolToLog();
 
 			//(*iter) ->recalculateKappa() ELLER NOKE. TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-			// Det er i doCalculation()  feilen er
 			(*iter) ->writeKappaToLog();
 		}
 	}
@@ -350,7 +350,7 @@ class K_sensor_auron : public K_auron{
 	inline double recalculateKappa();
 
 	public:
-		K_sensor_auron( double (*pFunk_arg)(void) , std::string sNavn_Arg ="K_sensor_auron" );
+		K_sensor_auron( std::string sNavn_Arg ,   double (*pFunk_arg)(void) );
 
 		double getSensedValue()
 		{

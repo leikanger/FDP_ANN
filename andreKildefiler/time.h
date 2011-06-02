@@ -41,7 +41,6 @@ void loggeFunk_K_auron();
 
 // BARE FOR TESTING! TODO fjærn neste linja:
 class i_auron;
-
 class K_auron;
 
 
