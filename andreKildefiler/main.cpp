@@ -41,6 +41,7 @@ Haha! Fett. Ny måte å kommentere ut ting på! Thank you, K.
  *      Author: kybpc1036
  */
 #include "main.h"
+//#include "../neuroElements/auron.h"
 #include "time.h"
 #include <sstream> //Testing
 
@@ -80,11 +81,11 @@ inline double sensorFunk1()
 #define SVINGNINGS_AMP 1
 // Når K er ca lik T begynner han å fyre maksfrekvent. Vettafaen kvifor!
 // Eller: når den er lik, og ei stund etter..
-	return ( FYRINGSTERSKEL*( SVINGNINGS_AMP*(1 + sin( 3.14*(float)time_class::getTid()/1100 -PI/2 ))) );
+	return ( FYRINGSTERSKEL*( SVINGNINGS_AMP*(1 + sin( 3.14*(float)time_class::getTid()/1000 -PI/2 ))) );
 }
 inline double sensorFunk2()
 {
-	return ( FYRINGSTERSKEL*( 2 * (1 + sin( 3.14*(float)time_class::getTid()/800 ))) );
+	return ( 1.01 * FYRINGSTERSKEL + FYRINGSTERSKEL* (1 + sin( 2* 3.14*(float)time_class::getTid()/1000 )) );
 }
 inline double sensorFunk4()
 {
@@ -308,10 +309,14 @@ int main(int argc, char *argv[])
 	new K_synapse(KsStatisk, K1, 2E5);
 
 	K_sensor_auron* Ks1 = new K_sensor_auron( "Ks1", &sensorFunk1 );
-	new K_synapse( Ks1, K1, 4E4 ); 
+	new K_synapse( Ks1, K1, 4E4, true ); 
 	
-	K_sensor_auron* Ks4 = new K_sensor_auron( "Ks4", &sensorFunk4 );
-	new K_synapse( Ks4, K1, 2E5, true ); //Inhibitorisk synapse
+	K_sensor_auron* Ks2 = new K_sensor_auron( "Ks2", &sensorFunk2 );
+	new K_synapse( Ks2, K1, 4E4, true ); 
+
+	new K_synapse( KsStatisk, K1, 7E4, true );
+//	K_sensor_auron* Ks4 = new K_sensor_auron( "Ks4", &sensorFunk4 );
+//	new K_synapse( Ks4, K1, 2E5, true ); //Inhibitorisk synapse
 #endif
 
 /* //{
@@ -436,22 +441,36 @@ void* taskSchedulerFunction(void* )
 	// Itererer tid, slik at eg begynner på iter 1. Dette er viktig for å få rett initiering av K_auron som begynner med en konst kappa (gir K=(v_0-K)e^(-a*(1-0)) istedenfor K=..*e^0)
 	time_class::ulTidsiterasjoner ++;
 
+	// Rekalkulerer alle K_auron's Kappa:
+	#if 1 // Kjører først alle aurons .doTask(), for å initiere alle synaptiske overføringer:
+	for( std::list<K_auron*>::iterator K_iter = K_auron::pAllKappaAurons.begin(); K_iter != K_auron::pAllKappaAurons.end(); K_iter++ )
+	{
+		(*K_iter)->doTask();
+		//(*K_iter)->kappaRecalculator.doTask();
+	}
+	#endif
+	#if 1 // Rekalkulerer kappa, etter alle overføringer er initiert:
+	for( std::list<K_auron*>::iterator K_iter = K_auron::pAllKappaAurons.begin(); K_iter != K_auron::pAllKappaAurons.end(); K_iter++ )
+	{
+		(*K_iter)->kappaRecalculator.doTask();
+	}
+	#endif
+
+
+	/* * * * * * * * Begynner vanlig kjøring av auroNett * * * * * * * * */
 	cout<<"\n\n\t\t\t\t\tKjører void* taskSchedulerFunction(void*);\n";
 
-cerr<<"pWorkTaskQue.size() :  " <<time_class::pWorkTaskQue.size() <<"\n";
 
 	while( time_class::ulTidsiterasjoner <= ulAntallTidsiterasjonerTESTING_SLETT) // XXX Skal bli "uendelig" løkke etterkvart:
 	//while(/*En eller anna avsluttings-bool =*/true)
 	{
 			/*FEILSJEKK (kan takast vekk)*/
+			#if 0
 			if(time_class::pWorkTaskQue.empty()){ 
 				cout<<"\n\n\nFEIL. time_class::pWorkTaskQue er tom. Skal aldri skje. \nFeilmelding: [taskSchedulerFunction::c01]\n\n\n"; 
 				exit(-1);
 			}
-
-			// DEBUG: 	Skriv ut klassenavn på element:
- //cerr<<time_class::pWorkTaskQue.front() ->sClassName <<"\t:\t*\t*\t*\n"; 		
-	
+			#endif
 
 			// Setter igang utføring av neste jobb i lista:
 			time_class::pWorkTaskQue.front() ->doTask(); 		//Dette er i orden, siden pWorkTaskQue er av type list<timeInterface*> og alle arvinger av timeInterface har overlagra funksjonen doTask().
@@ -460,8 +479,6 @@ cerr<<"pWorkTaskQue.size() :  " <<time_class::pWorkTaskQue.size() <<"\n";
 			time_class::pWorkTaskQue.pop_front();
 			
 			//Evt annet som skal gjøres kvart timessteg. Type sjekke etter andre events, legge til fleire synapser, etc.
-
-			// For KANN: skal også sjekke om noko neuron er estimert til å fyre denne iterasjonen.
 	}
 
 	return 0;

@@ -445,7 +445,7 @@ K_synapse::K_synapse(K_auron* pPresynAuron_arg, K_auron* pPostsynAuron_arg, doub
 	// lag ei .oct - fil, og gjør klar for å kjøres i octave:  UTKOMMENTERT (ikkje naudsynt når vi ikkje har syn.plast.)
 	// Utskrift til logg. LOGG-initiering 
 	std::ostringstream tempFilAdr;
-	tempFilAdr<<"./datafiles_for_evaluation/transmissionLog_K_synapse_" <<pPresynAuron_arg->sNavn <<"-"  <<pPostsynAuron_arg->sNavn ;
+	tempFilAdr<<"./datafiles_for_evaluation/log_transmission_K_synapse_" <<pPresynAuron_arg->sNavn <<"-"  <<pPostsynAuron_arg->sNavn ;
 	if(bInhibitorisk_effekt){ tempFilAdr<<"_inhi"; }
 	else{ 			  tempFilAdr<<"_eksi"; }
 	tempFilAdr<<".oct";
@@ -1136,7 +1136,15 @@ void K_auron::doCalculation()
 	// TODO TODO TODO TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO 
 	// KJører synaptisk overføring kvar gang Kappa endre. Dette er ikkje optimalt. Men det vil nok bli rett. Mens eg utvikler Kappa-mekanismer..
 	// Dersom eg vil ha fin plot for transmission_synapse, bør denne flyttes inn i if-setninga under (eller fjærnes). Da forsvinner 0-overføringene...
-	time_class::addTaskIn_pWorkTaskQue( pOutputAxon );	
+	if( dAktivitetsVariabel > FYRINGSTERSKEL)
+	{
+		time_class::addTaskIn_pWorkTaskQue( pOutputAxon );	
+		bAuronHarPropagertAtDenErInaktiv = false;
+	}else if( !bAuronHarPropagertAtDenErInaktiv )
+	{
+		time_class::addTaskIn_pWorkTaskQue( pOutputAxon );	
+	 	bAuronHarPropagertAtDenErInaktiv = true;
+	}
 
 
 	//**********************************************
@@ -1350,6 +1358,8 @@ inline double K_sensor_auron::recalculateKappa()
 {
 	// TODO No er dette bare en sensor (Har ikkje muligheten for å få input fra andre neuron. Dette kan eg kanskje implementere om eg har tid..)
 	updateSensorValue();
+	// Er dette rett :
+	return dAktivitetsVariabel;
 }
 
 inline double K_dendrite::recalculateKappa()

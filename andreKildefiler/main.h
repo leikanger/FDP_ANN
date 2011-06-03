@@ -56,7 +56,7 @@
 
 #define FYRINGSTERSKEL 1000
 
-#define OCTAVE_SLEEP_ETTER_PLOTTA 0
+#define OCTAVE_SLEEP_ETTER_PLOTTA 3
 
 #define DEBUG_EXIT(tekst) cerr<<"\n\nDEBUG_EXIT :\t" <<tekst <<"\nexit(99);\n\n"; exit(99);
 //#define DEBUG(tekst) cerr<<"DEBUG :\t" <<tekst <<"\n";

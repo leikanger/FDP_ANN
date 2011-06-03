@@ -220,9 +220,6 @@ class K_auron : public i_auron
 	// Kappa - loggfil:
 	std::ofstream kappa_logFile;
 
-	//Liste over alle Kappa auron: 				TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
-	// TOOD TODO HER ER EG . Fortsett med pAlleKappaAuron, og static destructor for alle aurona (en i_auron-static, som kaller en K_auron-static-funk, som kaller en K_sensor_auron-static-funk som destruerer alle auron av den typen.
-	std::list<K_auron*> pAlleKappaAuron;
 
 	double dChangeInKappa_this_iter;
 
@@ -249,11 +246,17 @@ class K_auron : public i_auron
 	static std::list<K_auron*> pAllKappaAurons;
 	static void callDestructorForAllKappaAurons();
 
+	bool bAuronHarPropagertAtDenErInaktiv;
+
 	protected:
 	inline void changeKappa( double );
 	// Rekalkulerer feil i Kappa for auronet.
+
 	inline virtual double recalculateKappa();
 	recalcKappaClass kappaRecalculator;
+
+	//Liste over alle Kappa auron: 	
+	std::list<K_auron*> pAlleKappaAuron;
 
 	public:
 	K_auron(std::string sNavn_Arg ="unnamed", double dStartKappa_arg = 0, unsigned uStartDepol_prosent =0); 	
@@ -330,6 +333,8 @@ class K_auron : public i_auron
 
 	friend int main(int, char**); //TODO SLETT
 	friend void loggeFunk_K_auron();// TODO SAMME
+
+	friend void* taskSchedulerFunction(void* );
 //}1
 
 }; // }
