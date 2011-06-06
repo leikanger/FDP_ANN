@@ -85,7 +85,7 @@ inline double sensorFunk1()
 }
 inline double sensorFunk2()
 {
-	return ( 1.01 * FYRINGSTERSKEL + FYRINGSTERSKEL* (1 + sin( 2* 3.14*(float)time_class::getTid()/1000 )) );
+	return ( 0.8 * FYRINGSTERSKEL + FYRINGSTERSKEL* (1 + sin( 2* 3.14*(float)time_class::getTid()/1000 )) );
 }
 inline double sensorFunk4()
 {
@@ -317,6 +317,9 @@ int main(int argc, char *argv[])
 	new K_synapse( KsStatisk, K1, 7E4, true );
 //	K_sensor_auron* Ks4 = new K_sensor_auron( "Ks4", &sensorFunk4 );
 //	new K_synapse( Ks4, K1, 2E5, true ); //Inhibitorisk synapse
+
+	s_auron* S1 = new s_auron("S1");
+	//new s_synapse( Ks1, S1, 1E2);
 #endif
 
 /* //{

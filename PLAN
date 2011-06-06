@@ -1,3 +1,8 @@
+4.6.11
+	0  - Gjøre slik at lekkasje også legges i pCalculatationTaskQue. Og s_auron.doCalculation() gjennomfører lekkasje.
+	0  - Sjekke synaptisk overføring: Ser på utskrift av synaptisk overføring at det er mykje overføring av verdien 0. Dette skal ikkje skje. FIX IT.
+
+
 01.05
 X	- Gjøre om slik at tilknytninga til andre auron-underelement ikkje ligger i i_[element], men i s_[element] og K_[element].
 			Fjærner behovet for casting.

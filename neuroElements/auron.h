@@ -60,8 +60,9 @@ class recalcKappaClass : public timeInterface
 {
 	public:
 	recalcKappaClass(K_auron* pKnyttaTilKappaAuron_arg) : timeInterface("Kappa-recalc. obj."), pKappaAuron_obj(pKnyttaTilKappaAuron_arg){
-		ulEstimatedTaskTime_for_object = DEFAULT_PERIODE_MELLOM_RECALC_KAPPA;	
-		//TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO  
+		//ulEstimatedTaskTime_for_object = MIN_PERIODE_MELLOM_REKALKULERING_AV_KAPPA;	
+		ulEstimatedTaskTime_for_object = 1; // Denne blir overskrevet første gang den kjører.
+
 		// Fjærn neste linje (om eg ikkje finner en nytte for pAllRecalcObj-liste).
 		pAllRecalcObj.push_back(this);
 
@@ -323,6 +324,7 @@ class K_auron : public i_auron
 	friend class i_auron;
 	friend class K_axon;
 	friend class K_synapse;
+	friend class s_synapse;
 	friend class K_dendrite;
 	friend class recalcKappaClass;
 

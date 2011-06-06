@@ -74,6 +74,7 @@ class i_synapse : public timeInterface{
 
 	//i_synapse(i_axon* pPresynAxon_arg, i_dendrite* pPostsynDendrite_arg, unsigned uSynVekt_Arg, bool bInhibEffekt_Arg, std::string sKlasseNavn /*="synapse"*/ );
 	i_synapse(double dSynVekt_Arg, bool bInhibEffekt_Arg, std::string sKlasseNavn /*="synapse"*/ );
+	i_synapse( bool bInhibEffekt_Arg ) : bInhibitorisk_effekt(bInhibEffekt_Arg) {  	cout<<"Constructor :\ti_synapse::i_synapse()\n"; 		}
 	//~i_synapse();  TRUR IKKJE DENNE TRENGS. Ingen peikere i i_synapse ?
 	// KANSKJE EG SKAL HA UTSKRIFT HER? --avslutting av loggen for synapsen..  TODO
 	
@@ -99,6 +100,8 @@ class s_synapse : public i_synapse{
 
 	public:
 	s_synapse(s_auron*, s_auron*, double dSynVekt_Arg =1, bool bInhibEffekt_Arg =false) ;
+	//s_synapse(K_auron*, s_auron*, double dSynVekt_Arg =1, bool bInhibEffekt_Arg =false) ;
+	s_synapse(bool bInhibEffekt_Arg ) : i_synapse(bInhibEffekt_Arg){  	cout<<"Constructor :\ts_synapse::s_synapse()\n"; 		}
 	~s_synapse();
 
 	friend std::ostream & operator<< (std::ostream & ut, s_axon* ); //XXX gjør om arg: (..., s_axon* => i_axon*) XXX
@@ -127,6 +130,7 @@ class K_synapse : public i_synapse{
 
 	public:
 	K_synapse(K_auron*, K_auron*, double dSynVekt_Arg =1, bool bInhibEffekt_Arg =false) ;
+	K_synapse(bool bInhibEffekt_Arg) : i_synapse(bInhibEffekt_Arg) {  	cout<<"Constructor :\tK_synapse::K_synapse()\n"; 		}
 	~K_synapse();
 	
 	inline void skrivUt();
