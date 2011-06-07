@@ -40,7 +40,10 @@
 
 
 //Defines:
-#define KOMMENTER_UT_pEstimatedTaskTime 1
+
+// Velger KANN eller SANN for neste compilasjon
+#define KANN 1
+#define SANN 1
 
 #define DEFAULT_ANTALL_TIDSITERASJONER 1000
 //#define MIN_PERIODE_MELLOM_REKALKULERING_AV_KAPPA 100
@@ -50,19 +53,18 @@
 #define RECALC_c3 10
 #define RECALC_c4 0.5
 
-#define UTSKRIFT_AV_TID true
+#define UTSKRIFT_AV_TID 1
+#define UTSKRIFT_AV_TID_KVAR_Nte_ITER 10
 
-#define DEBUG_UTSKRIFTS_NIVAA 0
+#define DEBUG_UTSKRIFTS_NIVAA 1
 
 #define ALPHA (double)0.004
 #define LEKKASJEFAKTOR_FOR_DEPOL (double)1-ALPHA
 
-//#define MIN_LENGDE_PAA_pEstimatedTaskTime 20
-//#define MAKS_LENGDE_PAA_pEstimatedTaskTime_JOBBER 100 // Dersom eg jobb er planlagt etter om [dette tallet] tidssteg, går den ikkje inn i pEstimatedTaskTime.
 
 #define FYRINGSTERSKEL 1000
 
-#define OCTAVE_SLEEP_ETTER_PLOTTA 3
+#define OCTAVE_SLEEP_ETTER_PLOTTA 4
 
 #define DEBUG_EXIT(tekst) cerr<<"\n\nDEBUG_EXIT :\t" <<tekst <<"\nexit(99);\n\n"; exit(99);
 //#define DEBUG(tekst) cerr<<"DEBUG :\t" <<tekst <<"\n";
@@ -92,6 +94,11 @@ using std::endl;
 
 // deklarasjoner:
 
+class comparisonClass{
+	public:
+	static unsigned long ulNumberOfCallsToKappa_doCalculations;
+	static unsigned long ulNumberOfCallsTo_doTask;
+};
 
 
 

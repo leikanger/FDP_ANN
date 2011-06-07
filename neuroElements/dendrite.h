@@ -118,6 +118,8 @@ class s_dendrite : public i_dendrite{
 	*/ //}
 
 	friend class s_auron;
+	friend class s_sensor_auron;
+
 	friend class s_axon;
 	// Skal vekk: ? :
 	friend class s_synapse;

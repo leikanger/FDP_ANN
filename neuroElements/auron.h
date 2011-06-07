@@ -181,14 +181,15 @@ class i_auron : public timeInterface
 
 class s_auron : public i_auron
 { //{
-	//Deler av auronet: 		OVERLAGRA fra i_auron
-	s_axon* pOutputAxon; 			// Overlagrer i_auron::i_axon til s_auron::s_axon. Dette er alternativ til å caste pOutputAxon ved accessering til s_auron::pOutputAxon
- 	s_dendrite* pInputDendrite;  	// Samme for pInputDendrite.
 
 //void slettTESTfunk(){ cout<<"s_auron::TESTfunk()\n"; } 			//TODO TODO TDOD TODO SLETT
 	inline void doTask();
 	inline void doCalculation() { cout<<"s_auron::doCalculation()\n";} 		//XXX UTSETTER. Foreløpig gjør denne ingenting (anna enn å gjøre at s_auron ikkje er abstract)
 
+	protected:
+	//Deler av auronet: 		OVERLAGRA fra i_auron
+	s_axon* pOutputAxon; 			// Overlagrer i_auron::i_axon til s_auron::s_axon. Dette er alternativ til å caste pOutputAxon ved accessering til s_auron::pOutputAxon
+ 	s_dendrite* pInputDendrite;  	// Samme for pInputDendrite.
 
 	public:
 	s_auron(std::string sNavn_Arg ="unnamed", int nStartDepol = 0); 	
@@ -281,14 +282,18 @@ class K_auron : public i_auron
 		usleep(70000);
 		#endif
 
+		#if 1 // Har testa [litt] og sett at dette skjer typisk når noden er estimert å fyre neste iter. Ta vekk test for å optimalisere.
+		//{
 		if(dDepol_temp > FYRINGSTERSKEL){
-			cout<<"depol over fyringsterskel.\n";
+			cout<<"depol over fyringsterskel.\tEstimert fyretid/[notid] :" <<ulEstimatedTaskTime_for_object <<"/" <<time_class::getTid() <<endl;
 			//cout<<"Avslutter..\n\n"; 			exit(0);
 
 			// TODO TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO 
 			// Dette er quick-fix. Dårlig stil!
 			time_class::addTaskIn_pWorkTaskQue( this );
-		}
+			//doTask();
+		} //}
+		#endif
 		return dDepol_temp;
 	}
 
@@ -340,6 +345,26 @@ class K_auron : public i_auron
 //}1
 
 }; // }
+
+class s_sensor_auron : public s_auron{
+	// Function pointer:
+	double (*pSensorFunction)(void);
+
+	static std::list<s_sensor_auron*> pAllSensorAurons;
+
+	inline void updateSensorValue();
+	static void updateAllSensorAurons();
+	
+	public:
+		s_sensor_auron( std::string sNavn_Arg ,   double (*pFunk_arg)(void) );
+
+		double getSensedValue()
+		{
+	 		return (*pSensorFunction)();
+		}
+
+	friend class time_class;
+};
 
 class K_sensor_auron : public K_auron{
 	// Function pointer:

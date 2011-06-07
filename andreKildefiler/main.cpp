@@ -43,6 +43,8 @@ Haha! Fett. Ny måte å kommentere ut ting på! Thank you, K.
 #include "main.h"
 //#include "../neuroElements/auron.h"
 #include "time.h"
+#include "sensorFunk.h"
+
 #include <sstream> //Testing
 
 void initialiserArbeidsKoe();
@@ -53,16 +55,18 @@ void* taskSchedulerFunction(void*);
 extern std::list<timeInterface*> 				time_class::pWorkTaskQue;
 extern std::list<timeInterface*> 				time_class::pCalculatationTaskQue;
 extern std::list<timeInterface*> 				time_class::pPeriodicElements;
-#if ! KOMMENTER_UT_pEstimatedTaskTime
-extern std::list< std::list<timeInterface*>* > 	time_class::pEstimatedTaskTime;
-#endif
 
 extern std::list<i_auron*> i_auron::pAllAurons;
 extern std::list<K_auron*> K_auron::pAllKappaAurons;
 extern std::list<K_sensor_auron*> K_sensor_auron::pAllSensorAurons;
+extern std::list<s_sensor_auron*> s_sensor_auron::pAllSensorAurons;
 extern std::list<recalcKappaClass*> recalcKappaClass::pAllRecalcObj;
 
 extern unsigned long time_class::ulTidsiterasjoner;
+
+unsigned long comparisonClass::ulNumberOfCallsTo_doTask = 0;
+unsigned long comparisonClass::ulNumberOfCallsToKappa_doCalculations = 0;
+
 extern unsigned long ulAntallTidsiterasjonerTESTING_SLETT;
 
 std::ostream & operator<<(std::ostream& ut, i_auron* pAuronArg );
@@ -73,29 +77,6 @@ std::ostream & operator<<(std::ostream& ut, i_auron* pAuronArg );
 void neuroElement_testFunk(K_auron* pK_arg);
 void neuroElement_syn_testFunk(K_synapse* pK_syn_arg);
 
-#define PI 3.14159
-// Sensorfunk. Skal være til sensorneurons.. (i fremtida. Dette er en plan..)
-inline double sensorFunk1()
-{
-//#define SVINGNINGS_AMP 2.133
-#define SVINGNINGS_AMP 1
-// Når K er ca lik T begynner han å fyre maksfrekvent. Vettafaen kvifor!
-// Eller: når den er lik, og ei stund etter..
-	return ( FYRINGSTERSKEL*( SVINGNINGS_AMP*(1 + sin( 3.14*(float)time_class::getTid()/1000 -PI/2 ))) );
-}
-inline double sensorFunk2()
-{
-	return ( 0.8 * FYRINGSTERSKEL + FYRINGSTERSKEL* (1 + sin( 2* 3.14*(float)time_class::getTid()/1000 )) );
-}
-inline double sensorFunk4()
-{
-	//return (( 1+((float)time_class::getTid() / 300) ) * FYRINGSTERSKEL);
-	return ( FYRINGSTERSKEL*( 2 * (1 + sin( 3.14*(float)time_class::getTid()/4000 ))) );
-}
-inline double statiskSensorFunk()
-{
-	return 3*FYRINGSTERSKEL;
-}
 
 //extern std::list<timeInterface*> time_class::pWorkTaskQue;
 
@@ -280,7 +261,13 @@ int main(int argc, char *argv[])
 	//}
   	#endif
 
-	#if 1 	// 	KANN-Test
+	#if 1 	// SANN: Tester s_sensor_auron
+
+	s_sensor_auron* sSensor1 = new s_sensor_auron( "sSensor1", &sensorFunk1);
+	K_sensor_auron* KSensor1 = new K_sensor_auron( "KSensor1", &sensorFunk1);
+	#endif
+
+	#if 0 	// 	KANN-Test
  	//{ KANN: TEST-oppsett.
 
 	cout<<"\n\nLAGER KANN\n\n";
@@ -302,24 +289,54 @@ int main(int argc, char *argv[])
 #if 1
 
 	K_auron* K1 = new K_auron("K1" /*, arg2 = 0? */);
-	//K_synapse* Ksyn1 = new K_synapse( Ks1, K1, 1.8E5 );
-//	K_synapse* Ksyn1 = new K_synapse( Ks1, K1, 0 );
 
 	K_sensor_auron* KsStatisk = new K_sensor_auron("KsStatisk", &statiskSensorFunk);
-	new K_synapse(KsStatisk, K1, 2E5);
+	new K_synapse(KsStatisk, K1, 200);
+
+
 
 	K_sensor_auron* Ks1 = new K_sensor_auron( "Ks1", &sensorFunk1 );
-	new K_synapse( Ks1, K1, 4E4, true ); 
+	new K_synapse( Ks1, K1, 400, true ); 
 	
 	K_sensor_auron* Ks2 = new K_sensor_auron( "Ks2", &sensorFunk2 );
-	new K_synapse( Ks2, K1, 4E4, true ); 
+	new K_synapse( Ks2, K1, 400, true ); 
 
-	new K_synapse( KsStatisk, K1, 7E4, true );
+	new K_synapse( KsStatisk, K1, 700, true );
+	
+
 //	K_sensor_auron* Ks4 = new K_sensor_auron( "Ks4", &sensorFunk4 );
 //	new K_synapse( Ks4, K1, 2E5, true ); //Inhibitorisk synapse
 
-	s_auron* S1 = new s_auron("S1");
+	//s_auron* S1 = new s_auron("S1");
 	//new s_synapse( Ks1, S1, 1E2);
+#endif
+
+#if 0 // Testoppsett 1, KANN
+	K_auron* Ks1 = new K_sensor_auron("Ks1", &sensorFunk_TEST1_s1 );
+	K_auron* Ks2 = new K_sensor_auron("Ks2", &sensorFunk_TEST1_s2 );
+	K_auron* Ks3 = new K_sensor_auron("Ks3", &sensorFunk_TEST1_s3 );
+	K_auron* Ks4 = new K_sensor_auron("Ks4", &sensorFunk_TEST1_s4 );
+	K_auron* Ks5 = new K_sensor_auron("Ks5", &sensorFunk_TEST1_s5 );
+
+	K_auron* Kt1 = new K_auron("Kt1");
+	new K_synapse(Ks1, Kt1, 100);
+	new K_synapse(Ks2, Kt1, 100);
+	new K_synapse(Ks3, Kt1, 100);
+	new K_synapse(Ks4, Kt1, 100);
+	new K_synapse(Ks5, Kt1, 50, true);
+
+
+	K_auron* Kt2 = new K_auron("Kt2");
+	new K_synapse(Ks1, Kt2, 20, true);
+	new K_synapse(Ks2, Kt2, 100);
+	new K_synapse(Ks3, Kt2, 20, true);
+	new K_synapse(Ks4, Kt2, 20, true);
+	new K_synapse(Ks5, Kt2, 50);
+	new K_synapse(Kt1, Kt2, 200);
+	
+	K_auron* Kt3 = new K_auron("Kt3");
+	new K_synapse(Kt1, Kt3, 200);
+	new K_synapse(Kt2, Kt3, 200);
 #endif
 
 /* //{
@@ -363,10 +380,6 @@ int main(int argc, char *argv[])
 	cout<<"\n\n\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\nAvslutter.\n\n\n";
 
 	
-	// Skriv ut pEstimatedTaskTime
-	#if ! KOMMENTER_UT_pEstimatedTaskTime
-	time_class::TEST_skrivUt_pEstimatedTaskTime_list();
-	#endif
 
 	cout<<"\n\n\n\nSkriver ut alle auron: \t\t";
 	for( std::list<i_auron*>::iterator iter = i_auron::pAllAurons.begin() ;  iter != i_auron::pAllAurons.end() ;  iter++ )
@@ -387,7 +400,8 @@ int main(int argc, char *argv[])
 	i_auron::callDestructorForAllAurons();
 
 
-
+	cout<<"\n\nAntall kall til doTask() funksjoner: \t" <<comparisonClass::ulNumberOfCallsTo_doTask <<endl;
+	cout<<"\n\nAntall kall til K_auron::doCalculation(): \t" <<comparisonClass::ulNumberOfCallsToKappa_doCalculations <<endl;
 
 	cout<<"\n\nWIN!\n\n\n";
 	return 0;
@@ -477,6 +491,8 @@ void* taskSchedulerFunction(void* )
 
 			// Setter igang utføring av neste jobb i lista:
 			time_class::pWorkTaskQue.front() ->doTask(); 		//Dette er i orden, siden pWorkTaskQue er av type list<timeInterface*> og alle arvinger av timeInterface har overlagra funksjonen doTask().
+
+			comparisonClass::ulNumberOfCallsTo_doTask ++;
 
 			// Tar vekk jobben fra pWorkTaskQue: FLYTTA INN I time_class::doTask()
 			time_class::pWorkTaskQue.pop_front();
