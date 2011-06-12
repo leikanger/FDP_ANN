@@ -93,7 +93,6 @@ class s_dendrite : public i_dendrite{
 	inline void calculateLeakage(); 		//Bare for SANN
 
 	bool bBlockInput_refractionTime; 		//Bare for SANN 	//Blokkere input når refraction period eller når depol er over terskel.
-												// XXX Flytta til s_auron.
 
 	public:
 	//Constructor: 	

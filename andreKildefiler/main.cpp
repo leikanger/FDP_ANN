@@ -261,10 +261,21 @@ int main(int argc, char *argv[])
 	//}
   	#endif
 
-	#if 1 	// SANN: Tester s_sensor_auron
+	s_sensor_auron* sSensor  = new s_sensor_auron( "sSensor", &statiskSensorFunk);
+	K_sensor_auron* kSensor  = new K_sensor_auron( "kSensor", &statiskSensorFunk);
+	#if 0 	// SANN: Tester s_sensor_auron
 
-	s_sensor_auron* sSensor1 = new s_sensor_auron( "sSensor1", &sensorFunk1);
-	K_sensor_auron* KSensor1 = new K_sensor_auron( "KSensor1", &sensorFunk1);
+	s_sensor_auron* sSensor  = new s_sensor_auron( "sSensor", &sensorFunk3a);
+	s_auron* s1 = new s_auron("s1");
+	new s_synapse(sSensor, s1, 50);
+
+	s_auron* sUT = new s_auron("sUT");
+
+	K_sensor_auron* KSensor  = new K_sensor_auron( "kSensor", &sensorFunk3a);
+	K_auron* k1 = new K_auron("k1");
+	new K_synapse(KSensor, k1, 50);
+
+	K_auron* kUT = new K_auron("kUT");
 	#endif
 
 	#if 0 	// 	KANN-Test
@@ -371,8 +382,6 @@ int main(int argc, char *argv[])
 //XXXXXXXXXXXXXX TEST XXXXXXXXXXXXXXXXx
 	//neuroElement_testFunk(K1);
 //cout<<"sensed value: " <<Ks1->getSensedValue() <<"\n\n\n";
-
-
 
 
 
@@ -488,6 +497,14 @@ void* taskSchedulerFunction(void* )
 				exit(-1);
 			}
 			#endif
+
+
+
+			// Kortslutning, bare for å teste hypotese:
+			
+
+
+
 
 			// Setter igang utføring av neste jobb i lista:
 			time_class::pWorkTaskQue.front() ->doTask(); 		//Dette er i orden, siden pWorkTaskQue er av type list<timeInterface*> og alle arvinger av timeInterface har overlagra funksjonen doTask().

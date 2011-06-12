@@ -159,6 +159,7 @@ class i_auron : public timeInterface
 		doTask(); //gjør samme som gamle: auron::fyr();
 	}
 
+
 	friend class s_auron;
 	friend class K_auron;
 
@@ -186,6 +187,9 @@ class s_auron : public i_auron
 	inline void doTask();
 	inline void doCalculation() { cout<<"s_auron::doCalculation()\n";} 		//XXX UTSETTER. Foreløpig gjør denne ingenting (anna enn å gjøre at s_auron ikkje er abstract)
 
+	static void callDestructorForAllSpikingAurons();
+
+	//bool bBlockInput_refractionTime; 		//Bare for SANN 	//Blokkere input når refraction period eller når depol er over terskel.
 	protected:
 	//Deler av auronet: 		OVERLAGRA fra i_auron
 	s_axon* pOutputAxon; 			// Overlagrer i_auron::i_axon til s_auron::s_axon. Dette er alternativ til å caste pOutputAxon ved accessering til s_auron::pOutputAxon
@@ -225,8 +229,6 @@ class K_auron : public i_auron
 
 	double dChangeInKappa_this_iter;
 
-	inline void doTask();
-	inline void doCalculation();
 
 	double dDepolAtStartOfTimeWindow;
 	unsigned long ulStartOfTimewindow;
@@ -250,8 +252,12 @@ class K_auron : public i_auron
 
 	bool bAuronHarPropagertAtDenErInaktiv;
 
+
+	unsigned long ulLastFiringTime;
+
 	protected:
-	inline void changeKappa( double );
+	inline void changeKappa_derivedArg( double );
+	inline void changeKappa_absArg(double);
 	// Rekalkulerer feil i Kappa for auronet.
 
 	inline virtual double recalculateKappa();
@@ -259,6 +265,9 @@ class K_auron : public i_auron
 
 	//Liste over alle Kappa auron: 	
 	std::list<K_auron*> pAlleKappaAuron;
+
+	inline void doTask();
+	inline void doCalculation();
 
 	public:
 	K_auron(std::string sNavn_Arg ="unnamed", double dStartKappa_arg = 0, unsigned uStartDepol_prosent =0); 	
@@ -339,7 +348,7 @@ class K_auron : public i_auron
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
 	friend int main(int, char**); //TODO SLETT
-	friend void loggeFunk_K_auron();// TODO SAMME
+	//friend void loggeFunk_K_auron();// SAMME (har flytta den inn i klassen..)
 
 	friend void* taskSchedulerFunction(void* );
 //}1

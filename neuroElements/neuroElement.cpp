@@ -82,6 +82,7 @@ void K_auron::callDestructorForAllKappaAurons()
 /********************************************************************************************************************************************/
 }
 
+
 //}2
 //{2 *** i_auron   
 i_auron::i_auron(std::string sNavn_Arg /*="unnamed"*/, double dStartAktVar /*=0*/) : timeInterface("auron"), dAktivitetsVariabel(dStartAktVar), sNavn(sNavn_Arg)
@@ -106,7 +107,7 @@ i_auron::i_auron(std::string sNavn_Arg /*="unnamed"*/, double dStartAktVar /*=0*
 i_auron::~i_auron()
 { //{3
 	cout<<"\tDESTRUCTOR: \ti_auron::~i_auron() : \t" <<sNavn <<"\t * * * * * * * * * * * * * * * * * * * * * * * * * \n";
-	
+
 	//Finner seg selv i pAllKappaAurons
 	#if 0
 	for( std::list<i_auron*>::iterator iter = pAllAurons.begin() ; iter != pAllAurons.end() ; iter++ )
@@ -124,10 +125,13 @@ i_auron::~i_auron()
 	pAllAurons.remove(this);
 	#endif
 
+	// (( Skriver eit punkt til depol-logg for å få rett lengde på plottet. ))
 	// Rett slutt på utskriftsfil-logg:
 	// no er data slik: [time, synWeight ] i synapse-logg
 	depol_logFile 	// Lager en prikk som er på Kappa, for K_auron:  <<time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"];\n"
+				 	//<<time_class::getTid() <<"\t" <<XXX Funker ikkje i i_auron: getDepol() <<"; \t #Last point from destructor\n" 
 					<<"];\n\n"
+					<<"axis([0, " <<time_class::getTid() <<", 0, " <<FYRINGSTERSKEL*1.3 <<"]);\n"
 					<<"plot( data([1:end],1), data([1:end],2), \".;Depolarization;\");\n"
 
 					<<"title \"Depolarization for auron " <<sNavn <<"\"\n"
@@ -148,18 +152,28 @@ s_auron::s_auron(std::string sNavn_Arg /*="unnamed"*/, int nStartDepol /*=0*/) :
 	// Osv.
 	
 	// Legger til auron* i std::list<i_auron*> pAllAurons;
-	pAllAurons.push_back( this );
+	i_auron::pAllAurons.push_back( this );
+
+	// Sørger for ei initiell fyring: (bl.a. for å lage like plott for KN og SN)
+	//time_class::addTaskIn_pWorkTaskQue( this );
 
 	//pOutputAxon og pInputDendrite
 	pOutputAxon = new s_axon(this);
  	pInputDendrite = new s_dendrite(this);
 
 } //}3 	
-s_auron::~s_auron()
+s_auron::~s_auron() // Blir ikkje kjørt automagisk i slutten av programmet. Da går i_auron::~i_auron();
 { //{3
+	// OBS OBS XXX SJÅ i_auron::~i_auron XXX Ikkje her..
+	// Denne destructoren kalles ikkje automatisk. Dersom auronet ikkje blir destruert underveis, destrueres auron som eit i_auron på slutten av programmet.
+	// Da vil ikkje denne koden kjøre..
+
 	//Vil bare kalles dersom eit s_auron slettes før avslutting. Ved destruering av alle i_auron::pAllAurons kalles bare ~i_auron.
-	cout<<"\n\nDESTRUCTOR: s_auron::~s_auron() : \t\t" <<sNavn <<"\t * * * * * * * * * * * * * * * * * * * * * * * * * \n";
+	cout<<"DESTRUCTOR:\ts_auron::~s_auron()\n";
 	
+	//Skriver eit punkt til depol-logg for å få rett lengde på plottet:
+	 //depol_logFile 	<<time_class::getTid() <<"\t" <<0 <<"; \t #Last point from destructor\n" ;
+	 //depol_logFile.flush();
 
 	//i_auron tar seg av dette.. (?) test! XXX
 	delete pOutputAxon;
@@ -202,9 +216,10 @@ K_auron::K_auron(std::string sNavn_Arg /*="unnamed"*/, double dStartKappa_arg /*
  	pInputDendrite = new K_dendrite(this); //	Skal ligge i s_auron og k_auron
 
 	// Dersom start-kappa er over fyringsterskel (dette er bare for initiell debugging)
-	// Alt taes hand om i changeKappa()
+	// Alt taes hand om i changeKappa_derivedArg()
 	// (legger til kappa, og legger element inn i pCalculatationTaskQue, slik at .doCalculation() blir kjørt etter iter).
-	changeKappa( dStartKappa_arg );
+	changeKappa_derivedArg( dStartKappa_arg );
+	//doCalculation();
 
 
 
@@ -246,24 +261,9 @@ K_auron::~K_auron()
 	// Tar seg bort fra pAllKappaAurons og pAllAurons: LISTEvariant:
 	//pAllKappaAurons.remove(this);
 
-	//Finner seg selv i pAllKappaAurons (vector-variant):
-	#if 0
-	//{ vector--variant
-	for( std::vector<K_auron*>::iterator iter = pAllKappaAurons.begin() ; iter != pAllKappaAurons.end() ; iter++ )
-	{
-		if( (*iter) == this )
-		{
-			//cout<<"sletter " <<(*iter)->sNavn <<"\n";
-			pAllKappaAurons.erase(iter);
-			break; // Farlig farlig! Før eg satt inn break fekk eg segfault. Yess! Fordi da blir iterator ugyldig!
-		}
-	} //}
-	#else
-		//{  list--variant  (TOM FOLD)
-		//} 
-		// pAllAurons - element fjærnes i i_auron. Fjærner pAllKappaAurons-element i K_auron::~K_auron() :
-		pAllKappaAurons.remove(this);
-	#endif
+	// pAllAurons - element fjærnes i i_auron. Fjærner pAllKappaAurons-element i K_auron::~K_auron() :
+	pAllKappaAurons.remove(this);
+	
 
 
 
@@ -278,6 +278,7 @@ K_auron::~K_auron()
 	// Rett slutt på utskriftsfil-logg:
 	// no er data slik: [time, synWeight ] i synapse-logg
 	kappa_logFile<<time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"];\n"
+					<<"axis([0," <<time_class::getTid() <<"])\n"
 					<<"plot( data([1:end],1), data([1:end],2), \".;Kappa;\");\n"
 
 					<<"title \"Activity variable for K-auron " <<sNavn <<"\"\n"
@@ -296,6 +297,7 @@ K_sensor_auron::K_sensor_auron( std::string sNavn_Arg , double (*pFunk_arg)(void
 	pSensorFunction = pFunk_arg;
 	// Add to pAllSensorAurons list:
 	pAllSensorAurons.push_back(this);
+	pAllAurons.push_back( this ); 		// evt. i_auron::pAllAurons her og bare pAllAurons på neste linje.
 
 // TODO XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX 
 // ER ikkje heilt sikker på om neste linja skal være her..
@@ -687,26 +689,51 @@ K_dendrite::~K_dendrite()
 //{1  * KANN
 inline void K_dendrite::newInputSignal( double dNewSignal_arg )
 { //{2
-	//pElementAvAuron->dAktivitetsVariabel += dNewSignal_arg; SKJER I changeKappa(a)
-	pElementAvAuron->changeKappa( dNewSignal_arg );
+	// TODO Endre til å være at arg er verdien, og fikser derivering her.
+
+	//pElementAvAuron->dAktivitetsVariabel += dNewSignal_arg; SKJER I changeKappa_derivedArg(a)
+	// TODO FINN UT kva kappa skal endres med. ALPHA*dNewSignal_arg eller bare dNewSignal_arg
+	pElementAvAuron->changeKappa_derivedArg( dNewSignal_arg );
 } //}2
 
-inline void K_auron::changeKappa( double dInputDerived_arg)//int derivedInput_arg )
+inline void K_auron::changeKappa_derivedArg( double dInputDerived_arg)//int derivedInput_arg )
 {
 	/************************
 	* Legg arg til i Kappa  *
 	************************/
 
 	// Legges til Kappa no, og effektene av endringa kalkuleres i .doCalculation().
-	dChangeInKappa_this_iter += dInputDerived_arg;
+	dChangeInKappa_this_iter +=  dInputDerived_arg ;
 
 	// Legger den i pCalculatationTaskQue, slik at effekt av all endring i kappa ila. tidsiterasjonen beregnes etter iterasjonen.
 	time_class::addCalculationIn_pCalculatationTaskQue( this );
+	// Eller om delay blir stort, kanskje:
+	// doCalculation();
 
 	//bEndraKappaDennePerioden = true;
 
 	writeKappaToLog();
 
+	// XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX 
+	#if DEBUG_UTSKRIFTS_NIVAA > 3
+	cout<<sNavn <<"\t:\tTid:\t" <<time_class::getTid() <<" ,\tKappa :\t" <<dAktivitetsVariabel <<endl;
+	#endif
+
+}
+inline void K_auron::changeKappa_absArg(double dNewKappa)
+{
+	// Kanskje ikkje naudsynt, siden vi ikkje legger til element i pCalculatationTaskQue..
+	//dChangeInKappa_this_iter = 0; // Hindrer .doCalculation() å endre kappa ytterligare.
+	dAktivitetsVariabel = dNewKappa;
+
+	// Foreløpig definerer eg eit sensorauron som en rein sensor (Tar ikkje imot input fra andre auron):
+	// I dette tilfellet fjærner eg en potensiell feilkilde:
+	dChangeInKappa_this_iter = 0;
+
+	// Legger den i pCalculatationTaskQue, slik at effekt av all endring i kappa ila. tidsiterasjonen beregnes etter iterasjonen.
+	time_class::addCalculationIn_pCalculatationTaskQue( this );
+	
+	writeKappaToLog();
 }
 //}1
 
@@ -724,7 +751,9 @@ inline void s_dendrite::newInputSignal( double dNewSignal_arg )
 	// beregner lekkasje av depol siden sist:
 	calculateLeakage();
 
-	pElementAvAuron->dAktivitetsVariabel += dNewSignal_arg;
+	// Bli heilt sikker på ALPHA: XXX XXX XXX ALPHA XXX XXX xxx XXX
+	pElementAvAuron->dAktivitetsVariabel += ALPHA  *  dNewSignal_arg;
+
 	#if DEBUG_UTSKRIFTS_NIVAA > 2
 	cout<<"s_dendrite::newInputSignal( " <<dNewSignal_arg <<" ); gir depol. :  " <<pElementAvAuron->dAktivitetsVariabel <<"\n";
 	#endif
@@ -739,8 +768,9 @@ inline void s_dendrite::newInputSignal( double dNewSignal_arg )
 		bBlockInput_refractionTime = true;
 
 		//Ekstra time-delay:
-		time_class::addTaskIn_pWorkTaskQue( this );
-		//doTask();
+		//time_class::addTaskIn_pWorkTaskQue( this );
+		time_class::addTaskIn_pWorkTaskQue( pElementAvAuron );
+		// Blir kalla fra this->doTask() addTaskIn_pWorkTaskQue( pElementAvAuron );
 		
 		// for ekstra time delay. Evt kan vi kjøre auron som neste ledd:
 		// Legger til neste ledd i signal-path (soma == auron).
@@ -813,8 +843,16 @@ inline void i_axon::doTask()
 inline void s_auron::doTask()
 { //{ ** AURON
 
+	//Avblokkerer bBlockInput_refractionTime: Kanskje dette skal være her? (1ms refraction time..)
+	//pInputDendrite ->bBlockInput_refractionTime = false;
+
+
+
+
 	#if DEBUG_UTSKRIFTS_NIVAA > 0
-	cout<<"\t" <<sNavn <<".doTask()\tFYRER Action Potential for neuron " <<sNavn <<".\t\t| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | \ttid: " <<time_class::getTid() <<"\n";
+	cout<<"\tS S " <<sNavn <<" | S | " <<sNavn <<" | S | S | S | | " <<sNavn <<" | S | | " <<sNavn <<" | S | | " <<sNavn <<"| S | S | S | S |\t"
+		<<sNavn <<".doTask()\tFYRER neuron " <<sNavn <<".\t\t| S S | \t  | S |  \t  | S |\t\tS | " <<time_class::getTid() <<" |\n"
+		<<endl;
 	#endif
 
 	//Axon hillock: send aksjonspotensial 	-- innkapsling gir at a xon skal ta hånd om all output. // bestiller at a xon skal fyre NESTE tidsiterasjon. Simulerer tidsdelay i a xonet.
@@ -874,9 +912,9 @@ inline void s_synapse::doTask()
 	// Dendrite lagrer tidspunk for overføring.
 	// Istedenfor sender inn pos. eller neg. signal avhengig av bInhibitorisk_effekt: [ 1-2*bInhibitorisk_effekt ]  Gir enten +1 dersom bInhibitorisk_effekt er false (=0) eller -1 om bInhibitorisk_effekt er true (=1).
 	if( bInhibitorisk_effekt ){
- 		pPostNodeDendrite->newInputSignal(  -dSynapticWeight );
+ 		pPostNodeDendrite->newInputSignal(  /*-ALPHA* */dSynapticWeight );
 	}else{
-		pPostNodeDendrite->newInputSignal(   dSynapticWeight );
+		pPostNodeDendrite->newInputSignal(   /*ALPHA* */ dSynapticWeight );
 	}
 //( dendrite legges til i arbeidskø dersom den kommer over fyringsterskel.) --Dette er feilaktig, men meir effektivt.
 		
@@ -907,7 +945,7 @@ inline void s_dendrite::doTask()
 
 inline void K_auron::doTask()
 { //{ ** AURON
-	
+
 	//{ Kommentert ut
 	// Feilsjekk! Sjekker om kappa har vore over Tau, siste 'time window'
 	#if 0
@@ -930,12 +968,15 @@ inline void K_auron::doTask()
 
 
 	//Utskrift til skjerm:
-	#if DEBUG_UTSKRIFTS_NIVAA > 0
-	cout<<"\t| | " <<sNavn <<" | | | " <<sNavn <<" | | | | | | | | " <<sNavn <<" | | | | " <<sNavn <<" | | | | " <<sNavn <<"| | | | | | | | |\t"
-		<<sNavn <<".doTask()\tFYRER neuron " <<sNavn <<".\t\t| | | |  [periode] = " <<dLastCalculatedPeriod/1000 <<"     | | |  tid: " <<time_class::getTid() <<"\n"
-		
+	#if 1// DEBUG_UTSKRIFTS_NIVAA > 0
+
+
+
+	cout<<"\tK K " <<sNavn <<" | K | " <<sNavn <<" | K | K | K | | " <<sNavn <<" | K | | " <<sNavn <<" | K | | " <<sNavn <<"| K | K | K | K |\t"
+		<<sNavn <<".doTask()\tFYRER neuron " <<sNavn <<".\t\t| K | |  [periode] = " <<dLastCalculatedPeriod/1000 <<"     | K | \tK | " <<time_class::getTid() <<" |\n"
 		<<"\t| | Kappa:" <<dAktivitetsVariabel <<"\tForrige periode:" <<dLastCalculatedPeriod <<"\tDepol før fyring:" <<dDepolAtStartOfTimeWindow <<"\n"
 		<<endl;
+
 	#endif
 
 	//Axon hillock: send aksjonspotensial 	-- innkapsling gir at a xon skal ta hånd om all output. // bestiller at a xon skal fyre NESTE tidsiterasjon. Simulerer tidsdelay i a xonet.
@@ -945,9 +986,6 @@ inline void K_auron::doTask()
 	// Setter v_0 til 0 og t_0 til [no]:
 	dDepolAtStartOfTimeWindow = 0;
 	ulStartOfTimewindow = time_class::getTid();
-
-	// Oppdaterer ulEstimatedTaskTime_for_object til [no] + dLastCalculatedPeriod:
-	ulEstimatedTaskTime_for_object = time_class::getTid() + (unsigned long)dLastCalculatedPeriod;
 
 		// Har testa litt, og det er definitivt best å kjøre neste tre linjene, iforhold til å kjøre doCalculation()!
 		//(doCalculation() varianten slutta aldri på 40K tidssteg, neste-tre-linje varianten slutta etter 30 sekund på 1000K tidsiterasjoner..
@@ -959,9 +997,9 @@ inline void K_auron::doTask()
 	#if 0
 	//{
 		// Beregn ny isi-periode^{-1}. Brukes til å beregne syn.overføring seinare i signal-cascade.
-		dLastCalculatedPeriod = (- log((dAktivitetsVariabel - FYRINGSTERSKEL) / dAktivitetsVariabel) / ALPHA);
+		dL astCalculatedPeriod = (- log((dAktivitetsVariabel - FYRINGSTERSKEL) / dAktivitetsVariabel) / ALPHA);
 		
-		double dPeriodInverse_temp =  (1/dLastCalculatedPeriod);
+		double dPeriodInverse_temp =  (1/d LastCalculatedPeriod);
  		dChangeInPeriodINVERSE = dPeriodInverse_temp - dPeriodINVERSE ;
 		dPeriodINVERSE = dPeriodInverse_temp;
 	//}
@@ -969,6 +1007,10 @@ inline void K_auron::doTask()
 		//Kjør heller det over enn .doCalculations() ... Der er jo en del meir jobb.. (Krever sattans mykje meir arbeid!)
 		doCalculation();
 	#endif
+
+
+	// Oppdaterer ulEstimatedTaskTime_for_object til [no] + dLastCalculatedPeriod:
+	ulEstimatedTaskTime_for_object = time_class::getTid() + (unsigned long)dLastCalculatedPeriod;
 
 	// Logger AP (vertikal strek)
 	writeAPtoLog();
@@ -981,17 +1023,28 @@ inline void K_axon::doTask()
  	cout<<"K_axon::doTask()\tLegger inn alle outputsynapser i arbeidskø. Mdl. av auron: " <<pElementAvAuron->sNavn <<" - - - - - - - - - - - - - - - \n";
 	#endif
 
+	// Refraction time: Setter depol til 0 igjen (dette er 
+	pElementAvAuron->dDepolAtStartOfTimeWindow = 0;
+	pElementAvAuron->ulStartOfTimewindow = time_class::getTid() +1;
+
+	// Overføring:
+	doTransmission();
+
+	// Gjøres i s_auron. Skal eg også gjøre det her (for å poengtere refraction time)?
+	//pElementAvAuron->writeDepolToLog();
+
+} //}
+
+// Delte opp for å kunne skille mellom å propagere kappa, og å fyre AP, for å kunne ha refraction period.
+inline void K_axon::doTransmission()
+{
 	// Legg til alle utsynapser i pWorkTaskQue:
 		//			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
  	for( std::list<K_synapse*>::iterator iter = pUtSynapser.begin(); iter != pUtSynapser.end(); iter++ )
 	{ // Legger alle pUtSynapser inn i time_class::pWorkTaskQue: (FIFO-kø)
 		time_class::addTaskIn_pWorkTaskQue( *iter );
 	}
-
-	
-	// Gjøres i s_auron. Skal eg også gjøre det her (for å poengtere refraction time)?
-	//pElementAvAuron->writeDepolToLog();
-} //}
+}
 
 inline void K_synapse::doTask()
 { //{ ** SYNAPSE
@@ -1042,6 +1095,12 @@ void time_class::doTask()
 	ulTidsiterasjoner++;
 
 	// utskrift:
+	#if DOT_ENTER_UTSKRIFT_AV_TID
+	cout<<".";
+	if(ulTidsiterasjoner % DOT_ENTER_UTSKRIFT_AV_TID == 0)
+		cout<<endl;
+	#endif
+
 	#if UTSKRIFT_AV_TID
 	if(ulTidsiterasjoner % UTSKRIFT_AV_TID_KVAR_Nte_ITER  == 0)		
 		cout<<"\t* * * * TID: \t  =  " <<ulTidsiterasjoner <<" * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * = "
@@ -1120,7 +1179,7 @@ void K_auron::doCalculation()
 	* Legg dChangeInKappa_this_iter til dAktivitetsVariabel  *
 	*********************************************************/
 	
-	// doCalculation() blir kalla etter enten changeKappa() eller doTask(). Begge desse skriver dDepolAtStartOfTimeWindow (så trenger ikkje gjøre dette her).
+	// doCalculation() blir kalla etter enten changeKappa_derivedArg() eller doTask(). Begge desse skriver dDepolAtStartOfTimeWindow (så trenger ikkje gjøre dette her).
 
 	// Viktig å kalkulere depol med GAMMEL Kappa! Ellers får vi hopp i depol!
 	// Veldig viktig å hugse å kalkulere dDepolAtStartOfTimeWindow på slutten av forrige time window! (og lagre tidspunkt)
@@ -1130,21 +1189,6 @@ void K_auron::doCalculation()
 	// Oppdaterer Kappa
 	dAktivitetsVariabel += dChangeInKappa_this_iter;
 	dChangeInKappa_this_iter = 0;
-
-	// TODO TODO TODO TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO 
-	// KJører synaptisk overføring kvar gang Kappa endre. Dette er ikkje optimalt. Men det vil nok bli rett. Mens eg utvikler Kappa-mekanismer..
-	// Dersom eg vil ha fin plot for transmission_synapse, bør denne flyttes inn i if-setninga under (eller fjærnes). Da forsvinner 0-overføringene...
-	if( dAktivitetsVariabel > FYRINGSTERSKEL)
-	{
-		time_class::addTaskIn_pWorkTaskQue( pOutputAxon );	
-		bAuronHarPropagertAtDenErInaktiv = false;
-	}else 
-			if( !bAuronHarPropagertAtDenErInaktiv )
-	{
-		time_class::addTaskIn_pWorkTaskQue( pOutputAxon );	
-	 	bAuronHarPropagertAtDenErInaktiv = true;
-	}
-	//XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX 
 
 	//**********************************************
 	//*  Beregn estimert fyringstid:   *
@@ -1157,7 +1201,10 @@ void K_auron::doCalculation()
 		static double dPeriodInverse_static_local = 0;
 	
 		// Berenger dPeriodINVERSE og dChangeInPeriodINVERSE:
-		dLastCalculatedPeriod  = ( log( dAktivitetsVariabel / (dAktivitetsVariabel - FYRINGSTERSKEL) ) / ALPHA) 									+1 		; // +1 for å gi delay til dendrite (GJØRE TIL +2?)XXX
+	// XXX Ikkje nødvendig, trur eg. Test bedre! (Kommentert ut neste linje, men ikkje testa det så godt) :
+	// Blir vel gjordt i changeKappa_derivedArg()  			- testa med å kommentere ut og sjekke plott. Så bra ut. TODO test bedre
+	// Joo, har ikkje funnet det nokon annan plass.. Hmm..
+		dLastCalculatedPeriod  = (( log( dAktivitetsVariabel / (dAktivitetsVariabel - FYRINGSTERSKEL) ) / ALPHA) +0.5) 									+1 		; // +1 for å gi delay til dendrite (GJØRE TIL +2?)XXX
 		dPeriodInverse_static_local = 1/dLastCalculatedPeriod;
 		dChangeInPeriodINVERSE = dPeriodInverse_static_local - dPeriodINVERSE; //  		Her var det kjørt med uPeriod_temp. Endra til dPeriod_temp. UTESTA
 		dPeriodINVERSE = dPeriodInverse_static_local;
@@ -1172,11 +1219,36 @@ void K_auron::doCalculation()
 
 
 		// 	For K_auron trenger vi ikkje legge til elementet i [liste som skal sjekkes]. pAllKappaAurons sjekkes alltid..
-		ulEstimatedTaskTime_for_object = ( time_class::getTid() + log( (dAktivitetsVariabel-dDepolAtStartOfTimeWindow)/(dAktivitetsVariabel-FYRINGSTERSKEL) )   /  ALPHA )  		+1 ; //+1 for å få delay i dendrite. 
+		ulEstimatedTaskTime_for_object =( ( time_class::getTid() + log( (dAktivitetsVariabel-dDepolAtStartOfTimeWindow)/(dAktivitetsVariabel-FYRINGSTERSKEL) )   /  ALPHA )+0.5)  		+2 ; //+1 for å få delay i dendrite. 
 																													// TODO TODO TODO før på +2 istadenfor +1 for å også få delay i axon. XXX XXX TODO TODO TODO
+		/*
+		* 	Her er eit problem:
+		* 		Refraction time: Dersom vi bare legger til en, så vil oppladning starte umiddelbart. Når kappa blir endra, så vil oppladninga (som starter for tidlig) være det einaste som er viktig. Dette skaper problemer.
+		* 		XXX XXX XXX
+		*/
+
+	
+	
+	
+		/* Propagerer resultatet:
+		time_class::addTaskIn_pWorkTaskQue( pOutputAxon ); 
+	 	 Er visst i neste section:
+		 */
+
+		// TODO TODO TODO TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO 
+		// KJører synaptisk overføring kvar gang Kappa endres. Dette er ikkje optimalt. Men det vil nok bli rett. Mens eg utvikler Kappa-mekanismer..
+		// Dersom eg vil ha fin plot for transmission_synapse, bør denne flyttes inn i if-setninga under (eller fjærnes). Da forsvinner 0-overføringene...
+		
+		// Bestiller doTask() for å propagere endring i aktivitetsnivå:
+		//time_class::addTaskIn_pWorkTaskQue( pOutputAxon );	
+		// Propagerer heller ved å kalle K_axon::doTransmission() direkte. Dette gjør at vi ikkje får time-delay, men whatdefuck. Har for lite tid no..
+		pOutputAxon->doTransmission();
+		bAuronHarPropagertAtDenErInaktiv = false;
+		//XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX 
 
 
 	}else{
+		// setter planlagt task time til no, slik at den aldri vil fyre pga. ulEstimatedTaskTime_for_object. (når den sjekker nest gang, så vil [no] være i fortida..)
 		ulEstimatedTaskTime_for_object = time_class::getTid();
 		
 		// Setter dLastCalculatedPeriod, dChangeInPeriodINVERSE, dPeriodINVERSE.
@@ -1184,73 +1256,101 @@ void K_auron::doCalculation()
 		dChangeInPeriodINVERSE = -dPeriodINVERSE; 
 		dPeriodINVERSE = 0;
 		
-		#if DEBUG_UTSKRIFTS_NIVAA > 3
+		#if DEBUG_UTSKRIFTS_NIVAA > 4
 			cout<<"Kappa er mindre enn Tau. Setter ulEstimatedTaskTime_for_object = [no] (vil ikkje ha noko å sei for fyringa).\n";
 			cerr<<"Setter [dPeriodINVERSE, dPeriodInverse_static_local, dChangeInPeriodINVERSE, dLastCalculatedPeriod] til [ "
 			 	<<dPeriodINVERSE <<","
 				<<dChangeInPeriodINVERSE <<", "
 				<<dLastCalculatedPeriod <<" ]\n ";
 		#endif
+		
+		if( !bAuronHarPropagertAtDenErInaktiv )
+		{
+			// Propagerer resultatet:
+			time_class::addTaskIn_pWorkTaskQue( pOutputAxon ); 
+	 		
+			bAuronHarPropagertAtDenErInaktiv = true;
+		}
 	}
+
+
+
+
+	// Propagerer resultatet:
+	// flytta inn i if-testen:  time_class::addTaskIn_pWorkTaskQue( pOutputAxon ); 
+
 
 	// Skriver til log for depol:
 	writeDepolToLog();
 } //}
 
+	
+	
+	
+// Kvar enkelt K_sensor_auron har en funksjonspeiker som peiker på dens sense-funksjon. Denne skal være av type [ double F(void ].
+// 	K_sensor_auron har en static funksjon som beregner ny kappa for alle senseauron, kalla fra time_class:: doTask()
+
 /**************************************************************
 ****** 			K_sensor_auron - senseFunksjoner        *******
 **************************************************************/
-//{1
-	// Kvar enkelt K_sensor_auron har en funksjonspeiker som peiker på dens sense-funksjon. Denne skal være av type [ double F(void ].
-	// 	K_sensor_auron har en static funksjon som beregner ny kappa for alle senseauron, kalla fra time_class:: doTask()
 inline void K_sensor_auron::updateAllSensorAurons()
-{
+{ //{
 
 	// Itererer gjennom lista pAllSensorAurons, og kaller updateSensorValue() for de.
 	for( std::list<K_sensor_auron*>::iterator sensorIter = pAllSensorAurons.begin() 	; 	sensorIter != pAllSensorAurons.end() ; sensorIter++)
 	{
 		(*sensorIter)->updateSensorValue();
 	}
-}
+} //}1
 
 inline void K_sensor_auron::updateSensorValue()
-{
+{ //{
 	#if DEBUG_UTSKRIFTS_NIVAA > 2
 	DEBUG("K_sensor_auron::updateSensorValue()");
 	#endif
 
 	// To variabler for å finne deriverte. Denne skal bestemme ny kappa..
 	dLastSensedValue = dSensedValue;
-	dSensedValue = (*pSensorFunction)();
+	dSensedValue = /* XXX ALPHA*  */ (*pSensorFunction)(); //TODO Finn ut om denne er gange ALPHA.
 
-	changeKappa( dSensedValue-dLastSensedValue );
+	// Er ikkje heilt sikker på kven eg vil bruke:  		De virker heilt ekvivalente. Akkurat no prøver eg med abs-arg for å fjærne en mulig feil. TODO Ta tilbake før rapport!
+	if( dSensedValue != dLastSensedValue){
+		changeKappa_absArg( dSensedValue );
+		//changeKappa_derivedArg( dSensedValue-dLastSensedValue );
+	}
+
+	// Veit ikkje om den er naudsynt (legger til i calculation kø, inne i changeKappa()
+	// Dette er litt teit, men ikkje veldig siden sensor ikkje endres fleire ganger per iter :   Å kalle neste direkte:
+	//doCalculation();
 	
 	#if DEBUG_UTSKRIFTS_NIVAA > 3
 	cout<<"Kappa for K_sensor_auron: " <<dAktivitetsVariabel <<"\n\n";
 	#endif
-}
+} //}
 	
-//}1
 
 /**************************************************************
 ****** 			s_sensor_auron - senseFunksjoner        *******
 **************************************************************/
-//{1
 inline void s_sensor_auron::updateAllSensorAurons()
-{
+{ //{
 
 	// Itererer gjennom lista pAllSensorAurons, og kaller updateSensorValue() for de.
 	for( std::list<s_sensor_auron*>::iterator sensorIter = pAllSensorAurons.begin() 	; 	sensorIter != pAllSensorAurons.end() ; sensorIter++)
 	{
 		(*sensorIter)->updateSensorValue();
 	}
-}
+} //}
 
 inline void s_sensor_auron::updateSensorValue()
-{
-	pInputDendrite->newInputSignal( (*pSensorFunction)() * ALPHA );
-}
-//}1
+{ //{
+	static double sdLastValue = 0;
+	static double sdValue = 0;
+	sdLastValue = sdValue;
+	sdValue = (*pSensorFunction)();
+	pInputDendrite->newInputSignal( (/* TRUR EG SKAL HA :  1000 *   */sdValue ));
+
+} //}
 
 
 /******************************
@@ -1326,11 +1426,14 @@ inline double K_auron::recalculateKappa()
 inline double K_sensor_auron::recalculateKappa()
 {
 	// TODO No er dette bare en sensor (Har ikkje muligheten for å få input fra andre neuron. Dette kan eg kanskje implementere om eg har tid..)
+	/*
 	static double dOldActivityVariable;
 	dOldActivityVariable = dAktivitetsVariabel;
 	updateSensorValue();
 	// Er dette rett :
 	return dAktivitetsVariabel-dOldActivityVariable;
+	*/ // Gjør det lett: (sensorauron har ikkje muligheten til å få input (enda))
+	return 0;
 }
 
 inline double K_dendrite::recalculateKappa()

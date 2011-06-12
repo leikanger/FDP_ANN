@@ -104,10 +104,6 @@ class s_axon : public i_axon{
 	//axon(const i_auron* p_iAuronArg);
 	~s_axon();
 
-	//SLETT:
-	virtual void SLETTtypeId(){ cout<<"Dette er i_axon\n"; }
-	void slettTESTFUNK(){ cout<<"s_axon::slettTESTFUNK()\n"; } 									// TODO SLETT TODO
-
 
 
 
@@ -127,6 +123,10 @@ class K_axon : public i_axon{
 	K_auron* pElementAvAuron;
 	std::list<K_synapse*> pUtSynapser;
 
+	
+	protected:
+	void doTransmission();
+
 	public:
 	K_axon(K_auron*);
 	~K_axon();
@@ -136,6 +136,7 @@ class K_axon : public i_axon{
 
 	//Skal vekk:
 	friend class K_synapse;
+	friend class K_auron;
 };
 #endif
 // vim:fdm=marker:fmr=//{,//}
