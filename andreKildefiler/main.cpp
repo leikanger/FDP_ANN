@@ -261,22 +261,30 @@ int main(int argc, char *argv[])
 	//}
   	#endif
 
-	s_sensor_auron* sSensor  = new s_sensor_auron( "sSensor", &statiskSensorFunk);
-	K_sensor_auron* kSensor  = new K_sensor_auron( "kSensor", &statiskSensorFunk);
-	#if 0 	// SANN: Tester s_sensor_auron
+	#if 0 //SANN
+		s_sensor_auron* sSensor  = new s_sensor_auron( "sSensor", &statiskSensorFunk);
+	#endif
+	#if 0 //KANN
+		K_sensor_auron* kSensor  = new K_sensor_auron( "kSensor", &statiskSensorFunk);
+	#endif
 
-	s_sensor_auron* sSensor  = new s_sensor_auron( "sSensor", &sensorFunk3a);
+	#if 1 	// SANN: Tester s_sensor_auron
+
+	s_sensor_auron* sSensor  = new s_sensor_auron( "sSensor", &sensorFunk2);
 	s_auron* s1 = new s_auron("s1");
 	new s_synapse(sSensor, s1, 50);
 
 	s_auron* sUT = new s_auron("sUT");
 
-	K_sensor_auron* KSensor  = new K_sensor_auron( "kSensor", &sensorFunk3a);
+	K_sensor_auron* KSensor  = new K_sensor_auron( "kSensor", &sensorFunk2);
 	K_auron* k1 = new K_auron("k1");
 	new K_synapse(KSensor, k1, 50);
 
 	K_auron* kUT = new K_auron("kUT");
 	#endif
+
+
+
 
 	#if 0 	// 	KANN-Test
  	//{ KANN: TEST-oppsett.
@@ -285,7 +293,7 @@ int main(int argc, char *argv[])
 
 	//K_auron* kA = new K_auron("kA", 2.07*FYRINGSTERSKEL);
 
-#if 0 //{
+#if 0 //{ -- endif
 	for(int i=0; i<100; i++){
 		std::ostringstream tempString;
 		tempString<<"K" <<i;
@@ -294,8 +302,6 @@ int main(int argc, char *argv[])
 	} 
 #endif //}
 
-	// neuroElement_testFunk() ER FARLIG! Når denne er med, blir v konst lik 0
-	// NEI. Problemet er selvfølgelig at neuronet ikkje har input => kappa blir rekalkulert til null! FETT!
 	//neuroElement_testFunk( kA );
 #if 1
 

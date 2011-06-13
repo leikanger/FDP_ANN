@@ -291,7 +291,7 @@ class K_auron : public i_auron
 		usleep(70000);
 		#endif
 
-		#if 1 // Har testa [litt] og sett at dette skjer typisk når noden er estimert å fyre neste iter. Ta vekk test for å optimalisere.
+		#if 0 // Har testa [litt] og sett at dette skjer typisk når noden er estimert å fyre neste iter. Ta vekk test for å optimalisere.
 		//{
 		if(dDepol_temp > FYRINGSTERSKEL){
 			cout<<"depol over fyringsterskel.\tEstimert fyretid/[notid] :" <<ulEstimatedTaskTime_for_object <<"/" <<time_class::getTid() <<endl;

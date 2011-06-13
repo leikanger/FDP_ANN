@@ -53,7 +53,7 @@ class i_synapse : public timeInterface{
 	virtual void doCalculation() {}
 	
 	protected:
-	const bool bInhibitorisk_effekt;
+	const bool bInhibitoryEffect;
 	double dSynapticWeight;
 	double dSynapticWeightChange;
 

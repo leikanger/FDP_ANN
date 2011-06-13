@@ -54,10 +54,10 @@
 #define RECALC_c4 0.5
 
 #define UTSKRIFT_AV_TID 1
-#define UTSKRIFT_AV_TID_KVAR_Nte_ITER 1000
+#define UTSKRIFT_AV_TID_KVAR_Nte_ITER 100
 
-#define DEBUG_UTSKRIFTS_NIVAA 2
-#define DOT_ENTER_UTSKRIFT_AV_TID 10 // Betyr enter kvar n'te iter. (der n er tall som blir def.). Definer til 0 eller false for å slå av.
+#define DEBUG_UTSKRIFTS_NIVAA 1
+#define DOT_ENTER_UTSKRIFT_AV_TID 0 // Betyr enter kvar n'te iter. (der n er tall som blir def.). Definer til 0 eller false for å slå av.
 
 #define ALPHA (double)0.004000000
 #define LEKKASJEFAKTOR_FOR_DEPOL (double)(1-ALPHA)
@@ -65,7 +65,7 @@
 
 #define FYRINGSTERSKEL 1000.00000
 
-#define OCTAVE_SLEEP_ETTER_PLOTTA 0
+#define OCTAVE_SLEEP_ETTER_PLOTTA 3
 
 #define DEBUG_EXIT(tekst) cerr<<"\n\nDEBUG_EXIT :\t" <<tekst <<"\nexit(99);\n\n"; exit(99);
 //#define DEBUG(tekst) cerr<<"DEBUG :\t" <<tekst <<"\n";

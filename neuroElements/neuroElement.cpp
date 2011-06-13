@@ -108,22 +108,8 @@ i_auron::~i_auron()
 { //{3
 	cout<<"\tDESTRUCTOR: \ti_auron::~i_auron() : \t" <<sNavn <<"\t * * * * * * * * * * * * * * * * * * * * * * * * * \n";
 
-	//Finner seg selv i pAllKappaAurons
-	#if 0
-	for( std::list<i_auron*>::iterator iter = pAllAurons.begin() ; iter != pAllAurons.end() ; iter++ )
-	{
-		static int i=0; cout<<"Her: " <<i++ <<endl;
-		if( (*iter) == this )
-		{
-			//cout<<"sletter " <<(*iter)->sNavn <<"\n";
-			pAllAurons.erase(iter);
-			break; // Farlig farlig. Før eg satt inn break fekk eg segfault. 	Yess! Eg har det! : Fordi da blir iterator ugyldig!
-		}
-	}
-	#else
 	//fjærner seg fra pAllAurons   Listevariant:
 	pAllAurons.remove(this);
-	#endif
 
 	// (( Skriver eit punkt til depol-logg for å få rett lengde på plottet. ))
 	// Rett slutt på utskriftsfil-logg:
@@ -337,8 +323,8 @@ s_sensor_auron::s_sensor_auron( std::string sNavn_Arg , double (*pFunk_arg)(void
 
 //{1 * SYNAPSE
 //{2 i_synapse
-//i_synapse::i_synapse(i_axon* pPresynAxon_arg, i_dendrite* pPostsynDendrite_arg, unsigned uSynVekt_Arg, bool bInhibEffekt_Arg, std::string sKlasseNavn /*="synapse"*/ ) : timeInterface(sKlasseNavn), bInhibitorisk_effekt(bInhibEffekt_Arg)
-i_synapse::i_synapse(double dSynVekt_Arg, bool bInhibEffekt_Arg, std::string sKlasseNavn /*="synapse"*/ ) : timeInterface(sKlasseNavn), bInhibitorisk_effekt(bInhibEffekt_Arg)
+//i_synapse::i_synapse(i_axon* pPresynAxon_arg, i_dendrite* pPostsynDendrite_arg, unsigned uSynVekt_Arg, bool bInhibEffekt_Arg, std::string sKlasseNavn /*="synapse"*/ ) : timeInterface(sKlasseNavn), bInhibitoryEffect(bInhibEffekt_Arg)
+i_synapse::i_synapse(double dSynVekt_Arg, bool bInhibEffekt_Arg, std::string sKlasseNavn /*="synapse"*/ ) : timeInterface(sKlasseNavn), bInhibitoryEffect(bInhibEffekt_Arg)
 { //{3
 	dSynapticWeight = dSynVekt_Arg;
 	dSynapticWeightChange = 0;
@@ -377,7 +363,7 @@ s_synapse::s_synapse(K_auron* pPresynAuron_arg, s_auron* pPostsynAuron_arg, doub
 	//{4 Utskrift til logg. LOGG-initiering
 	std::ostringstream tempFilAdr;
 	tempFilAdr<<"./datafiles_for_evaluation/log_s_synapse_" <<pPresynAuron_arg->sNavn <<"-"  <<pPostsynAuron_arg->sNavn ;
-	if(bInhibitorisk_effekt){ tempFilAdr<<"_inhi"; }
+	if(bInhibitoryEffect){ tempFilAdr<<"_inhi"; }
 	else{ 			  tempFilAdr<<"_eksi"; }
 	tempFilAdr<<".oct";
 
@@ -419,7 +405,7 @@ s_synapse::s_synapse(s_auron* pPresynAuron_arg, s_auron* pPostsynAuron_arg, doub
 	//{4 Utskrift til logg. LOGG-initiering
 	std::ostringstream tempFilAdr;
 	tempFilAdr<<"./datafiles_for_evaluation/log_s_synapse_" <<pPresynAuron_arg->sNavn <<"-"  <<pPostsynAuron_arg->sNavn ;
-	if(bInhibitorisk_effekt){ tempFilAdr<<"_inhi"; }
+	if(bInhibitoryEffect){ tempFilAdr<<"_inhi"; }
 	else{ 			  tempFilAdr<<"_eksi"; }
 	tempFilAdr<<".oct";
 
@@ -512,7 +498,7 @@ K_synapse::K_synapse(K_auron* pPresynAuron_arg, K_auron* pPostsynAuron_arg, doub
 	// Utskrift til logg. LOGG-initiering 
 	std::ostringstream tempFilAdr;
 	tempFilAdr<<"./datafiles_for_evaluation/log_transmission_K_synapse_" <<pPresynAuron_arg->sNavn <<"-"  <<pPostsynAuron_arg->sNavn ;
-	if(bInhibitorisk_effekt){ tempFilAdr<<"_inhi"; }
+	if(bInhibitoryEffect){ tempFilAdr<<"_inhi"; }
 	else{ 			  tempFilAdr<<"_eksi"; }
 	tempFilAdr<<".oct";
 
@@ -694,6 +680,7 @@ inline void K_dendrite::newInputSignal( double dNewSignal_arg )
 	//pElementAvAuron->dAktivitetsVariabel += dNewSignal_arg; SKJER I changeKappa_derivedArg(a)
 	// TODO FINN UT kva kappa skal endres med. ALPHA*dNewSignal_arg eller bare dNewSignal_arg
 	pElementAvAuron->changeKappa_derivedArg( dNewSignal_arg );
+
 } //}2
 
 inline void K_auron::changeKappa_derivedArg( double dInputDerived_arg)//int derivedInput_arg )
@@ -755,7 +742,7 @@ inline void s_dendrite::newInputSignal( double dNewSignal_arg )
 	pElementAvAuron->dAktivitetsVariabel += ALPHA  *  dNewSignal_arg;
 
 	#if DEBUG_UTSKRIFTS_NIVAA > 2
-	cout<<"s_dendrite::newInputSignal( " <<dNewSignal_arg <<" ); gir depol. :  " <<pElementAvAuron->dAktivitetsVariabel <<"\n";
+	cout<<time_class::getTid() <<"\ts_dendrite::newInputSignal( " <<dNewSignal_arg <<" ); \t\tgir depol. :  " <<pElementAvAuron->dAktivitetsVariabel <<"\n";
 	#endif
 	
 	pElementAvAuron->ulTimestampForrigeInput = time_class::getTid();
@@ -910,8 +897,11 @@ inline void s_synapse::doTask()
 
 	// Dersom synapsen har inhibitorisk effekt: send inhibitorisk signal (subtraksjon). Ellers: eksiter postsyn. auron.
 	// Dendrite lagrer tidspunk for overføring.
-	// Istedenfor sender inn pos. eller neg. signal avhengig av bInhibitorisk_effekt: [ 1-2*bInhibitorisk_effekt ]  Gir enten +1 dersom bInhibitorisk_effekt er false (=0) eller -1 om bInhibitorisk_effekt er true (=1).
-	if( bInhibitorisk_effekt ){
+	// Istedenfor sender inn pos. eller neg. signal avhengig av bInhibitoryEffect: [ 1-2*bInhibitoryEffect ]  Gir enten +1 dersom bInhibitoryEffect er false (=0) eller -1 om bInhibitoryEffect er true (=1).
+
+	// TODO TODO TODO TODO Før dette legges inn i rapporten: Endre neste if-setning til
+	// (1- 2*bInhibitoryEffect) dSynapticWeight 
+	if( bInhibitoryEffect ){
  		pPostNodeDendrite->newInputSignal(  /*-ALPHA* */dSynapticWeight );
 	}else{
 		pPostNodeDendrite->newInputSignal(   /*ALPHA* */ dSynapticWeight );
@@ -925,7 +915,7 @@ inline void s_synapse::doTask()
 
 
 	// Loggfører syn.weight
-	synTransmission_logFile 	<<"\t" <<time_class::getTid() <<"\t" <<(1-2*bInhibitorisk_effekt) * dSynapticWeight
+	synTransmission_logFile 	<<"\t" <<time_class::getTid() <<"\t" <<(1-2*bInhibitoryEffect) * dSynapticWeight
 						<<" ;   \t#Synpaptic weight\n" ;
 	synTransmission_logFile.flush();
 
@@ -951,7 +941,6 @@ inline void K_auron::doTask()
 	#if 0
 	if( !bKappaLargerThanThreshold_lastIter )
 	{
-		// VeittaFAEN kvifor!
 		#if DEBUG_UTSKRIFTS_NIVAA > 1
 		cout<<"ERROR \t ERROR \t ERROR \t ERROR \t Fyring mens K<T forrige time window: bKappaLargerThanThreshold_lastIter: false" <<endl;
 		#endif
@@ -968,7 +957,7 @@ inline void K_auron::doTask()
 
 
 	//Utskrift til skjerm:
-	#if 1// DEBUG_UTSKRIFTS_NIVAA > 0
+	#if DEBUG_UTSKRIFTS_NIVAA > 0
 
 
 
@@ -1024,8 +1013,10 @@ inline void K_axon::doTask()
 	#endif
 
 	// Refraction time: Setter depol til 0 igjen (dette er 
-	pElementAvAuron->dDepolAtStartOfTimeWindow = 0;
-	pElementAvAuron->ulStartOfTimewindow = time_class::getTid() +1;
+	// FUNKER IKKJE: (blir bare problemer med jævvla høge verdier (type folde-shit (eller ka-det-ne-neiter) )
+	//Ok, no funker det men har ingen effekt. (fjærna +1 på ulStartOfTimewindow=tid +1;
+	//pElementAvAuron->dDepolAtStartOfTimeWindow = 0;
+	//pElementAvAuron->ulStartOfTimewindow = time_class::getTid() ;
 
 	// Overføring:
 	doTransmission();
@@ -1051,21 +1042,21 @@ inline void K_synapse::doTask()
 	// K_ij = w_ij / p(K_j) Differansen Delta K_ij blir sendt som argument til pPostNodeDendrite->newInputSignal( argument );
 	// 	denne er gitt som Delta K_ij = dt * w_ij / Delta p(K_j)
 
-	// Istedenfor sender inn pos. eller neg. signal avhengig av bInhibitorisk_effekt: [ 1-2*bInhibitorisk_effekt ]  Gir enten +1 dersom bInhibitorisk_effekt er false (=0) eller -1 om bInhibitorisk_effekt er true (=1).
-	pPostNodeDendrite->newInputSignal( (1-2*bInhibitorisk_effekt) * dSynapticWeight * (pPreNodeAxon->pElementAvAuron)->dChangeInPeriodINVERSE );
+	// Istedenfor sender inn pos. eller neg. signal avhengig av bInhibitoryEffect: [ 1-2*bInhibitoryEffect ]  Gir enten +1 dersom bInhibitoryEffect er false (=0) eller -1 om bInhibitoryEffect er true (=1).
+	pPostNodeDendrite->newInputSignal( (1-2*bInhibitoryEffect) * dSynapticWeight * (pPreNodeAxon->pElementAvAuron)->dChangeInPeriodINVERSE );
 
 	
 	double dPresynDeltaPeriodeINVERSE_temp =  (pPreNodeAxon->pElementAvAuron)->dChangeInPeriodINVERSE;
 	#if DEBUG_UTSKRIFTS_NIVAA > 2
  	cout<<"K_synapse::doTask()\tdSynapticWeight: " <<dSynapticWeight 
 		<<", preNode->dChangeInPeriodINVERSE: " <<dPresynDeltaPeriodeINVERSE_temp <<"\tOverføring: "
-		<<(1-2*bInhibitorisk_effekt) * dSynapticWeight * dPresynDeltaPeriodeINVERSE_temp
+		<<(1-2*bInhibitoryEffect) * dSynapticWeight * dPresynDeltaPeriodeINVERSE_temp
 		<<endl;
 	#endif
 
 	synTransmission_logFile
 		<<time_class::getTid() <<"  \t"
-		<<(1-2*bInhibitorisk_effekt) * dSynapticWeight * dPresynDeltaPeriodeINVERSE_temp
+		<<(1-2*bInhibitoryEffect) * dSynapticWeight * dPresynDeltaPeriodeINVERSE_temp
 		<<" ; \n";
 	synTransmission_logFile.flush();
 } //}
@@ -1460,7 +1451,7 @@ const double K_synapse::getDerivedTransmission()
 }
 const double K_synapse::getTotalTransmission()
 {
-	return (1-2*bInhibitorisk_effekt)*((pPreNodeAxon->pElementAvAuron)->dPeriodINVERSE)*dSynapticWeight;
+	return (1-2*bInhibitoryEffect)*((pPreNodeAxon->pElementAvAuron)->dPeriodINVERSE)*dSynapticWeight;
 }
 
 inline void K_synapse::skrivUt()
