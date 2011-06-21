@@ -46,7 +46,7 @@ class s_auron;
 **
 *****************************************************************/
 class i_dendrite : public timeInterface{
-	i_auron* pElementAvAuron;
+	i_auron* pElementOfAuron;
 	std::list<i_synapse*> pInnSynapser;
 
  	virtual inline void doTask() =0;
@@ -84,9 +84,9 @@ class s_dendrite : public i_dendrite{
 	inline void doTask();
 	inline void feedbackToDendrite();
 
-	// Overlagrer i_dendrite::pElementAvAuron og i_dendrite::pInnSynapser, slik at desse blir modellspesifikke.
-	// 	Ligger også i i_dendrite, slik at i_dendrite* også kan kalle pElementAvAuron og pInnSynapser.
-	s_auron* pElementAvAuron;
+	// Overlagrer i_dendrite::pElementOfAuron og i_dendrite::pInnSynapser, slik at desse blir modellspesifikke.
+	// 	Ligger også i i_dendrite, slik at i_dendrite* også kan kalle pElementOfAuron og pInnSynapser.
+	s_auron* pElementOfAuron;
 	std::list<s_synapse*> pInnSynapser;
 
 	inline void newInputSignal( double /*nNewSignal*/ );
@@ -96,7 +96,7 @@ class s_dendrite : public i_dendrite{
 
 	public:
 	//Constructor: 	
-	s_dendrite( s_auron* pPostSynAuron_Arg ); // : pElementAvAuron(pPostSynAuron_Arg)  		Definisjon i neuroElement.cpp
+	s_dendrite( s_auron* pPostSynAuron_Arg ); // : pElementOfAuron(pPostSynAuron_Arg)  		Definisjon i neuroElement.cpp
 	~s_dendrite();
 
 
@@ -126,15 +126,16 @@ class s_dendrite : public i_dendrite{
 	friend std::ostream & operator<< (std::ostream & ut, s_axon* );
 
 	friend int main(int, char**); //TODO SLETT
+	friend void timeClassTestFunk_som_kjoeres_kvar_tidsIter();
 };
 
 class K_dendrite : public i_dendrite{
  	inline void doTask();
 	inline void feedbackToDendrite();
 
-	// Overlagrer i_dendrite::pElementAvAuron og i_dendrite::pInnSynapser, slik at desse blir modellspesifikke.
-	// 	Ligger også i i_dendrite, slik at i_dendrite* også kan kalle pElementAvAuron og pInnSynapser.
-	K_auron* pElementAvAuron;
+	// Overlagrer i_dendrite::pElementOfAuron og i_dendrite::pInnSynapser, slik at desse blir modellspesifikke.
+	// 	Ligger også i i_dendrite, slik at i_dendrite* også kan kalle pElementOfAuron og pInnSynapser.
+	K_auron* pElementOfAuron;
 	std::list<K_synapse*> pInnSynapser;
 	
 	// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 

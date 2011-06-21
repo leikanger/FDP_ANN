@@ -25,6 +25,11 @@
 //}
 
 
+#if 0 // NOTAT
+	Er det ikkje litt trøblete å heile tida flytte KN rund omkring i pEstimatedTaskTime. Dette vil jo skje kvar iterasjon! (bør isåfall gjøres på slutten)
+	Dette er nok hovedgrunnen til at det var best å bare sjekke en medlemsvariabel, kvar iter. (ulEstimatedTaskTime_for_object, arva fra time_class.)
+#endif
+
 #if 0
 Haha! Fett. Ny måte å kommentere ut ting på! Thank you, K.
 #endif
@@ -96,6 +101,10 @@ unsigned long ulAntallTidsiterasjonerTESTING_SLETT;
 //	static int nTidsgrenseForSimulering = DEFAULT_ANTALL_TIDSITERASJONER;
 //	return nTidsgrenseForSimulering;
 //}
+
+
+void timeClassTestFunk_som_kjoeres_kvar_tidsIter();
+
 
 
 //extern unsigned long u lTidsiterasjoner; // ligg i main.h
@@ -178,7 +187,7 @@ int main(int argc, char *argv[])
 
 	// Testoppsett:
 	
- 	#if 0  	// SANN: test-oppsett.
+ 	#if 0  	// SANN: test-oppsett. (plottet som er med i rapporten for SANN depol-graf)
  	//{ SANN: TEST-oppsett. Lager mange neuron..
 	s_auron* A1 = new s_auron("A1");
 	s_auron* A2 = new s_auron("A2");
@@ -194,49 +203,50 @@ int main(int argc, char *argv[])
 	s_auron* F = new s_auron("F");
 
 	cout<<"new s_synapse(A,B);\n";
-	new s_synapse(A1, A2, 1111);
-	new s_synapse(A8, A2, 111);
-	
-	new s_synapse(A4, A2, 111);
-	new s_synapse(A6, A2, 111);
+	/*
+	new s_synapse(A1, A2, 1111*ALPHA);
+	new s_synapse(A2, A3, 1111*ALPHA);
+	new s_synapse(A3, A4, 1111*ALPHA);
+	new s_synapse(A4, A5, 1111*ALPHA);
+	new s_synapse(A5, A6, 1111*ALPHA);
+	new s_synapse(A6, A7, 1111*ALPHA);
+	new s_synapse(A7, A8, 1111*ALPHA);
+	new s_synapse(A8, A9, 1111*ALPHA);
+	new s_synapse(A9, A1, 1111*ALPHA);
+	*/
 
-	new s_synapse(A2, A3, 1111);
-	new s_synapse(A1, A3, 111);
-	new s_synapse(A4, A3, 211);
-	new s_synapse(A9, A3, 111);
-	new s_synapse(A8, A3, 111);
+	new s_synapse(A1, A2, 1.1);
+	new s_synapse(A2, A3, 1.1);
+	new s_synapse(A3, A4, 1.1);
+	new s_synapse(A4, A5, 1.1);
+	new s_synapse(A5, A6, 1.1);
+	new s_synapse(A6, A7, 1.1);
+	new s_synapse(A7, A8, 1.1);
+	new s_synapse(A8, A9, 1.1);
+	new s_synapse(A9, A1, 1.1);
 
-	new s_synapse(A3, A4, 1111);
-	new s_synapse(A4, A5, 1111);
-	new s_synapse(A5, A6, 1111);
-	new s_synapse(A6, A7, 1111);
-	new s_synapse(A7, A8, 1111);
-	new s_synapse(A8, A9, 1111);
-	new s_synapse(A9, A1, 1111);
-	new s_synapse(A4, A1, 311);
-
-	new s_synapse(A1, E, 15);
-	new s_synapse(A2, E, 20);
-	new s_synapse(A3, E, 15);
-	new s_synapse(A4, E, 20);
-	new s_synapse(A5, E, 15);
-	new s_synapse(A6, E, 20);
+	new s_synapse(A1, E, 0.017);//15*ALPHA);
+	new s_synapse(A2, E, 0.017);//20*ALPHA);
+	new s_synapse(A3, E, 0.017);//15*ALPHA);
+	new s_synapse(A4, E, 0.017);//20*ALPHA);
+	new s_synapse(A5, E, 0.017);//15*ALPHA);
+	new s_synapse(A6, E, 0.017);//20*ALPHA);
 	//new s_synapse(A7, E, 13);
-	new s_synapse(A8, E, 20);
-	new s_synapse(A9, E, 25);
+	new s_synapse(A8, E, 0.017);//20*ALPHA);
+	new s_synapse(A9, E, 0.017);//25*ALPHA);
 	//new s_synapse(A1, E, 16);
 	
-	new s_synapse(A1, F, 251);
-	new s_synapse(A2, F, 131);
-	new s_synapse(A3, F, 221);
-	new s_synapse(A3, F, 201);
-	new s_synapse(A3, F, 121);
-	new s_synapse(A5, F, 161);
-	new s_synapse(A6, F, 231);
-	new s_synapse(A8, F, 251);
-	new s_synapse(A9, F, 191);
-	new s_synapse(A1, F, 51);
-	new s_synapse(E, F, 200);
+	new s_synapse(A1, F, 251*ALPHA);
+	new s_synapse(A2, F, 131*ALPHA);
+	new s_synapse(A3, F, 221*ALPHA);
+	new s_synapse(A3, F, 201*ALPHA);
+	new s_synapse(A3, F, 121*ALPHA);
+	new s_synapse(A5, F, 161*ALPHA);
+	new s_synapse(A6, F, 231*ALPHA);
+	new s_synapse(A8, F, 251*ALPHA);
+	new s_synapse(A9, F, 191*ALPHA);
+	new s_synapse(A1, F, 51*ALPHA);
+	new s_synapse(E, F, 200*ALPHA);
 
 	//Setter i gang ANN
 	A1->doTask();
@@ -261,6 +271,7 @@ int main(int argc, char *argv[])
 	//}
   	#endif
 
+
 	#if 0 //SANN
 		s_sensor_auron* sSensor  = new s_sensor_auron( "sSensor", &statiskSensorFunk);
 	#endif
@@ -268,17 +279,17 @@ int main(int argc, char *argv[])
 		K_sensor_auron* kSensor  = new K_sensor_auron( "kSensor", &statiskSensorFunk);
 	#endif
 
-	#if 1 	// SANN: Tester s_sensor_auron
-
-	s_sensor_auron* sSensor  = new s_sensor_auron( "sSensor", &sensorFunk2);
+	#if 0 	// SANN: Tester s_sensor_auron
+//Sensor-auron testing av KN vs SN.
+	s_sensor_auron* sSensor  = new s_sensor_auron( "sSensor", &statiskSensorFunk);
 	s_auron* s1 = new s_auron("s1");
-	new s_synapse(sSensor, s1, 50);
+	new s_synapse(sSensor, s1, 50 );
 
 	s_auron* sUT = new s_auron("sUT");
 
-	K_sensor_auron* KSensor  = new K_sensor_auron( "kSensor", &sensorFunk2);
+	K_sensor_auron* KSensor  = new K_sensor_auron( "kSensor", &statiskSensorFunk);
 	K_auron* k1 = new K_auron("k1");
-	new K_synapse(KSensor, k1, 50);
+	new K_synapse(KSensor, k1, 50 ); 
 
 	K_auron* kUT = new K_auron("kUT");
 	#endif
@@ -286,7 +297,7 @@ int main(int argc, char *argv[])
 
 
 
-	#if 0 	// 	KANN-Test
+	#if 1 	// 	KANN-Test
  	//{ KANN: TEST-oppsett.
 
 	cout<<"\n\nLAGER KANN\n\n";
@@ -373,8 +384,6 @@ int main(int argc, char *argv[])
 	#endif
 
 
-
-	cout<<"lengde på arbeidkø (i tillegg til [time_class] ): " <<time_class::pWorkTaskQue.size()-1 <<endl;
 
 
 	cout<<"******************************************\n*** BEGYNNER KJØRING AV ANN: ***\n******************************************\n\n";
@@ -492,10 +501,28 @@ void* taskSchedulerFunction(void* )
 	/* * * * * * * * Begynner vanlig kjøring av auroNett * * * * * * * * */
 	cout<<"\n\n\t\t\t\t\tKjører void* taskSchedulerFunction(void*);\n";
 
+#if 0
+ 	s_auron* psS1 = new s_auron("s1",400);
+	s_auron* psS2 = new s_auron("s2",400);
+#endif
 
 	while( time_class::ulTidsiterasjoner <= ulAntallTidsiterasjonerTESTING_SLETT) // XXX Skal bli "uendelig" løkke etterkvart:
 	//while(/*En eller anna avsluttings-bool =*/true)
 	{
+#if 0
+			if( time_class::getTid()==10 )
+			{
+				psS2->getCalculateDepol(); 	psS2->writeDepolToLog();
+				psS1->getCalculateDepol(); 	psS1->writeDepolToLog();
+			}
+			if( time_class::getTid()>10){
+				psS1->getCalculateDepol(); 	psS1->writeDepolToLog();
+			}
+			if( (time_class::getTid() % 100) == 0 )
+			{
+				psS2->getCalculateDepol(); 	psS2->writeDepolToLog();
+			}
+#endif
 			/*FEILSJEKK (kan takast vekk)*/
 			#if 0
 			if(time_class::pWorkTaskQue.empty()){ 
@@ -555,12 +582,12 @@ std::ostream & operator<< (std::ostream & ut, i_auron* pAuronArg )
 // TODO TODO 
 std::ostream & operator<< (std::ostream & ut, s_axon* pAxonArg ) //XXX Skal gjøres til i_axon* istaden for s_axon* som argument! XXX
 { //{
-	ut<<"Utsynapser fra axon tilhørende neuron " <<(pAxonArg->pElementAvAuron)->sNavn <<endl; 
+	ut<<"Utsynapser fra axon tilhørende neuron " <<(pAxonArg->pElementOfAuron)->sNavn <<endl; 
 
 	// Utsynapser:
 		//			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
 	for( std::list<s_synapse*>::iterator iter = pAxonArg->pUtSynapser.begin(); iter != pAxonArg->pUtSynapser.end(); iter++ ){
-	 	ut 	<<"\t\t\t|\t" <<(pAxonArg->pElementAvAuron)->sNavn <<" -> "    <<(*iter)->pPostNodeDendrite->pElementAvAuron->sNavn <<"\t\t|\n";
+	 	ut 	<<"\t\t\t|\t" <<(pAxonArg->pElementOfAuron)->sNavn <<" -> "    <<(*iter)->pPostNodeDendrite->pElementOfAuron->sNavn <<"\t\t|\n";
 	}
 
 

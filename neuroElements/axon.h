@@ -50,7 +50,7 @@ class i_axon : public timeInterface{
 	virtual void doCalculation() {}
 	
 	// Desse overlagres i de modell-speisfikke elementa (s_axon og K_axon), for å gi mulighet til å kalle modellspesifikke funksjoner og variabler for s_axon/K_axon.
-	i_auron* pElementAvAuron; 		 // Flytta til i_axon
+	i_auron* pElementOfAuron; 		 // Flytta til i_axon
 	std::list<i_synapse*> pUtSynapser; // Flytta til i_axon
 
 	//SLETT:
@@ -90,17 +90,17 @@ class s_axon : public i_axon{
 	inline void doTask();
 
 	// Desse overlagres i de modell-speisfikke elementa (s_axon og K_axon), for å gi mulighet til å kalle modellspesifikke funksjoner og variabler for s_axon/K_axon.
-	s_auron* pElementAvAuron;
+	s_auron* pElementOfAuron;
 	std::list<s_synapse*> pUtSynapser;
 
 	public:
 	/**************************************************
 	****     axon::axon()  - constructor           ****
-	****        -pElementAvAuron(pAuronArg)        ****
+	****        -pElementOfAuron(pAuronArg)        ****
 	****        -timeInterface("axon")              ****
 	****                                           ****
 	**************************************************/
-	s_axon(s_auron* pAuronArg);// : timeInterface("axon"), pElementAvAuron(pAuronArg) 		//XXX Bare mens eg utvikler i_auron. Kan fjærne etterkvart..
+	s_axon(s_auron* pAuronArg);// : timeInterface("axon"), pElementOfAuron(pAuronArg) 		//XXX Bare mens eg utvikler i_auron. Kan fjærne etterkvart..
 	//axon(const i_auron* p_iAuronArg);
 	~s_axon();
 
@@ -120,7 +120,7 @@ class K_axon : public i_axon{
 	inline void doTask();
 
 	// Desse overlagres i de modell-speisfikke elementa (s_axon og K_axon), for å gi mulighet til å kalle modellspesifikke funksjoner og variabler for s_axon/K_axon.
-	K_auron* pElementAvAuron;
+	K_auron* pElementOfAuron;
 	std::list<K_synapse*> pUtSynapser;
 
 	

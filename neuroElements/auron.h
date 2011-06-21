@@ -98,7 +98,7 @@ class i_auron : public timeInterface
 	// 	   Effekten av dette blir at alle funksjoner og variabler fra i_axon kan kalles fra utsida (for i_axon--peikerar), mens også de modellspesifikke kan kalles fra andre modellspesifikke element (s_axon-funker kan kalles fra s_auron)!
 
 	//Deler av auronet: (Ligger som s_axon og s_dendrite i s_auron. Samme for K_auron..) TODO SKal ligge der også ?
-	i_axon* pOutputAxon; 			// Trenger å ha dei meir spesifikk for contruction av bl.a. synapse - s_synapse legger til pElementAvAuron->pInputDendrite (som må være av typen ?? XXX prøver igjen..
+	i_axon* pOutputAxon; 			// Trenger å ha dei meir spesifikk for contruction av bl.a. synapse - s_synapse legger til pElementOfAuron->pInputDendrite (som må være av typen ?? XXX prøver igjen..
  	i_dendrite* pInputDendrite; 
 
 	
@@ -107,7 +107,7 @@ class i_auron : public timeInterface
 	// Treng eg desse i i_auron? Bare for SANN? Vettafaen! XXX Kan kanskje ligge i s_auron.
 
 	// BARE FOR SANN: ... og for KANN trenger eg en b EndraKappaDennePerioden, som blir satt til false kvar fyring av auronet. XXX
-	unsigned long ulTimestampForrigeInput; 	 //Er begge naudsynt? sjå gjennom!
+	unsigned long ulTimestampLastInput; 	 //Er begge naudsynt? sjå gjennom!
 	// FOR BEGGE (SANN og KANN)
 	unsigned long ulTimestampForrigeFyring;  //Er begge naudsynt? sjø gjennom!
 
@@ -124,7 +124,7 @@ class i_auron : public timeInterface
 		// Lager en vertikal "strek" fra v=0 til v=Terskel*(110%)
 		for(float fTerkelProsent_temp = 0; fTerkelProsent_temp<1.2; fTerkelProsent_temp+=0.001)
 		{
-			depol_logFile 	<<time_class::getTid() <<"\t" <<fTerkelProsent_temp*FYRINGSTERSKEL <<"; \t #Depol\n" ;
+			depol_logFile 	<<time_class::getTid() <<"\t" <<fTerkelProsent_temp*FYRINGSTERSKEL <<"; \t #Action potential\n" ;
 		}
 	 	depol_logFile.flush();
 	}
@@ -200,9 +200,11 @@ class s_auron : public i_auron
 	~s_auron();
 
 
+	inline const double getCalculateDepol();
+
 	inline virtual const void writeDepolToLog()
 	{
-	 	depol_logFile 	<<time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"; \t #Depol\n" ;
+	 	depol_logFile 	<<(unsigned long)time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"; \t #Depol\n" ;
 	 	depol_logFile.flush();
 	}
 //{friend
@@ -213,6 +215,7 @@ class s_auron : public i_auron
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
 	friend int main(int, char**); //TODO SLETT
+	friend void timeClassTestFunk_som_kjoeres_kvar_tidsIter();
 //}
 
 }; //}
@@ -310,7 +313,7 @@ class K_auron : public i_auron
 	const inline void writeDepolToLog()
 	{
 		// Skriver dDepolAtStartOfTimeWindow til logg:
-		depol_logFile 	<<time_class::getTid() <<"\t" <<getCalculateDepol() <<"; \t #Depol\n" ;
+		depol_logFile 	<<(unsigned long)time_class::getTid() <<"\t" <<getCalculateDepol() <<"; \t #Depol\n" ;
 		depol_logFile.flush();
 	}
 	const inline void writeKappaToLog()
