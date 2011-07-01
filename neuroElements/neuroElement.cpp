@@ -30,6 +30,7 @@
 #include "../andreKildefiler/main.h"
 #include "../andreKildefiler/time.h"
 
+// XXX ulTimestampForrigeFyring brukes ikkje. Kan taes vekk.
 
 
 std::ostream & operator<< (std::ostream & ut, i_auron* pAuronArg );
@@ -1094,19 +1095,19 @@ void time_class::doTask()
 
 
 	//itererer time:
-	ulTidsiterasjoner++;
+	ulTime++;
 
 	// utskrift:
 	#if DOT_ENTER_UTSKRIFT_AV_TID
 	cout<<".";
-	if(ulTidsiterasjoner % DOT_ENTER_UTSKRIFT_AV_TID == 0)
+	if(ulTime % DOT_ENTER_UTSKRIFT_AV_TID == 0)
 		cout<<endl;
 	#endif
 
 	#if UTSKRIFT_AV_TID
-	if(ulTidsiterasjoner % UTSKRIFT_AV_TID_KVAR_Nte_ITER  == 0)		
-		cout<<"\t* * * * TID: \t  =  " <<ulTidsiterasjoner <<" * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * = "
-			<<ulTidsiterasjoner <<"\n";
+	if(ulTime % UTSKRIFT_AV_TID_KVAR_Nte_ITER  == 0)		
+		cout<<"\t* * * * TID: \t  =  " <<ulTime <<" * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * = "
+			<<ulTime <<"\n";
 	#endif
 
 
@@ -1130,7 +1131,7 @@ void time_class::doTask()
 	*************************************************/
 	for( std::list<timeInterface*>::iterator pPE_iter = pPeriodicElements.begin() ; pPE_iter != pPeriodicElements.end() ; pPE_iter++ )
 	{
-		if( (*pPE_iter)->ulEstimatedTaskTime_for_object == ulTidsiterasjoner+1 )
+		if( (*pPE_iter)->ulEstimatedTaskTime_for_object == ulTime+1 )
 		{
 			addTaskIn_pWorkTaskQue( (*pPE_iter) );
 			// Dette fører til eit kall til eit tidsElements doTask(). Teller antall kall (til rapporten):
@@ -1325,7 +1326,7 @@ inline void K_sensor_auron::updateSensorValue()
 
 	// Er ikkje heilt sikker på kven eg vil bruke:  		De virker heilt ekvivalente. Akkurat no prøver eg med abs-arg for å fjærne en mulig feil. TODO Ta tilbake før rapport!
 	if( dSensedValue != dLastSensedValue){
-		//changeKappa_absArg( dSensedValue ); XXX FARLIG! IKKJE BRUK
+		//changeKappa_absArg( dSensedValue ); XXX FARLIG! IKKJE BRUK changeKappa_absArg() !
 		changeKappa_derivedArg( dSensedValue-dLastSensedValue );
 	}
 
@@ -1352,13 +1353,15 @@ inline void s_sensor_auron::updateAllSensorAurons()
 	}
 } //}
 
+
+// TODO TODO TODO TODO TODO  	Trur sendng til dendrite blir feil.		TODO TODO TODO TODO TODO 
 inline void s_sensor_auron::updateSensorValue()
 { //{
 	static double sdLastValue = 0;
 	static double sdValue = 0;
 	sdLastValue = sdValue;
 	sdValue = (*pSensorFunction)();
-	pInputDendrite->newInputSignal( (  sdValue ));
+	pInputDendrite->newInputSignal( (  sdValue )); // TODO TODO OPPMERKSOMHET!    Dette er feil. Sender inn umiddelbart sensa signal, ikkje den deriverte. 
 
 } //}
 

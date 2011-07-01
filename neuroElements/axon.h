@@ -116,6 +116,13 @@ class s_axon : public i_axon{
 	friend int main(int, char**); //TODO SLETT
 };
 
+
+
+/*****************************
+**  TODO TODO 
+**  Har oppdaga at det ikkje er naudsynt med oppdeling av nodene, med mindre man vil ha mulighet for auka spatiell oppløsning. 
+**  Dersom denne koden skal brukes pragmatisk er det difor mulig å fjærne class K_axon (og føre alt over i K_auron). Dette gjelder også for K_dendrite..
+*****************************/
 class K_axon : public i_axon{
 	inline void doTask();
 

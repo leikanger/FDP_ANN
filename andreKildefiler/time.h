@@ -35,7 +35,7 @@ using std::cerr;
 using std::endl;
 
 // DEKLARASJONER:
-//extern unsigned long ulTidsiterasjoner;
+//extern unsigned long ulTime;
 void loggeFunk_K_auron();
 
 
@@ -51,7 +51,7 @@ class timeInterface
 {
 	public:
 	timeInterface(std::string s) : ulEstimatedTaskTime_for_object(0), sClassName(s){}
-	timeInterface() 				{} 				//For mens eg itererer i utviklinga.  Trur ikkje eg skal ha denne etterpå..
+	//timeInterface() 				{} 				//For mens eg itererer i utviklinga.  Trur ikkje eg skal ha denne etterpå..
 
 	virtual void doTask() =0;
 	virtual void doCalculation() =0;
@@ -77,7 +77,7 @@ class timeInterface
 ** 		 																		**
 *********************************************************************************/
 class time_class : public timeInterface {
-	static unsigned long ulTidsiterasjoner;
+	static unsigned long ulTime;
 	
 	// TODO Endre neste til std::que ? XXX Sjå stroustrup s.576
 	static std::list<timeInterface*> pWorkTaskQue;
@@ -92,6 +92,7 @@ class time_class : public timeInterface {
 	static unsigned long ulNumberOfCallsTo_doTask;
 
 	protected:
+	// TODO Gjør neste funksjoner static (da blir heile klassa statisk..)
 	void doTask();
 	void doCalculation()
 	{ //{
@@ -185,7 +186,7 @@ class time_class : public timeInterface {
 	{
 	 	pWorkTaskQue.push_back( pArg );
 	}
-	static const inline unsigned long getTid(){ return ulTidsiterasjoner; }
+	static const inline unsigned long getTid(){ return ulTime; }
 	
 	static const void skrivUt_pPeriodicElements()
 	{

@@ -34,6 +34,13 @@
 Haha! Fett. Ny måte å kommentere ut ting på! Thank you, K.
 #endif
 
+
+// Shit! DET er kult! Pga. designet av nodene er det mulig å gjøre programmet "natively distributed".
+// 	Dersom nye jobber blir broadcasta, og når tid itereres av time_class::doTask() broadcastes den oppdaterte tidsiterasjonen.
+// 	Siden alle veit om alle jobbene, kan alle begynne på en jobb. Når nokon gjennomfører en jobb, broadcastes dette, og alle som gjør samme jobben slutter med det. 
+// 		Verdiene blir også oppdatert for alle noder.
+// 	osv.. FETT! Nok eit mulig prosjekt som springer ut av arbeidet mitt. Nice!
+
 #if 1
 // Ikkje kommentert ut
 #endif
@@ -67,12 +74,12 @@ extern std::list<K_sensor_auron*> K_sensor_auron::pAllSensorAurons;
 extern std::list<s_sensor_auron*> s_sensor_auron::pAllSensorAurons;
 extern std::list<recalcKappaClass*> recalcKappaClass::pAllRecalcObj;
 
-extern unsigned long time_class::ulTidsiterasjoner;
+extern unsigned long time_class::ulTime;
 
 unsigned long comparisonClass::ulNumberOfCallsTo_doTask = 0;
 unsigned long comparisonClass::ulNumberOfCallsToKappa_doCalculations = 0;
 
-extern unsigned long ulAntallTidsiterasjonerTESTING_SLETT;
+extern unsigned long ulLengthOfSimulation;
 
 std::ostream & operator<<(std::ostream& ut, i_auron* pAuronArg );
 
@@ -87,7 +94,7 @@ void neuroElement_syn_testFunk(K_synapse* pK_syn_arg);
 
 // Foreløpig testvariabel: 		Global variabel som skal lese inn fra argv**. 	
 // XXX Gå over til funk-som-global-variabel!   Og referer til stroustrup i rapport.
-unsigned long ulAntallTidsiterasjonerTESTING_SLETT;
+unsigned long ulLengthOfSimulation;
 //{ Alternativt med referanse-returnerende funk. : 
 /**********************************************************************************
 *** 	int& nAntallTidsiterasjoner()
@@ -114,18 +121,6 @@ int main(int argc, char *argv[])
 	// Initierer arbeidskø (time_class::pWorkTaskQue)
 	initialiserArbeidsKoe();
 
-	// XXX Veit ikkje heilt med returverdien her. Trur det funka med ==256. Eg tenker det er bedre med !=0 (dersom den returnerer anna enn 0 bare ved feil?
-	// JEss: mkdir returnerer 0 ved successfull completion.
-	// Dersom ./datafiles_for_evaluation/ ikkje finnes, lages den. Dersm den finnes gjør ikkje kallet noke:
-	if( system("mkdir datafiles_for_evaluation") != 0 ){
-	// XXX Veit ikkje med rm. Finn ut kva returverdien er for denne. Satser (temporært) på at det er det samme:
-		cout<<"Could not make directory for log files [./datafiles_for_evaluation/]. Directory probably already exist."
-			<<"\n\tIn case this directory does not exist, please make this directory manually in the current directory.\n\n"; 
-	}
-	//Renser opp i ./datafiles_for_evaluation/
-	if( system("rm ./datafiles_for_evaluation/log_*.oct") != 0)
-		cout<<"Could not remove old log files. Please do this manually to avoid accidendtally plotting old results.\n";
-
 	//Leser inn argumenter: 
 	if(argc > 1 ) //{1 	  //	 (argc>1 betyr at det står meir enn bare programkall)
 	{
@@ -139,11 +134,11 @@ int main(int argc, char *argv[])
 			{
 				case 'i':
 					// Sjekker om antall iterasjoner er i samme argument (uten mellomrom):
-					if( 		(ulAntallTidsiterasjonerTESTING_SLETT = atoi( &argv[innArgumentPos][2])) ) 	cout<<"Simulation length set to " <<ulAntallTidsiterasjonerTESTING_SLETT <<" time steps\n";
+					if( 		(ulLengthOfSimulation = atoi( &argv[innArgumentPos][2])) ) 	cout<<"Simulation length set to " <<ulLengthOfSimulation <<" time steps\n";
 					// Ellers: sjekker om det er på neste argument (med mellomrom):
-					else if( 	(ulAntallTidsiterasjonerTESTING_SLETT = atoi( argv[innArgumentPos+1]) ) ){
+					else if( 	(ulLengthOfSimulation = atoi( argv[innArgumentPos+1]) ) ){
 						++innArgumentPos;
-						cout<<"Anntall tidsiterasjoner er satt til " <<ulAntallTidsiterasjonerTESTING_SLETT <<endl;
+						cout<<"Anntall tidsiterasjoner er satt til " <<ulLengthOfSimulation <<endl;
 					}else{
 						cout<<"Can not read argument. Please follow the conventions:" <<endl;
 						skrivUtArgumentKonvensjoner(argv[0]);
@@ -172,18 +167,31 @@ int main(int argc, char *argv[])
 			if( ( (nInnInt = atoi( argv[innArgumentPos]))>0) ) //Skal eg sette øvre grense også?
 			{
 				cout<<"Argument gives number of iterations to be: \t\t" <<nInnInt <<endl;
-				ulAntallTidsiterasjonerTESTING_SLETT=nInnInt;
+				ulLengthOfSimulation=nInnInt;
 			}else{
 				cout<<"Number of iterations must be a positive number.\nUse default: " <<DEFAULT_ANTALL_TIDSITERASJONER <<endl;
 			}
 		}
 	}else{ // for if(argc > 1)
 		cout<<"No arguments listed. Continue with default values:\tNumber of iterations: " <<DEFAULT_ANTALL_TIDSITERASJONER <<endl;
-		ulAntallTidsiterasjonerTESTING_SLETT = DEFAULT_ANTALL_TIDSITERASJONER;
+		ulLengthOfSimulation = DEFAULT_ANTALL_TIDSITERASJONER;
 
 		skrivUtArgumentKonvensjoner(argv[0]);
 	} //}1
 	
+
+	// XXX Veit ikkje heilt med returverdien her. Trur det funka med ==256. Eg tenker det er bedre med !=0 (dersom den returnerer anna enn 0 bare ved feil?
+	// JEss: mkdir returnerer 0 ved successfull completion.
+	// Dersom ./datafiles_for_evaluation/ ikkje finnes, lages den. Dersm den finnes gjør ikkje kallet noke:
+	if( system("mkdir datafiles_for_evaluation") != 0 ){
+	// XXX Veit ikkje med rm. Finn ut kva returverdien er for denne. Satser (temporært) på at det er det samme:
+		cout<<"Could not make directory for log files [./datafiles_for_evaluation/]. Directory probably already exist."
+			<<"\n\tIn case this directory does not exist, please make this directory manually in the current directory.\n\n"; 
+	}
+	//Renser opp i ./datafiles_for_evaluation/
+	if( system("rm ./datafiles_for_evaluation/log_*.oct") != 0)
+		cout<<"Could not remove old log files. Please do this manually to avoid accidendtally plotting old results.\n";
+
 
 	// Testoppsett:
 	
@@ -203,17 +211,6 @@ int main(int argc, char *argv[])
 	s_auron* F = new s_auron("F");
 
 	cout<<"new s_synapse(A,B);\n";
-	/*
-	new s_synapse(A1, A2, 1111*ALPHA);
-	new s_synapse(A2, A3, 1111*ALPHA);
-	new s_synapse(A3, A4, 1111*ALPHA);
-	new s_synapse(A4, A5, 1111*ALPHA);
-	new s_synapse(A5, A6, 1111*ALPHA);
-	new s_synapse(A6, A7, 1111*ALPHA);
-	new s_synapse(A7, A8, 1111*ALPHA);
-	new s_synapse(A8, A9, 1111*ALPHA);
-	new s_synapse(A9, A1, 1111*ALPHA);
-	*/
 
 	new s_synapse(A1, A2, 1.1);
 	new s_synapse(A2, A3, 1.1);
@@ -231,11 +228,10 @@ int main(int argc, char *argv[])
 	new s_synapse(A4, E, 0.017);//20*ALPHA);
 	new s_synapse(A5, E, 0.017);//15*ALPHA);
 	new s_synapse(A6, E, 0.017);//20*ALPHA);
-	//new s_synapse(A7, E, 13);
 	new s_synapse(A8, E, 0.017);//20*ALPHA);
 	new s_synapse(A9, E, 0.017);//25*ALPHA);
-	//new s_synapse(A1, E, 16);
 	
+#if 0
 	new s_synapse(A1, F, 251*ALPHA);
 	new s_synapse(A2, F, 131*ALPHA);
 	new s_synapse(A3, F, 221*ALPHA);
@@ -247,6 +243,7 @@ int main(int argc, char *argv[])
 	new s_synapse(A9, F, 191*ALPHA);
 	new s_synapse(A1, F, 51*ALPHA);
 	new s_synapse(E, F, 200*ALPHA);
+#endif
 
 	//Setter i gang ANN
 	A1->doTask();
@@ -295,9 +292,14 @@ int main(int argc, char *argv[])
 	#endif
 
 
+//	K_sensor_auron* Ks1 = new K_sensor_auron("K_sensor_auron", &sensorFunkEksempelFunk);
+	K_sensor_auron* Ks1 = new K_sensor_auron("K_sensor_auron", &sensorFunk1a);
+	K_auron* k1 = new K_auron("k1");
+	new K_synapse(Ks1, k1, true);
 
 
-	#if 1 	// 	KANN-Test
+
+	#if 0 	// 	KANN-Test
  	//{ KANN: TEST-oppsett.
 
 	cout<<"\n\nLAGER KANN\n\n";
@@ -479,8 +481,13 @@ void initialiserArbeidsKoe()
 *****************************************************************/
 void* taskSchedulerFunction(void* )
 { //{1
+	
+	/****************************
+	**  Initierer kjøring :    **
+	****************************/
+
 	// Itererer tid, slik at eg begynner på iter 1. Dette er viktig for å få rett initiering av K_auron som begynner med en konst kappa (gir K=(v_0-K)e^(-a*(1-0)) istedenfor K=..*e^0)
-	time_class::ulTidsiterasjoner ++;
+	time_class::ulTime ++;
 
 	// Rekalkulerer alle K_auron's Kappa:
 	#if 1 // Kjører først alle aurons .doTask(), for å initiere alle synaptiske overføringer:
@@ -506,48 +513,32 @@ void* taskSchedulerFunction(void* )
 	s_auron* psS2 = new s_auron("s2",400);
 #endif
 
-	while( time_class::ulTidsiterasjoner <= ulAntallTidsiterasjonerTESTING_SLETT) // XXX Skal bli "uendelig" løkke etterkvart:
+	while( time_class::ulTime <= ulLengthOfSimulation) // XXX Skal bli "uendelig" løkke etterkvart:
 	//while(/*En eller anna avsluttings-bool =*/true)
 	{
-#if 0
-			if( time_class::getTid()==10 )
-			{
-				psS2->getCalculateDepol(); 	psS2->writeDepolToLog();
-				psS1->getCalculateDepol(); 	psS1->writeDepolToLog();
-			}
-			if( time_class::getTid()>10){
-				psS1->getCalculateDepol(); 	psS1->writeDepolToLog();
-			}
-			if( (time_class::getTid() % 100) == 0 )
-			{
-				psS2->getCalculateDepol(); 	psS2->writeDepolToLog();
-			}
-#endif
-			/*FEILSJEKK (kan takast vekk)*/
-			#if 0
-			if(time_class::pWorkTaskQue.empty()){ 
-				cout<<"\n\n\nFEIL. time_class::pWorkTaskQue er tom. Skal aldri skje. \nFeilmelding: [taskSchedulerFunction::c01]\n\n\n"; 
-				exit(-1);
-			}
-			#endif
+		
+		/*FEILSJEKK (kan takast vekk)*/
+		#if 0
+		if(time_class::pWorkTaskQue.empty()){ 
+			cout<<"\n\n\nFEIL. time_class::pWorkTaskQue er tom. Skal aldri skje. \nFeilmelding: [taskSchedulerFunction::c01]\n\n\n"; 
+			exit(-1);
+		}
+		#endif
 
 
-
-			// Kortslutning, bare for å teste hypotese:
+		// Kortslutning, bare for å teste hypotese:
 			
 
 
+		// Setter igang utføring av neste jobb i lista:
+		time_class::pWorkTaskQue.front() ->doTask(); 		//Dette er i orden, siden pWorkTaskQue er av type list<timeInterface*> og alle arvinger av timeInterface har overlagra funksjonen doTask().
 
+		comparisonClass::ulNumberOfCallsTo_doTask ++;
 
-			// Setter igang utføring av neste jobb i lista:
-			time_class::pWorkTaskQue.front() ->doTask(); 		//Dette er i orden, siden pWorkTaskQue er av type list<timeInterface*> og alle arvinger av timeInterface har overlagra funksjonen doTask().
-
-			comparisonClass::ulNumberOfCallsTo_doTask ++;
-
-			// Tar vekk jobben fra pWorkTaskQue: FLYTTA INN I time_class::doTask()
-			time_class::pWorkTaskQue.pop_front();
+		// Tar vekk jobben fra pWorkTaskQue: FLYTTA INN I time_class::doTask()
+		time_class::pWorkTaskQue.pop_front();
 			
-			//Evt annet som skal gjøres kvart timessteg. Type sjekke etter andre events, legge til fleire synapser, etc.
+		//Evt annet som skal gjøres kvart timessteg. Type sjekke etter andre events, legge til fleire synapser, etc.
 	}
 
 	return 0;

@@ -109,8 +109,8 @@ class comparisonClass{
 /*
 	simulert, diskret TID
 */
-//unsigned long ulTidsiterasjoner; // ligg i main.h
-// flytta inn som static time_class::ulTidsiterasjoner;
+//unsigned long ulTime; // ligg i main.h
+// flytta inn som static time_class::ulTime;
 
 
 

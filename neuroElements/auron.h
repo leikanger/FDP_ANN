@@ -108,7 +108,7 @@ class i_auron : public timeInterface
 
 	// BARE FOR SANN: ... og for KANN trenger eg en b EndraKappaDennePerioden, som blir satt til false kvar fyring av auronet. XXX
 	unsigned long ulTimestampLastInput; 	 //Er begge naudsynt? sjå gjennom!
-	// FOR BEGGE (SANN og KANN)
+	// FOR BEGGE (SANN og KANN) XXX Er det virkelig for begge?
 	unsigned long ulTimestampForrigeFyring;  //Er begge naudsynt? sjø gjennom!
 
 
