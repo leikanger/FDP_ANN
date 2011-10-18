@@ -269,14 +269,8 @@ int main(int argc, char *argv[])
   	#endif
 
 
-	#if 0 //SANN
-		s_sensor_auron* sSensor  = new s_sensor_auron( "sSensor", &statiskSensorFunk);
-	#endif
-	#if 0 //KANN
-		K_sensor_auron* kSensor  = new K_sensor_auron( "kSensor", &statiskSensorFunk);
-	#endif
-
 	#if 0 	// SANN: Tester s_sensor_auron
+	//{
 //Sensor-auron testing av KN vs SN.
 	s_sensor_auron* sSensor  = new s_sensor_auron( "sSensor", &statiskSensorFunk);
 	s_auron* s1 = new s_auron("s1");
@@ -289,8 +283,8 @@ int main(int argc, char *argv[])
 	new K_synapse(KSensor, k1, 50 ); 
 
 	K_auron* kUT = new K_auron("kUT");
+	//}
 	#endif
-
 
 //	K_sensor_auron* Ks1 = new K_sensor_auron("K_sensor_auron", &sensorFunkEksempelFunk);
 	K_sensor_auron* Ks1 = new K_sensor_auron("K_sensor_auron", &sensorFunk1a);
@@ -589,13 +583,4 @@ std::ostream & operator<< (std::ostream & ut, s_axon* pAxonArg ) //XXX Skal gjø
 
 
 
-/*
-cout<<"TESTER NOKE:\n";
-#define OUTPUT(x) cout<<x
-OUTPUT("jess. OUTPUT(arg)\n");
-OUTPUT("Endrer OUTPUT() til å være tom:\n");
-#define OUTPUT2(x) 
-OUTPUT2("NOPE, OUTPUT2(arg)\n");
-OUTPUT("\nSkulle skrevet noke. Jess! Det gjorde det ikkje!\n");
-*/
 // vim:fdm=marker:fmr=//{,//}
