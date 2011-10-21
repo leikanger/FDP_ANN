@@ -23,22 +23,16 @@
  *                                                                         *
  ***************************************************************************/
 //}
-#include <sstream> //For skriving til fil: logg.
+#include <sstream>
 
 #include "synapse.h"
 #include "auron.h"
 #include "../andreKildefiler/main.h"
 #include "../andreKildefiler/time.h"
 
-// XXX ulTimestampForrigeFyring brukes ikkje. Kan taes vekk.
 
+std::ostream & operator<< (std::ostream& ut, i_auron* pAuronArg );
 
-std::ostream & operator<< (std::ostream & ut, i_auron* pAuronArg );
-//std::ostream & operator<< (std::ostream & ut, s_axon* pAxonArg );
-std::ostream & operator<<(std::ostream& ut, i_auron* pAuronArg );
-
-// Testfunk fra main.cpp
-void timeClassTestFunk_som_kjoeres_kvar_tidsIter();
 
 
 
@@ -972,8 +966,6 @@ inline void K_auron::doTask()
 	//Utskrift til skjerm:
 	#if DEBUG_UTSKRIFTS_NIVAA > 0
 
-
-
 	cout<<"\tK K " <<sNavn <<" | K | " <<sNavn <<" | K | K | K | | " <<sNavn <<" | K | | " <<sNavn <<" | K | | " <<sNavn <<"| K | K | K | K |\t"
 		<<sNavn <<".doTask()\tFYRER neuron " <<sNavn <<".\t\t| K | |  [periode] = " <<dLastCalculatedPeriod/1000 <<"     | K | \tK | " <<time_class::getTid() <<" |\n"
 		<<"\t| | Kappa:" <<dAktivitetsVariabel <<"\tForrige periode:" <<dLastCalculatedPeriod <<"\tDepol før fyring:" <<dDepolAtStartOfTimeWindow <<"\n"
@@ -992,7 +984,7 @@ inline void K_auron::doTask()
 		// Har testa litt, og det er definitivt best å kjøre neste tre linjene, iforhold til å kjøre doCalculation()!
 		//(doCalculation() varianten slutta aldri på 40K tidssteg, neste-tre-linje varianten slutta etter 30 sekund på 1000K tidsiterasjoner..
 		//
-		// Har testa det for nye varianten av tidsplanlegging (sjekke alle aurons ulEstimatedTaskTime_for_object)
+		// Har testa det for nye varianten av tidsplanlegging (sjekke alle aurons ulEstimatedTaskTime)
 		// Nå er det det samme (1 000 000 iter, to ukobla auron(eit vanlig og eit sensor) : 28,155 sek  eller 29.286  for doCalculation() VS 		29.056 eller  28.828 	for neste 4 linjene
 
 	//Har funnet ut at neste fire linjene er mest effektivt, men bare litt. For eit auron, 300000 tidsiter gjorde det 29/15/12 istedenfor doCalculation() som gjorde 31/17/13
@@ -1011,8 +1003,8 @@ inline void K_auron::doTask()
 	#endif
 
 
-	// Oppdaterer ulEstimatedTaskTime_for_object til [no] + dLastCalculatedPeriod:
-	ulEstimatedTaskTime_for_object = time_class::getTid() + (unsigned long)dLastCalculatedPeriod;
+	// Oppdaterer ulEstimatedTaskTime til [no] + dLastCalculatedPeriod:
+	ulEstimatedTaskTime = time_class::getTid() + (unsigned long)dLastCalculatedPeriod;
 
 	// Logger AP (vertikal strek)
 	writeAPtoLog();
@@ -1131,11 +1123,10 @@ void time_class::doTask()
 	*************************************************/
 	for( std::list<timeInterface*>::iterator pPE_iter = pPeriodicElements.begin() ; pPE_iter != pPeriodicElements.end() ; pPE_iter++ )
 	{
-		if( (*pPE_iter)->ulEstimatedTaskTime_for_object == ulTime+1 )
+		if( (*pPE_iter)->ulEstimatedTaskTime == ulTime+1 )
 		{
 			addTaskIn_pWorkTaskQue( (*pPE_iter) );
 			// Dette fører til eit kall til eit tidsElements doTask(). Teller antall kall (til rapporten):
-			comparisonClass::ulNumberOfCallsTo_doTask ++;
 			#if DEBUG_UTSKRIFTS_NIVAA > 2
 			cout<<"Telte kall til " <<(*pPE_iter)->sClassName <<".doTask()\n";
 			#endif
@@ -1143,15 +1134,10 @@ void time_class::doTask()
  	}
 
 
-	/*XXXXXXXXXXXXXXX
-	X 	 TESTING 	X
-	XXXXXXXXXXXXXXXX*/
-	// Kaller testfunk for å teste K_auron. 
+	// Kaller loggeFunk for å teste K_auron. 
 	K_auron::loggeFunk_K_auron();
 
-	// Bare debugging--utskrift:
-	timeClassTestFunk_som_kjoeres_kvar_tidsIter();
-	
+
 	// Legger til egenpeiker på slutt av pNesteJobb_ArbeidsKoe
 	pWorkTaskQue.push_back(this);	
 }//}
@@ -1168,8 +1154,6 @@ void time_class::doTask()
 
 void K_auron::doCalculation()
 { //{
-	comparisonClass::ulNumberOfCallsToKappa_doCalculations++;
-
 	#if DEBUG_UTSKRIFTS_NIVAA > 3
  	cout<<"K_auron " <<sNavn <<".doCalculation()\t\t" <<sNavn <<".doCalculation()\t\tTid: " <<time_class::getTid() <<"\n";
 	#endif
@@ -1178,16 +1162,10 @@ void K_auron::doCalculation()
  	cout<<"[K, T] = " <<dAktivitetsVariabel <<", " <<FYRINGSTERSKEL <<endl;
 	#endif
 
-
-
-	/*********************************************************
-	* Legg dChangeInKappa_this_iter til dAktivitetsVariabel  *
-	*********************************************************/
-	
-	// doCalculation() blir kalla etter enten changeKappa_derivedArg() eller doTask(). Begge desse skriver dDepolAtStartOfTimeWindow (så trenger ikkje gjøre dette her).
+	// Skrive til dDepolAtStartOfTimeWindow?   Gjør det ikkje no, fordi det blir gjort i changeKappa_derivedArg() og i doTask() som begge er kalla før initialisering av nytt 'time window'.
 
 	// Viktig å kalkulere depol med GAMMEL Kappa! Ellers får vi hopp i depol!
-	// Veldig viktig å hugse å kalkulere dDepolAtStartOfTimeWindow på slutten av forrige time window! (og lagre tidspunkt)
+	// Lagrer v_0 og t_0 for neste 'time window':
 	dDepolAtStartOfTimeWindow = getCalculateDepol();
 	ulStartOfTimewindow = time_class::getTid();
 	
@@ -1195,20 +1173,13 @@ void K_auron::doCalculation()
 	dAktivitetsVariabel += dChangeInKappa_this_iter;
 	dChangeInKappa_this_iter = 0;
 
-	//**********************************************
-	//*  Beregn estimert fyringstid:   *
-	//**********************************************
-
-	/******************************************************************
-	*  Kjører beregning av dPeriodINVERSE og dChangeInPeriodINVERSE:  *
-	******************************************************************/
+	//***********************************************
+	//*  Beregn estimert fyringstid:   				*
+	//***********************************************
 	if( dAktivitetsVariabel > FYRINGSTERSKEL){
 		static double dPeriodInverse_static_local = 0;
 	
 		// Berenger dPeriodINVERSE og dChangeInPeriodINVERSE:
-	// XXX Ikkje nødvendig, trur eg. Test bedre! (Kommentert ut neste linje, men ikkje testa det så godt) :
-	// Blir vel gjordt i changeKappa_derivedArg()  			- testa med å kommentere ut og sjekke plott. Så bra ut. TODO test bedre
-	// Joo, har ikkje funnet det nokon annan plass.. Hmm..
 		dLastCalculatedPeriod  = (( log( dAktivitetsVariabel / (dAktivitetsVariabel - FYRINGSTERSKEL) ) / ALPHA) +0.5) 									+1 		; // +1 for å gi delay til dendrite (GJØRE TIL +2?)XXX
 		dPeriodInverse_static_local = 1/dLastCalculatedPeriod;
 		dChangeInPeriodINVERSE = dPeriodInverse_static_local - dPeriodINVERSE;
@@ -1222,14 +1193,14 @@ void K_auron::doCalculation()
 		#endif
 
 
-
 		// 	For K_auron trenger vi ikkje legge til elementet i [liste som skal sjekkes]. pAllKappaAurons sjekkes alltid.. 												+0.5 for rett avrunding.
-		ulEstimatedTaskTime_for_object =( ( time_class::getTid() + log( (dAktivitetsVariabel-dDepolAtStartOfTimeWindow)/(dAktivitetsVariabel-FYRINGSTERSKEL) )   /  ALPHA )+0.5)  		+2 ; //+1 for å få delay i dendrite. 
-																													// TODO TODO TODO før på +2 istadenfor +1 for å også få delay i axon. XXX XXX TODO TODO TODO
+		ulEstimatedTaskTime =( ( time_class::getTid() + log( (dAktivitetsVariabel-dDepolAtStartOfTimeWindow)/(dAktivitetsVariabel-FYRINGSTERSKEL) )   /  ALPHA )+0.5)  		+2 ; //+1 for å få delay i dendrite. 
+																																												 //+1 for å også få delay i axon.
 		/*
 		* 	Her er eit problem:
 		* 		Refraction time: Dersom vi bare legger til en, så vil oppladning starte umiddelbart. Når kappa blir endra, så vil oppladninga (som starter for tidlig) være det einaste som er viktig. Dette skaper problemer.
 		* 		XXX XXX XXX
+		*       ? ? ? ? ? ? 
 		*/
 
 	
@@ -1240,30 +1211,29 @@ void K_auron::doCalculation()
 	 	 Er visst i neste section:
 		 */
 
-		// TODO TODO TODO TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO 
+		// XXX
 		// KJører synaptisk overføring kvar gang Kappa endres. Dette er ikkje optimalt. Men det vil nok bli rett. Mens eg utvikler Kappa-mekanismer..
-		// Dersom eg vil ha fin plot for transmission_synapse, bør denne flyttes inn i if-setninga under (eller fjærnes). Da forsvinner 0-overføringene...
 		
 		// Bestiller doTask() for å propagere endring i aktivitetsnivå:
 		//time_class::addTaskIn_pWorkTaskQue( pOutputAxon );	
-		// Propagerer heller ved å kalle K_axon::doTransmission() direkte. Dette gjør at vi ikkje får time-delay, men whatdefuck. Har for lite tid no..
-		pOutputAxon->doTransmission(); 	//			XXX SKAL være med: propager kappa kvar gang den endres! (eventuelt gjøres dette bare ved spiking av noden).
+		// evt. kalle K_axon::doTransmission() direkte. Fører til null timedelay for axon :(
+		pOutputAxon->doTransmission();
 		//VAR: pOutputAxon->doTask();
-		bAuronHarPropagertAtDenErInaktiv = false;
-		//XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX XXX 
 
+		// For else-biten (sjå ned)
+		bAuronHarPropagertAtDenErInaktiv = false;
 
 	}else{
-		// setter planlagt task time til no, slik at den aldri vil fyre pga. ulEstimatedTaskTime_for_object. (når den sjekker nest gang, så vil [no] være i fortida..)
-		ulEstimatedTaskTime_for_object = time_class::getTid();
+		// setter planlagt task time til no, slik at den aldri vil fyre pga. ulEstimatedTaskTime. (når den sjekker nest gang, så vil [no] være i fortida..)
+		ulEstimatedTaskTime = time_class::getTid();
 		
 		// Setter dLastCalculatedPeriod, dChangeInPeriodINVERSE, dPeriodINVERSE.
-		dLastCalculatedPeriod = 0; 	// Er dette greit?
+		dLastCalculatedPeriod = 0; 	// Er dette greit?    SKUMMELT! (men funker).
 		dChangeInPeriodINVERSE = -dPeriodINVERSE; 
 		dPeriodINVERSE = 0;
 		
 		#if DEBUG_UTSKRIFTS_NIVAA > 4
-			cout<<"Kappa er mindre enn Tau. Setter ulEstimatedTaskTime_for_object = [no] (vil ikkje ha noko å sei for fyringa).\n";
+			cout<<"Kappa er mindre enn Tau. Setter ulEstimatedTaskTime = [no] (vil ikkje ha noko å sei for fyringa).\n";
 			cerr<<"Setter [dPeriodINVERSE, dPeriodInverse_static_local, dChangeInPeriodINVERSE, dLastCalculatedPeriod] til [ "
 			 	<<dPeriodINVERSE <<","
 				<<dChangeInPeriodINVERSE <<", "
@@ -1280,15 +1250,8 @@ void K_auron::doCalculation()
 	}
 
 
-
-
-	// Propagerer resultatet:
-	// flytta inn i if-testen:  time_class::addTaskIn_pWorkTaskQue( pOutputAxon ); 
-
-
-	// TODO Legger dersom element skal fyre neste iter: Legger den inn i pWorkTaskQue:
-	// Den er med bare for sikkerhetsskuld ? (i tilfelle kappa endres, slik at node vil fyre neste iter (sjeldent) )
-	if( ulEstimatedTaskTime_for_object == time_class::getTid()+1)
+	// Dersom Kappa endres slik at node vil fyre neste iter (sjeldent), så fanges dette opp her:
+	if( ulEstimatedTaskTime == time_class::getTid()+1)
 		time_class::addTaskIn_pWorkTaskQue( this );
 
 	// Skriver til log for depol:
@@ -1322,18 +1285,13 @@ inline void K_sensor_auron::updateSensorValue()
 
 	// To variabler for å finne deriverte. Denne skal bestemme ny kappa..
 	dLastSensedValue = dSensedValue;
-	dSensedValue = /* XXX ALPHA*  */ (*pSensorFunction)(); //TODO Finn ut om denne er gange ALPHA.
+	dSensedValue = /* ALPHA*  */ (*pSensorFunction)(); //TODO Finn ut om denne er gange ALPHA.
 
-	// Er ikkje heilt sikker på kven eg vil bruke:  		De virker heilt ekvivalente. Akkurat no prøver eg med abs-arg for å fjærne en mulig feil. TODO Ta tilbake før rapport!
 	if( dSensedValue != dLastSensedValue){
 		//changeKappa_absArg( dSensedValue ); XXX FARLIG! IKKJE BRUK changeKappa_absArg() !
 		changeKappa_derivedArg( dSensedValue-dLastSensedValue );
 	}
 
-	// Veit ikkje om den er naudsynt (legger til i calculation kø, inne i changeKappa()
-	// Dette er litt teit, men ikkje veldig siden sensor ikkje endres fleire ganger per iter :   Å kalle neste direkte:
-	//doCalculation();
-	
 	#if DEBUG_UTSKRIFTS_NIVAA > 3
 	cout<<"Kappa for K_sensor_auron: " <<dAktivitetsVariabel <<"\n\n";
 	#endif
@@ -1362,7 +1320,6 @@ inline void s_sensor_auron::updateSensorValue()
 	sdLastValue = sdValue;
 	sdValue = (*pSensorFunction)();
 	pInputDendrite->newInputSignal( (  sdValue )); // TODO TODO OPPMERKSOMHET!    Dette er feil. Sender inn umiddelbart sensa signal, ikkje den deriverte. 
-
 } //}
 
 
@@ -1400,7 +1357,7 @@ void recalcKappaClass::doTask()
 	cout<<pKappaAuron_obj->sNavn <<" - recalcKappaClass::doTask() :\tny periode for recalc kappa: \t" <<sdValue <<"\t\tfor feil: " <<dFeil <<"\t\tTid:\t" <<time_class::getTid() <<endl;
 	#endif
 
-	ulEstimatedTaskTime_for_object = time_class::getTid() + sdValue;
+	ulEstimatedTaskTime = time_class::getTid() + sdValue;
 	// TODO TODO TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO 
 	// Sjå kva feilen er, og la feilen bestemme kor lenge vi skal vente til neste rekalk. Kanskje også ha en slags FIR-effekt her?
 
@@ -1485,26 +1442,5 @@ inline void K_synapse::skrivUt()
 
 } //}
 
-void neuroElement_syn_testFunk(K_synapse* pK_syn_arg)
-{
-	pK_syn_arg->skrivUt();
-}
-void neuroElement_testFunk(K_auron* pK_arg)
-{
-	pK_arg->recalculateKappa();
-}
-
-// Ubrukt funk. Skal bare teste noke, no..
-inline const double s_auron::getCalculateDepol()
-{
-	pInputDendrite->calculateLeakage();
-	return dAktivitetsVariabel;
-}
-
-
-void timeClassTestFunk_som_kjoeres_kvar_tidsIter()
-{
-
-}
 
 // vim:fdm=marker:fmr=//{,//}

@@ -126,7 +126,6 @@ class s_dendrite : public i_dendrite{
 	friend std::ostream & operator<< (std::ostream & ut, s_axon* );
 
 	friend int main(int, char**); //TODO SLETT
-	friend void timeClassTestFunk_som_kjoeres_kvar_tidsIter();
 };
 
 class K_dendrite : public i_dendrite{

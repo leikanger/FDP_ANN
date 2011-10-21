@@ -60,8 +60,8 @@ class recalcKappaClass : public timeInterface
 {
 	public:
 	recalcKappaClass(K_auron* pKnyttaTilKappaAuron_arg) : timeInterface("Kappa-recalc. obj."), pKappaAuron_obj(pKnyttaTilKappaAuron_arg){
-		//ulEstimatedTaskTime_for_object = MIN_PERIODE_MELLOM_REKALKULERING_AV_KAPPA;	
-		ulEstimatedTaskTime_for_object = 1; // Denne blir overskrevet første gang den kjører.
+		//ulEstimatedTaskTime = MIN_PERIODE_MELLOM_REKALKULERING_AV_KAPPA;	
+		ulEstimatedTaskTime = 1; // Denne blir overskrevet første gang den kjører.
 
 		// Fjærn neste linje (om eg ikkje finner en nytte for pAllRecalcObj-liste).
 		pAllRecalcObj.push_back(this);
@@ -78,7 +78,7 @@ class recalcKappaClass : public timeInterface
 	}
 
 	K_auron* pKappaAuron_obj;
-	// Og fra timeInterface:  long uulEstimatedTaskTime_for_object; 
+	// Og fra timeInterface:  long uulEstimatedTaskTime; 
 
 	static std::list<recalcKappaClass*> pAllRecalcObj;
 
@@ -215,7 +215,6 @@ class s_auron : public i_auron
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
 	friend int main(int, char**); //TODO SLETT
-	friend void timeClassTestFunk_som_kjoeres_kvar_tidsIter();
 //}
 
 }; //}
@@ -297,7 +296,7 @@ class K_auron : public i_auron
 		#if 0 // Har testa [litt] og sett at dette skjer typisk når noden er estimert å fyre neste iter. Ta vekk test for å optimalisere.
 		//{
 		if(dDepol_temp > FYRINGSTERSKEL){
-			cout<<"depol over fyringsterskel.\tEstimert fyretid/[notid] :" <<ulEstimatedTaskTime_for_object <<"/" <<time_class::getTid() <<endl;
+			cout<<"depol over fyringsterskel.\tEstimert fyretid/[notid] :" <<ulEstimatedTaskTime <<"/" <<time_class::getTid() <<endl;
 			//cout<<"Avslutter..\n\n"; 			exit(0);
 
 			// TODO TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO 

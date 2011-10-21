@@ -1,20 +1,3 @@
-4.6.11
-	0  - Gjøre slik at lekkasje også legges i pCalculatationTaskQue. Og s_auron.doCalculation() gjennomfører lekkasje.
-	0  - Sjekke synaptisk overføring: Ser på utskrift av synaptisk overføring at det er mykje overføring av verdien 0. Dette skal ikkje skje. FIX IT.
+Inlining trenger bare å være der funksjonskallet blir relativt stort i forhold til innhold.
 
-
-01.05
-X	- Gjøre om slik at tilknytninga til andre auron-underelement ikkje ligger i i_[element], men i s_[element] og K_[element].
-			Fjærner behovet for casting.
-		=> 	Løysinga ble å overlagre peikarane i barneklassene (s_[element] og K_[element]) for forrige og neste element i signalbana. Dette gjør at [element].pNesteElementISignalBana blir av samme modell som [element].
-
-O	- Gjøre slik at pEstimatedTaskTime funker.
-		(sjå main.cpp l. 468 : taskSchedulerFunction() )
-	O	- teste for SANN oppsettet fra tidligare.
-	O	- teste for KANN oppsettet fra tidligare.
-
-
-08.05
-Las at inlining bør bare være på funksjoner der funksjonskall-overhead er relativt stor i forhold til det som gjøres i funksjonen.
-Dette betyr at eg bør ivertfall fjærne inline på funksjonen "inline void doTask()", doCalculation(), og kanskje get_iteration_in_pEstimatedTaskTime().
-Sjå forøvrig siden: "http://www.tantalon.com/pete/cppopt/final.htm#InlineFunctions"
+Separere SANN- og KANN-noder. Dette kan eg starte ved å flytte axon* og dendrite* fra i_auron til s_auron. K_auron skal ikkje ha dette..

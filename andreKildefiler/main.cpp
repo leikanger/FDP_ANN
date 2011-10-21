@@ -24,40 +24,20 @@
  ***************************************************************************/
 //}
 
-
-#if 0 // NOTAT
-	Er det ikkje litt trøblete å heile tida flytte KN rund omkring i pEstimatedTaskTime. Dette vil jo skje kvar iterasjon! (bør isåfall gjøres på slutten)
-	Dette er nok hovedgrunnen til at det var best å bare sjekke en medlemsvariabel, kvar iter. (ulEstimatedTaskTime_for_object, arva fra time_class.)
-#endif
-
-#if 0
-Haha! Fett. Ny måte å kommentere ut ting på! Thank you, K.
-#endif
-
-
-// Shit! DET er kult! Pga. designet av nodene er det mulig å gjøre programmet "natively distributed".
-// 	Dersom nye jobber blir broadcasta, og når tid itereres av time_class::doTask() broadcastes den oppdaterte tidsiterasjonen.
-// 	Siden alle veit om alle jobbene, kan alle begynne på en jobb. Når nokon gjennomfører en jobb, broadcastes dette, og alle som gjør samme jobben slutter med det. 
-// 		Verdiene blir også oppdatert for alle noder.
-// 	osv.. FETT! Nok eit mulig prosjekt som springer ut av arbeidet mitt. Nice!
-
-#if 1
-// Ikkje kommentert ut
-#endif
-
-
 /*
  * main.cpp
  *
  *  Created on: 9. feb. 2011
  *      Author: kybpc1036
  */
+
+
 #include "main.h"
 //#include "../neuroElements/auron.h"
 #include "time.h"
 #include "sensorFunk.h"
 
-#include <sstream> //Testing
+#include <sstream> 
 
 void initialiserArbeidsKoe();
 void skrivUtArgumentKonvensjoner(std::string);
@@ -76,9 +56,6 @@ extern std::list<recalcKappaClass*> recalcKappaClass::pAllRecalcObj;
 
 extern unsigned long time_class::ulTime;
 
-unsigned long comparisonClass::ulNumberOfCallsTo_doTask = 0;
-unsigned long comparisonClass::ulNumberOfCallsToKappa_doCalculations = 0;
-
 extern unsigned long ulLengthOfSimulation;
 
 std::ostream & operator<<(std::ostream& ut, i_auron* pAuronArg );
@@ -86,11 +63,6 @@ std::ostream & operator<<(std::ostream& ut, i_auron* pAuronArg );
 
 
 
-void neuroElement_testFunk(K_auron* pK_arg);
-void neuroElement_syn_testFunk(K_synapse* pK_syn_arg);
-
-
-//extern std::list<timeInterface*> time_class::pWorkTaskQue;
 
 // Foreløpig testvariabel: 		Global variabel som skal lese inn fra argv**. 	
 // XXX Gå over til funk-som-global-variabel!   Og referer til stroustrup i rapport.
@@ -110,17 +82,9 @@ unsigned long ulLengthOfSimulation;
 //}
 
 
-void timeClassTestFunk_som_kjoeres_kvar_tidsIter();
-
-
-
-//extern unsigned long u lTidsiterasjoner; // ligg i main.h
 
 int main(int argc, char *argv[])
 {
-	// Initierer arbeidskø (time_class::pWorkTaskQue)
-	initialiserArbeidsKoe();
-
 	//Leser inn argumenter: 
 	if(argc > 1 ) //{1 	  //	 (argc>1 betyr at det står meir enn bare programkall)
 	{
@@ -179,12 +143,9 @@ int main(int argc, char *argv[])
 		skrivUtArgumentKonvensjoner(argv[0]);
 	} //}1
 	
-
-	// XXX Veit ikkje heilt med returverdien her. Trur det funka med ==256. Eg tenker det er bedre med !=0 (dersom den returnerer anna enn 0 bare ved feil?
-	// JEss: mkdir returnerer 0 ved successfull completion.
+	// Returverdien på systemkallet returnerer -1 (eller andre feilmeldinger) ved feil og 0 når det går bra.
 	// Dersom ./datafiles_for_evaluation/ ikkje finnes, lages den. Dersm den finnes gjør ikkje kallet noke:
 	if( system("mkdir datafiles_for_evaluation") != 0 ){
-	// XXX Veit ikkje med rm. Finn ut kva returverdien er for denne. Satser (temporært) på at det er det samme:
 		cout<<"Could not make directory for log files [./datafiles_for_evaluation/]. Directory probably already exist."
 			<<"\n\tIn case this directory does not exist, please make this directory manually in the current directory.\n\n"; 
 	}
@@ -194,188 +155,61 @@ int main(int argc, char *argv[])
 
 
 	// Testoppsett:
-	
- 	#if 0  	// SANN: test-oppsett. (plottet som er med i rapporten for SANN depol-graf)
- 	//{ SANN: TEST-oppsett. Lager mange neuron..
-	s_auron* A1 = new s_auron("A1");
-	s_auron* A2 = new s_auron("A2");
-	s_auron* A3 = new s_auron("A3");
-	s_auron* A4 = new s_auron("A4");
-	s_auron* A5 = new s_auron("A5");
-	s_auron* A6 = new s_auron("A6");
-	s_auron* A7 = new s_auron("A7");
-	s_auron* A8 = new s_auron("A8");
-	s_auron* A9 = new s_auron("A9");
-
-	s_auron* E = new s_auron("E");
-	s_auron* F = new s_auron("F");
-
-	cout<<"new s_synapse(A,B);\n";
-
-	new s_synapse(A1, A2, 1.1);
-	new s_synapse(A2, A3, 1.1);
-	new s_synapse(A3, A4, 1.1);
-	new s_synapse(A4, A5, 1.1);
-	new s_synapse(A5, A6, 1.1);
-	new s_synapse(A6, A7, 1.1);
-	new s_synapse(A7, A8, 1.1);
-	new s_synapse(A8, A9, 1.1);
-	new s_synapse(A9, A1, 1.1);
-
-	new s_synapse(A1, E, 0.017);//15*ALPHA);
-	new s_synapse(A2, E, 0.017);//20*ALPHA);
-	new s_synapse(A3, E, 0.017);//15*ALPHA);
-	new s_synapse(A4, E, 0.017);//20*ALPHA);
-	new s_synapse(A5, E, 0.017);//15*ALPHA);
-	new s_synapse(A6, E, 0.017);//20*ALPHA);
-	new s_synapse(A8, E, 0.017);//20*ALPHA);
-	new s_synapse(A9, E, 0.017);//25*ALPHA);
-	
-#if 0
-	new s_synapse(A1, F, 251*ALPHA);
-	new s_synapse(A2, F, 131*ALPHA);
-	new s_synapse(A3, F, 221*ALPHA);
-	new s_synapse(A3, F, 201*ALPHA);
-	new s_synapse(A3, F, 121*ALPHA);
-	new s_synapse(A5, F, 161*ALPHA);
-	new s_synapse(A6, F, 231*ALPHA);
-	new s_synapse(A8, F, 251*ALPHA);
-	new s_synapse(A9, F, 191*ALPHA);
-	new s_synapse(A1, F, 51*ALPHA);
-	new s_synapse(E, F, 200*ALPHA);
-#endif
-
-	//Setter i gang ANN
-	A1->doTask();
-	//}
-	#endif
-
-	#if 0  	//	SANN: 1-neurons testoppsett: (med 2-aurons oscillator-krets som input)
-	//{ 	SANN - 1-auron
-  	cout<<"\n\nLAGER SANN\n\n";
-	s_auron* s1 = new s_auron("s1");
-	s_auron* s2 = new s_auron("s2");
-	new s_synapse(s1, s2, 1111);
-	new s_synapse(s2, s1, 1111);
-
-	s_auron* sA = new s_auron("sA");
-#define FORHOLD_MELLOM_ALPHA_OG_INPUT_FAKTOR ALPHA
-#define TALL 17.6
-	new s_synapse(s1, sA, TALL);//(1.5 * FORHOLD_MELLOM_ALPHA_OG_INPUT_FAKTOR * FYRINGSTERSKEL ) );
-	new s_synapse(s2, sA, TALL);//(1.5 * FORHOLD_MELLOM_ALPHA_OG_INPUT_FAKTOR * FYRINGSTERSKEL ) ); 
-	
-	s1->doTask();
-	//}
-  	#endif
-
-
-	#if 0 	// SANN: Tester s_sensor_auron
-	//{
-//Sensor-auron testing av KN vs SN.
-	s_sensor_auron* sSensor  = new s_sensor_auron( "sSensor", &statiskSensorFunk);
-	s_auron* s1 = new s_auron("s1");
-	new s_synapse(sSensor, s1, 50 );
-
-	s_auron* sUT = new s_auron("sUT");
-
-	K_sensor_auron* KSensor  = new K_sensor_auron( "kSensor", &statiskSensorFunk);
-	K_auron* k1 = new K_auron("k1");
-	new K_synapse(KSensor, k1, 50 ); 
-
-	K_auron* kUT = new K_auron("kUT");
-	//}
-	#endif
-
-//	K_sensor_auron* Ks1 = new K_sensor_auron("K_sensor_auron", &sensorFunkEksempelFunk);
+	#if 0
 	K_sensor_auron* Ks1 = new K_sensor_auron("K_sensor_auron", &sensorFunk1a);
 	K_auron* k1 = new K_auron("k1");
 	new K_synapse(Ks1, k1, true);
 
+	#else 	// 	KANN-Test
+	 	//{ KANN: TEST-oppsett.
+		#if 1
 
+		cout<<"\n\nLAGER KANN\n\n";
 
-	#if 0 	// 	KANN-Test
- 	//{ KANN: TEST-oppsett.
-
-	cout<<"\n\nLAGER KANN\n\n";
-
-	//K_auron* kA = new K_auron("kA", 2.07*FYRINGSTERSKEL);
-
-#if 0 //{ -- endif
-	for(int i=0; i<100; i++){
-		std::ostringstream tempString;
-		tempString<<"K" <<i;
+		K_auron* K1 = new K_auron("K1" /*, arg2 = 0? */);
 	
-		K_auron* kA = new K_auron(tempString.str(), 2.07*FYRINGSTERSKEL);
-	} 
-#endif //}
-
-	//neuroElement_testFunk( kA );
-#if 1
-
-	K_auron* K1 = new K_auron("K1" /*, arg2 = 0? */);
-
-	K_sensor_auron* KsStatisk = new K_sensor_auron("KsStatisk", &statiskSensorFunk);
-	new K_synapse(KsStatisk, K1, 200);
-
-
-
-	K_sensor_auron* Ks1 = new K_sensor_auron( "Ks1", &sensorFunk1 );
-	new K_synapse( Ks1, K1, 400, true ); 
+		K_sensor_auron* KsStatisk = new K_sensor_auron("KsStatisk", &statiskSensorFunk);
+		new K_synapse(KsStatisk, K1, 200);
 	
-	K_sensor_auron* Ks2 = new K_sensor_auron( "Ks2", &sensorFunk2 );
-	new K_synapse( Ks2, K1, 400, true ); 
-
-	new K_synapse( KsStatisk, K1, 700, true );
 	
 
-//	K_sensor_auron* Ks4 = new K_sensor_auron( "Ks4", &sensorFunk4 );
-//	new K_synapse( Ks4, K1, 2E5, true ); //Inhibitorisk synapse
-
-	//s_auron* S1 = new s_auron("S1");
-	//new s_synapse( Ks1, S1, 1E2);
-#endif
-
-#if 0 // Testoppsett 1, KANN
-	K_auron* Ks1 = new K_sensor_auron("Ks1", &sensorFunk_TEST1_s1 );
-	K_auron* Ks2 = new K_sensor_auron("Ks2", &sensorFunk_TEST1_s2 );
-	K_auron* Ks3 = new K_sensor_auron("Ks3", &sensorFunk_TEST1_s3 );
-	K_auron* Ks4 = new K_sensor_auron("Ks4", &sensorFunk_TEST1_s4 );
-	K_auron* Ks5 = new K_sensor_auron("Ks5", &sensorFunk_TEST1_s5 );
-
-	K_auron* Kt1 = new K_auron("Kt1");
-	new K_synapse(Ks1, Kt1, 100);
-	new K_synapse(Ks2, Kt1, 100);
-	new K_synapse(Ks3, Kt1, 100);
-	new K_synapse(Ks4, Kt1, 100);
-	new K_synapse(Ks5, Kt1, 50, true);
-
-
-	K_auron* Kt2 = new K_auron("Kt2");
-	new K_synapse(Ks1, Kt2, 20, true);
-	new K_synapse(Ks2, Kt2, 100);
-	new K_synapse(Ks3, Kt2, 20, true);
-	new K_synapse(Ks4, Kt2, 20, true);
-	new K_synapse(Ks5, Kt2, 50);
-	new K_synapse(Kt1, Kt2, 200);
+		K_sensor_auron* Ks1 = new K_sensor_auron( "Ks1", &sensorFunk1 );
+		new K_synapse( Ks1, K1, 400, true ); 
 	
-	K_auron* Kt3 = new K_auron("Kt3");
-	new K_synapse(Kt1, Kt3, 200);
-	new K_synapse(Kt2, Kt3, 200);
-#endif
+		K_sensor_auron* Ks2 = new K_sensor_auron( "Ks2", &sensorFunk2 );
+		new K_synapse( Ks2, K1, 400, true ); 
 
-/* //{
-	K_auron* K2 = new K_auron("K_2", 1.2*FYRINGSTERSKEL);
-	K_auron* K4 = new K_auron("K_4", 1.4*FYRINGSTERSKEL);
-	K_auron* K9 = new K_auron("K_9", 1.9*FYRINGSTERSKEL);
+		new K_synapse( KsStatisk, K1, 700, true );
+		#endif
 
-	new K_synapse(K4, K2, 50);
-	new K_synapse(K2, K4, 1111);
+		#if 0 // Testoppsett 1, KANN
+			K_auron* Ks1 = new K_sensor_auron("Ks1", &sensorFunk_TEST1_s1 );
+			K_auron* Ks2 = new K_sensor_auron("Ks2", &sensorFunk_TEST1_s2 );
+			K_auron* Ks3 = new K_sensor_auron("Ks3", &sensorFunk_TEST1_s3 );
+			K_auron* Ks4 = new K_sensor_auron("Ks4", &sensorFunk_TEST1_s4 );
+			K_auron* Ks5 = new K_sensor_auron("Ks5", &sensorFunk_TEST1_s5 );
+		
+			K_auron* Kt1 = new K_auron("Kt1");
+			new K_synapse(Ks1, Kt1, 100);
+			new K_synapse(Ks2, Kt1, 100);
+			new K_synapse(Ks3, Kt1, 100);
+			new K_synapse(Ks4, Kt1, 100);
+			new K_synapse(Ks5, Kt1, 50, true);
+		
+		
+			K_auron* Kt2 = new K_auron("Kt2");
+			new K_synapse(Ks1, Kt2, 20, true);
+			new K_synapse(Ks2, Kt2, 100);
+			new K_synapse(Ks3, Kt2, 20, true);
+			new K_synapse(Ks4, Kt2, 20, true);
+			new K_synapse(Ks5, Kt2, 50);
+			new K_synapse(Kt1, Kt2, 200);
+			
+			K_auron* Kt3 = new K_auron("Kt3");
+			new K_synapse(Kt1, Kt3, 200);
+			new K_synapse(Kt2, Kt3, 200);
+		#endif
 
-
-	K_auron* E = new K_auron("E", 4*FYRINGSTERSKEL);
-	new K_synapse(K2, E, 100);
-	new K_synapse(K4, E, 500, true);
-*/ //}
 	//} Slutt KANN-testopplegg
 	#endif
 
@@ -384,17 +218,10 @@ int main(int argc, char *argv[])
 
 	cout<<"******************************************\n*** BEGYNNER KJØRING AV ANN: ***\n******************************************\n\n";
 
+
 /******************************************* Starter void taskSchedulerFunction(void*); ****************************************************/
 	taskSchedulerFunction(0);
-
-
-
-
-//XXXXXXXXXXXXXX TEST XXXXXXXXXXXXXXXXx
-	//neuroElement_testFunk(K1);
-//cout<<"sensed value: " <<Ks1->getSensedValue() <<"\n\n\n";
-
-
+/*******************************************************************************************************************************************/
 
 
 	cout<<"\n\n\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\nAvslutter.\n\n\n";
@@ -409,19 +236,13 @@ int main(int argc, char *argv[])
 	cout<<"\n\n";
 
 	#if DEBUG_UTSKRIFTS_NIVAA > 3
-		time_class::TEST_skrivUt_pWorkTaskQue();
-
 		time_class::skrivUt_pPeriodicElements();
 	#endif
-
 
 
 	// Avlutt alle loggane rett:
 	i_auron::callDestructorForAllAurons();
 
-
-	cout<<"\n\nAntall kall til doTask() funksjoner: \t" <<comparisonClass::ulNumberOfCallsTo_doTask <<endl;
-	cout<<"\n\nAntall kall til K_auron::doCalculation(): \t" <<comparisonClass::ulNumberOfCallsToKappa_doCalculations <<endl;
 
 	cout<<"\n\nWIN!\n\n\n";
 	return 0;
@@ -430,11 +251,10 @@ int main(int argc, char *argv[])
 
 void skrivUtArgumentKonvensjoner(std::string programKall)
 { //{
-	cout <<"\n\nConventions for running auron.out: \n"
+	cout <<"\n\nConventions for executing auron.out: \n"
 		 <<"\t"<<programKall <<"[-options] [number of iterations]\n"
 		 <<"\t\tOptions: \n\t\t\t-i [n] \t number of iterations on simulation."
-		 <<"\nHUGS Å LEGGE VED VALG OM [spiking ANN], [K ANN], [sammenligning], osv.\n\n\n\n"; 		//TODO
-
+		 <<"\n\n\n\n\n";
 } //}
 
 
@@ -459,7 +279,6 @@ void initialiserArbeidsKoe()
 
 	// static bInitialisertAllerede vil eksistere kvar gang denne funksjonen kalles. Setter dermed bInitialisertAllerede til true for å forhindre at fleire time legges til arbeidsKoe.
 	bInitialisertAllerede = true;
-
 } //}1
 
 
@@ -480,56 +299,36 @@ void* taskSchedulerFunction(void* )
 	**  Initierer kjøring :    **
 	****************************/
 
-	// Itererer tid, slik at eg begynner på iter 1. Dette er viktig for å få rett initiering av K_auron som begynner med en konst kappa (gir K=(v_0-K)e^(-a*(1-0)) istedenfor K=..*e^0)
-	time_class::ulTime ++;
+	// Initierer arbeidskø (time_class::pWorkTaskQue)
+	initialiserArbeidsKoe();
 
-	// Rekalkulerer alle K_auron's Kappa:
-	#if 1 // Kjører først alle aurons .doTask(), for å initiere alle synaptiske overføringer:
+
+	// Initialiserer tid: begynner på iter 1. Dette (t_0=1) er viktig for å få rett initiering av K_auron som begynner med en konst kappa (gir K=(v_0-K)e^(-a*(1-0)) istedenfor K=..*e^0)
+	time_class::ulTime = 1;
+
+	// Initialiserer 'time window' for alle K_auron:
 	for( std::list<K_auron*>::iterator K_iter = K_auron::pAllKappaAurons.begin(); K_iter != K_auron::pAllKappaAurons.end(); K_iter++ )
 	{
-		(*K_iter)->doTask();
-		//(*K_iter)->kappaRecalculator.doTask();
+		// Initierer 'time window':
+			// (*K_iter)->doTask();    // Løsninga for FDP: dette skaper en spike ved t=0 i plot av depol.
+		// Setter v_0 til 0 og t_0 til [no]:
+		(*K_iter)->dDepolAtStartOfTimeWindow = 0;
+		(*K_iter)->ulStartOfTimewindow = time_class::getTid();
+		// Regner ut resulterende periode, osv.
+		(*K_iter)->doCalculation();
 	}
-	#endif
-	#if 1 // Rekalkulerer kappa, etter alle overføringer er initiert:
-	for( std::list<K_auron*>::iterator K_iter = K_auron::pAllKappaAurons.begin(); K_iter != K_auron::pAllKappaAurons.end(); K_iter++ )
-	{
-		(*K_iter)->kappaRecalculator.doTask();
-	}
-	#endif
 
 
 	/* * * * * * * * Begynner vanlig kjøring av auroNett * * * * * * * * */
-	cout<<"\n\n\t\t\t\t\tKjører void* taskSchedulerFunction(void*);\n";
 
-#if 0
- 	s_auron* psS1 = new s_auron("s1",400);
-	s_auron* psS2 = new s_auron("s2",400);
-#endif
-
-	while( time_class::ulTime <= ulLengthOfSimulation) // XXX Skal bli "uendelig" løkke etterkvart:
-	//while(/*En eller anna avsluttings-bool =*/true)
+	// Hoved-loop:
+	while( time_class::ulTime <= ulLengthOfSimulation) 
 	{
-		
-		/*FEILSJEKK (kan takast vekk)*/
-		#if 0
-		if(time_class::pWorkTaskQue.empty()){ 
-			cout<<"\n\n\nFEIL. time_class::pWorkTaskQue er tom. Skal aldri skje. \nFeilmelding: [taskSchedulerFunction::c01]\n\n\n"; 
-			exit(-1);
-		}
-		#endif
-
-
-		// Kortslutning, bare for å teste hypotese:
-			
-
 
 		// Setter igang utføring av neste jobb i lista:
 		time_class::pWorkTaskQue.front() ->doTask(); 		//Dette er i orden, siden pWorkTaskQue er av type list<timeInterface*> og alle arvinger av timeInterface har overlagra funksjonen doTask().
 
-		comparisonClass::ulNumberOfCallsTo_doTask ++;
-
-		// Tar vekk jobben fra pWorkTaskQue: FLYTTA INN I time_class::doTask()
+		// Tar vekk jobben fra pWorkTaskQue:
 		time_class::pWorkTaskQue.pop_front();
 			
 		//Evt annet som skal gjøres kvart timessteg. Type sjekke etter andre events, legge til fleire synapser, etc.

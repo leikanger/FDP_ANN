@@ -36,12 +36,8 @@ using std::endl;
 
 // DEKLARASJONER:
 //extern unsigned long ulTime;
-void loggeFunk_K_auron();
+void loggeFunk_K_auron(); // auron.h
 
-
-// BARE FOR TESTING! TODO fjærn neste linja:
-class i_auron;
-class K_auron;
 
 
 /****************************************
@@ -50,20 +46,15 @@ class K_auron;
 class timeInterface
 {
 	public:
-	timeInterface(std::string s) : ulEstimatedTaskTime_for_object(0), sClassName(s){}
-	//timeInterface() 				{} 				//For mens eg itererer i utviklinga.  Trur ikkje eg skal ha denne etterpå..
+	timeInterface(std::string s) : ulEstimatedTaskTime(0), sClassName(s){}
 
 	virtual void doTask() =0;
 	virtual void doCalculation() =0;
-
-	unsigned long ulEstimatedTaskTime_for_object; 
-
+	unsigned long ulEstimatedTaskTime; 
 
 	//for debugging:
 	std::string sClassName;
 };
-
-
 
 
 
@@ -79,20 +70,13 @@ class timeInterface
 class time_class : public timeInterface {
 	static unsigned long ulTime;
 	
-	// TODO Endre neste til std::que ? XXX Sjå stroustrup s.576
 	static std::list<timeInterface*> pWorkTaskQue;
-	// Kanskje bedre å gå over til vector, og gå gjennom lista og sjå etter duplikat i time_class::doCalculation()
 	static std::list<timeInterface*> pCalculatationTaskQue;
-	// std::set er en container der key og value er det samme. Unique elements!
 
-	// Liste som sjekkes ved kvar tidsiterering. Dersom eit element har ulEstimatedTaskTime_for_object til neste tidssted legges peiker inn i pWorkTaskQue.
+	// Liste som sjekkes ved kvar tidsiterering: Dersom eit element har ulEstimatedTaskTime til neste tidssted legges peiker inn i pWorkTaskQue.
 	static std::list<timeInterface*> pPeriodicElements;
-	// Sjå også public: addElementIn_pPeriodicElements()
-
-	static unsigned long ulNumberOfCallsTo_doTask;
 
 	protected:
-	// TODO Gjør neste funksjoner static (da blir heile klassa statisk..)
 	void doTask();
 	void doCalculation()
 	{ //{
@@ -100,19 +84,16 @@ class time_class : public timeInterface {
 		*** Gjennomføre kalkulering på alle kalkuleringsoppgaver (pCalculatationTaskQue) 	***
 		**************************************************************************************/
 
-		//DEBUG("Inne i time_class::doCalculation()\n");
-
 		if( pCalculatationTaskQue.empty() ) return;
 
-		// Organiserer liste slik at kvar oppføring er unik: 			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
+		// Organiserer liste slik at kvar oppføring er unik:
 		for( std::list<timeInterface*>::iterator iter = pCalculatationTaskQue.begin(); iter != pCalculatationTaskQue.end(); iter++ )
 		{
-			// Testet. Virker som det funker no.
 			std::list<timeInterface*>::iterator iter2 = iter; 
 			iter2++;
 			while(iter2!=pCalculatationTaskQue.end()){
 				// ser om iteratorene peker til samme minneadresse (samme timeInterface-element). Isåfall: fjærn det andre elementet.
-			 	if( (*iter2) == (*iter) ){ //c out<<"Var duplikat. Fjærner andre element.\n";
+			 	if( (*iter2) == (*iter) ){ 
 					// Øker iterator før eg sletter element på iter2.
 					std::list<timeInterface*>::iterator slettIter = iter2;
 					iter2++;
@@ -125,13 +106,8 @@ class time_class : public timeInterface {
 	
 		while( !pCalculatationTaskQue.empty() ){
 			// Kaller pCalculatationTaskQue.front()->pCalculatationTaskQue();
-			#if DEBUG_UTSKRIFTS_NIVAA > 3
-			cout<<"Kaller " <<pCalculatationTaskQue.front()->sClassName <<".doCalculation()\n";
-			#endif
-
 			pCalculatationTaskQue.front()->doCalculation();
 			pCalculatationTaskQue.pop_front();
-		
 		}
 	} //}
 
@@ -140,32 +116,12 @@ class time_class : public timeInterface {
 	 	pCalculatationTaskQue.push_back( pObject_arg );
 	}
 
-/***************************************************************************
-*
-* 		TODO for dette opplegget:
-* 			- lag bidirectional peiker. Peiker til rett timeInterface her, og peiker til rett iterator (hit) i timeInterface elementet. TODO Det er dermed kanskje best å returnere iterator fra funksjonen under.
-* 			- når timeInterface-elementet får nytt estimat, skal elementet flyttes (fjærnes, så legges inn ELLER bare flyttes den relative avstanden (kanskje best))
-* 				Det er fundamentalt at det bare er en timeInterface peiker tilstede i lista (ellers får vi ekstra fyringer = overflødig arbeid..) 
-** 				[LØSNING: lag en funksjon som også tar inn en {list< list<timeInterface*>* >::iterator}, og denne vil bare flytte elementet 			]
-** 				[ 			og når elementet blir gjennomført, flyttes elementet (?) til plass gitt av no+periode (dvs. med bare periode som argument. 	]
-** 				[ 			Dersom elementet skal fjærnes (f.eks. for s_auron), så kan vi lagre NULL i peikeren (?) 									]
-* 			- Bli sikker på korleis indekseringa er under. 1 indeksert? 0-indeksert? Trur det skal være antall tidsiterasjoner etter NESTE tidsiter. Også viktig for å få rett funksjonalitet!
-*
-* 		Så: implementere i time_class::doTask() at den skal gjøre alle jobbene i [neste-tids-iter]-list i pEstimated TaskTime (for så å ta vekk denne [neste-tidIter]-list i p EstimatedTaskTime.
-* 			- kvart element skal sjølv være ansvarlig for å flytte seg i p EstimatedTaskTime etter AP.
-*
-****************************************************************************/
 
-
-
-
-	//static std::list<timeInterface*> pWorkTaskQue;
-	const static void TEST_skrivUt_pWorkTaskQue()
+	const static void skrivUt_pWorkTaskQue()
 	{ //{
 		cout<<"Skriver ut pWorkTaskQue: \n";
 		int nIter = 0;
 		// itererer gjennom ytre liste:
-		//			TODO gjør om x++ til ++x, siden ++x slepper å lage en "temporary".
 		for(std::list<timeInterface*>::iterator l_iter = pWorkTaskQue.begin(); 	l_iter != pWorkTaskQue.end() ; 	l_iter++ )
 		{
 			cout<<nIter <<"\t" <<(*l_iter)->sClassName <<endl;
@@ -200,19 +156,12 @@ class time_class : public timeInterface {
 
 	// Viktig med inkapsling!
 
-	// funker ikkje: friend class timeInterface; XX X test igjen. Har gjort det. Funker ikkje..
 	friend class K_auron;
 	friend class i_auron;
-	friend class i_axon; 		// Usikker om dette funker. Alternativt skriv inn kvar klasse (som under)
-	//friend class s_axon;
 
 	friend void initialiserArbeidsKoe();
 	friend void* taskSchedulerFunction(void*);
-	
 	friend int main(int, char**);
-
-
-	friend void testfunk();
 };
 
 
