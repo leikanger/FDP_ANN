@@ -1,3 +1,18 @@
+
+TODO  Gå å hør med professor: Ønsker å modellere og programmere en simulator av eit biologisk neuron.
+ 	- Bedre oppgave for masteren!
+
 Inlining trenger bare å være der funksjonskallet blir relativt stort i forhold til innhold.
 
 Separere SANN- og KANN-noder. Dette kan eg starte ved å flytte axon* og dendrite* fra i_auron til s_auron. K_auron skal ikkje ha dette..
+
+Skriv utbrodert om tid i simulering. Skriv om funksjonaliteten til time_class::doTask()
+
+K_auron skal fjærne DENDRITE og AXON:
+	- endre synapse fra å se på presyn. axon til å se på presyn. node. Samma for postsyn. dendrite.
+	- det som står i i_dendrite::~i_dendrite skal inn i s_dendrite::~s_dendrite og i K_auron::~K_auron
+	- K_dendrite::K_dendrite og ~K_dendrite skal inn i K_auron.
+	- K_dendrite::newInputSignal() skal inn i K_auron: K_auron::newInputSignal().
+		- Dersom dendrite skal ha spatiotemporal differentiering blir ikkje dette opplegget bra nok. Design heile opplegget på nytt!
+	- Endre K_auron::doTask() : skal ikkje legge inn axon i pWorkTaskQue, men skrive inn ulEstimatedTaskTime for alle utsynapsene til auronet.
+	

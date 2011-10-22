@@ -243,9 +243,6 @@ class K_auron : public i_auron
 	
 	//bool bKappaLargerThanThreshold_lastIter;
 
-	// todo TODO TODO TODO For KANN trenger eg en bEndraKappaDennePerioden, som blir satt til false kvar fyring av auronet. XXX
-	//bool bEndraKappaDennePerioden;
-
 
 	// For debugging: trenger ei liste over alle K_auron, slik at eg kan skrive log for depol kvar tidsiterasjon:
 	// Legger til i constructor og fjærner i destructor (akkurat som for i_auron::pAllAurons)

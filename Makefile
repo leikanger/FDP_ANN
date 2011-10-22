@@ -11,7 +11,7 @@ auroNett.out: main.o neuroElement.o
 	echo "\n\n\n\nmake auroNett.out:\n\n"
 	${CPP} ${CFLAGS} main.o neuroElement.o -o auroNett.out
 
-neuroElement.o: andreKildefiler/time.h neuroElements/axon.h neuroElements/dendrite.h neuroElements/synapse.h
+neuroElement.o: andreKildefiler/time.h neuroElements/axon.h neuroElements/dendrite.h neuroElements/synapse.h neuroElements/neuroElement.cpp
 	${CPP} ${CFLAGS} -c neuroElements/neuroElement.cpp -o neuroElement.o
 
 main.o: andreKildefiler/main.cpp andreKildefiler/main.h andreKildefiler/time.h

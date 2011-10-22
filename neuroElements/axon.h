@@ -53,9 +53,6 @@ class i_axon : public timeInterface{
 	i_auron* pElementOfAuron; 		 // Flytta til i_axon
 	std::list<i_synapse*> pUtSynapser; // Flytta til i_axon
 
-	//SLETT:
-	virtual void SLETTtypeId(){ cout<<"Dette er i_axon\n"; }
-	
 //	protected:
 //	inline void doTask();
 
@@ -138,8 +135,6 @@ class K_axon : public i_axon{
 	K_axon(K_auron*);
 	~K_axon();
 
-	//SLETT:
-	virtual void SLETTtypeId(){ cout<<"Dette er i_axon\n"; }
 
 	//Skal vekk:
 	friend class K_synapse;
