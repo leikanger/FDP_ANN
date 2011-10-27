@@ -1,12 +1,25 @@
+Overordna plan:
+Administrasjon og progging går paralellt..
+Administrasjon:
+Finne veileder.
+- Amund Skavhaug på itk.
+- Hans Plesser på UMB
+- Gaute O. på UMB.
+- Eugene Izhikevich på "Brain corporation"
+- Svensken som Wulfram Gerstner anbefalte.
+
+Progging:
+- Gjøre neuronet til single-compartment implementation. 						
+- Lage synaptisk overføring bra, slik at eg kan fortsette vidare.
+- Lage nettverk med alle-til-alle koblinger -- alle er initiellt koblet med alle andre noder. Synaptisk plasticitet fikser biffen!
+	- dette kan være superspennende! Kan lage mange sensor-auron som senser på en-eller-annen verdi og gir ut eit float-signal til nettet. Etter synaptisk plasticitet (og spesiellt dersom man har med belønning) kan det blir shitbra!
+
+
+
+
 
 TODO  Gå å hør med professor: Ønsker å modellere og programmere en simulator av eit biologisk neuron.
  	- Bedre oppgave for masteren!
-
-Inlining trenger bare å være der funksjonskallet blir relativt stort i forhold til innhold.
-
-Separere SANN- og KANN-noder. Dette kan eg starte ved å flytte axon* og dendrite* fra i_auron til s_auron. K_auron skal ikkje ha dette..
-
-Skriv utbrodert om tid i simulering. Skriv om funksjonaliteten til time_class::doTask()
 
 K_auron skal fjærne DENDRITE og AXON:
 	- endre synapse fra å se på presyn. axon til å se på presyn. node. Samma for postsyn. dendrite.
@@ -16,3 +29,6 @@ K_auron skal fjærne DENDRITE og AXON:
 		- Dersom dendrite skal ha spatiotemporal differentiering blir ikkje dette opplegget bra nok. Design heile opplegget på nytt!
 	- Endre K_auron::doTask() : skal ikkje legge inn axon i pWorkTaskQue, men skrive inn ulEstimatedTaskTime for alle utsynapsene til auronet.
 	
+
+Når det kommer inn endring i kappa på ei synapse (eller alle de innsynapsene som ligger slik at dei fe samme timedelay), så legges dChangeInKappaThisIter inn i ei lenka liste. Kvar iter tar man første og plusser på K.
+	- kappaRecalk må da gjøres ved å rekalkulere kappa (summere alle syn. overføringer) og så trekke fra summen til lenka lista over fremtidig kappa.

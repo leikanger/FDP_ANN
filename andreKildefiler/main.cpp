@@ -52,7 +52,6 @@ extern std::list<i_auron*> i_auron::pAllAurons;
 extern std::list<K_auron*> K_auron::pAllKappaAurons;
 extern std::list<K_sensor_auron*> K_sensor_auron::pAllSensorAurons;
 extern std::list<s_sensor_auron*> s_sensor_auron::pAllSensorAurons;
-extern std::list<recalcKappaClass*> recalcKappaClass::pAllRecalcObj;
 
 extern unsigned long time_class::ulTime;
 

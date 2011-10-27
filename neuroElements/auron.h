@@ -39,7 +39,6 @@
 
 #include "../andreKildefiler/main.h"
 #include "../andreKildefiler/time.h"
-//#include "../neuroElements/andreAuronKlasser.h" UTDATERT IDE.
 #include "../neuroElements/axon.h"
 #include "../neuroElements/dendrite.h"
 
@@ -50,7 +49,7 @@ using std::cout;
 
 // klasse deklarasjoner:
 class s_dendrite;
-class i_axon;
+class i_axon; 	//TODO Vekk med K_axon! XXX
 class s_axon;
 
 /*******************
@@ -60,11 +59,8 @@ class recalcKappaClass : public timeInterface
 {
 	public:
 	recalcKappaClass(K_auron* pKnyttaTilKappaAuron_arg) : timeInterface("Kappa-recalc. obj."), pKappaAuron_obj(pKnyttaTilKappaAuron_arg){
-		//ulEstimatedTaskTime = MIN_PERIODE_MELLOM_REKALKULERING_AV_KAPPA;	
+		// Setter periode mellom ralkulering lavt:
 		ulEstimatedTaskTime = 1; // Denne blir overskrevet første gang den kjører.
-
-		// Fjærn neste linje (om eg ikkje finner en nytte for pAllRecalcObj-liste).
-		pAllRecalcObj.push_back(this);
 
 		// Legger til element-peiker i std::list<timeInterface*> pPeriodicElements:
 		time_class::addElementIn_pPeriodicElements( this );
@@ -78,9 +74,6 @@ class recalcKappaClass : public timeInterface
 	}
 
 	K_auron* pKappaAuron_obj;
-	// Og fra timeInterface:  long uulEstimatedTaskTime; 
-
-	static std::list<recalcKappaClass*> pAllRecalcObj;
 
 	friend class K_auron;
 	//friend class K_sensor_auron;
@@ -95,14 +88,12 @@ class recalcKappaClass : public timeInterface
 class i_auron : public timeInterface
 { 	//{		
 	// Variablana pOutputAxon og pInputDendrite overlagres i underklassene. F.eks. i s_auron lages pOutputAxon som en s_axon*. 
-	// 	   Effekten av dette blir at alle funksjoner og variabler fra i_axon kan kalles fra utsida (for i_axon--peikerar), mens også de modellspesifikke kan kalles fra andre modellspesifikke element (s_axon-funker kan kalles fra s_auron)!
+	// 	  Effekten av dette blir at alle funksjoner og variabler fra i_axon kan kalles fra utsida (for i_axon--peikerar), mens også de modellspesifikke kan kalles fra andre modellspesifikke element (s_axon-funker kan kalles fra s_auron)!
 
 	//Deler av auronet: (Ligger som s_axon og s_dendrite i s_auron. Samme for K_auron..) TODO SKal ligge der også ?
 	i_axon* pOutputAxon; 			// Trenger å ha dei meir spesifikk for contruction av bl.a. synapse - s_synapse legger til pElementOfAuron->pInputDendrite (som må være av typen ?? XXX prøver igjen..
  	i_dendrite* pInputDendrite; 
 
-	
-	
 	
 	// Treng eg desse i i_auron? Bare for SANN? Vettafaen! XXX Kan kanskje ligge i s_auron.
 
@@ -142,10 +133,11 @@ class i_auron : public timeInterface
 	double dAktivitetsVariabel;
 
 	public:
-	i_auron(std::string sNavn_Arg ="unnamed", double dStartAktVar = 0); 		//: timeInterface("auron"), ao_AuronetsAktivitet(this), sNavn(sNavn_Arg) {
+	i_auron(std::string sNavn_Arg ="unnamed", double dStartAktVar = 0);
 	~i_auron();
 
-	std::string sNavn; //for utskrift
+	// For utskrift / debugging:
+	std::string sNavn;
 	const std::string getNavn(){ return sNavn; }
 
 	int getAktivityVar(){ return dAktivitetsVariabel; }
@@ -177,28 +169,28 @@ class i_auron : public timeInterface
 
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
-	friend int main(int, char**); //TODO SLETT
+	friend int main(int, char**);
 };  //}
 
 class s_auron : public i_auron
 { //{
 
-//void slettTESTfunk(){ cout<<"s_auron::TESTfunk()\n"; } 			//TODO TODO TDOD TODO SLETT
 	inline void doTask();
 	inline void doCalculation() { cout<<"s_auron::doCalculation()\n";} 		//XXX UTSETTER. Foreløpig gjør denne ingenting (anna enn å gjøre at s_auron ikkje er abstract)
 
 	static void callDestructorForAllSpikingAurons();
 
-	//bool bBlockInput_refractionTime; 		//Bare for SANN 	//Blokkere input når refraction period eller når depol er over terskel.
 	protected:
+	/* TODO:
+	* 	- gjør om slika at det ikkje finnes i i_auron: vil dermed ikkje lenger være overlagra. Definer først her..
+	*/
 	//Deler av auronet: 		OVERLAGRA fra i_auron
 	s_axon* pOutputAxon; 			// Overlagrer i_auron::i_axon til s_auron::s_axon. Dette er alternativ til å caste pOutputAxon ved accessering til s_auron::pOutputAxon
  	s_dendrite* pInputDendrite;  	// Samme for pInputDendrite.
 
 	public:
-	s_auron(std::string sNavn_Arg ="unnamed", int nStartDepol = 0); 	
+	s_auron(std::string sNavn_Arg ="unnamed", int nStartDepol = 0); 
 	~s_auron();
-
 
 	inline const double getCalculateDepol();
 
@@ -211,24 +203,24 @@ class s_auron : public i_auron
 	friend class s_axon;
 	friend class s_synapse;
 	friend class s_dendrite;
-	friend void testFunksjon_slett(s_auron*);
 	friend std::ostream & operator<< (std::ostream & ut, i_axon* );
 
-	friend int main(int, char**); //TODO SLETT
+	friend int main(int, char**);
 //}
 
 }; //}
 
 class K_auron : public i_auron
 { // {
-	//Deler av auronet: 		OVERLAGRA fra i_auron
+	// TA VEKK:
+	//                  		OVERLAGRA fra i_auron
 	K_axon* pOutputAxon; 			// Overlagrer i_auron::i_axon til K_auron::K_axon. Dette er alternativ til å caste pOutputAxon ved accessering til K_auron::pOutputAxon
  	K_dendrite* pInputDendrite;  	// Samme for pInputDendrite.
 	
 	// Kappa - loggfil:
 	std::ofstream kappa_logFile;
 
-
+	// Kanskje dendrite skal implementeres i auron? Isåfall lag dette til ei lenka liste, og bruk ved å lese ut første element.
 	double dChangeInKappa_this_iter;
 
 
@@ -241,8 +233,6 @@ class K_auron : public i_auron
 
 	inline double getKappa(){ return dAktivitetsVariabel; }
 	
-	//bool bKappaLargerThanThreshold_lastIter;
-
 
 	// For debugging: trenger ei liste over alle K_auron, slik at eg kan skrive log for depol kvar tidsiterasjon:
 	// Legger til i constructor og fjærner i destructor (akkurat som for i_auron::pAllAurons)
@@ -251,14 +241,11 @@ class K_auron : public i_auron
 
 	bool bAuronHarPropagertAtDenErInaktiv;
 
-
-	unsigned long ulLastFiringTime;
-
 	protected:
 	inline void changeKappa_derivedArg( double );
 	inline void changeKappa_absArg(double);
-	// Rekalkulerer feil i Kappa for auronet.
 
+	// Rekalkulering av kappa, for å unngå 'truncation error':
 	inline virtual double recalculateKappa();
 	recalcKappaClass kappaRecalculator;
 
@@ -272,36 +259,13 @@ class K_auron : public i_auron
 	K_auron(std::string sNavn_Arg ="unnamed", double dStartKappa_arg = 0, unsigned uStartDepol_prosent =0); 	
 	~K_auron();
 
-
+	// TODO TODO TODO 
+	// Sjekk: Kvifor bare lagre det i en temp-variabel? Er vel bedre å lagre det direkte i en medl.var. for K_auron. Da kan det brukes om igjen..
+	// TODO TODO Skriv om heile funk. No er det veldig dårlig (uoptimalisert) stil.
 	inline const double getCalculateDepol()
 	{
-		#if 0
-		/*DEBUG*/cout<<"Depol: " <<(dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * ((time_class::getTid() - ulStartOfTimewindow))) + dAktivitetsVariabel ;
-		cout<<"dDepolAtStartOfTimeWindow: " <<dDepolAtStartOfTimeWindow <<"\tulStartOfTimeWindow: " <<ulStartOfTimewindow <<endl
-			<<"dAktivitetsVariabel:\t" <<dAktivitetsVariabel <<"\ttid: " <<time_class::getTid() <<endl;
-		#endif
-
 		double dDepol_temp = (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * (time_class::getTid() - ulStartOfTimewindow)) + dAktivitetsVariabel ;
 
-		#if DEBUG_UTSKRIFTS_NIVAA > 5
-		cerr<<sNavn <<"\t";
-		cerr<<"( " <<dDepol_temp <<" - " <<dAktivitetsVariabel <<" )*exp(-" <<ALPHA <<" * ( " <<time_class::getTid() <<" - " <<ulStartOfTimewindow <<" ) ) + " <<dAktivitetsVariabel 
-			<<" \t=\t\t" <<dDepol_temp <<"\n\n";
-		usleep(70000);
-		#endif
-
-		#if 0 // Har testa [litt] og sett at dette skjer typisk når noden er estimert å fyre neste iter. Ta vekk test for å optimalisere.
-		//{
-		if(dDepol_temp > FYRINGSTERSKEL){
-			cout<<"depol over fyringsterskel.\tEstimert fyretid/[notid] :" <<ulEstimatedTaskTime <<"/" <<time_class::getTid() <<endl;
-			//cout<<"Avslutter..\n\n"; 			exit(0);
-
-			// TODO TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO 
-			// Dette er quick-fix. Dårlig stil!
-			time_class::addTaskIn_pWorkTaskQue( this );
-			//doTask();
-		} //}
-		#endif
 		return dDepol_temp;
 	}
 
@@ -327,7 +291,6 @@ class K_auron : public i_auron
 			// Denne er kjøres inne i writeDepolToLog() :  (*iter) ->calculateDepol();
 			(*iter) ->writeDepolToLog();
 
-			//(*iter) ->recalculateKappa() ELLER NOKE. TODO TODO TODO TODO TODO TODO TODO TODO TODO 
 			(*iter) ->writeKappaToLog();
 		}
 	}

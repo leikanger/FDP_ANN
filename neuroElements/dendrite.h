@@ -26,13 +26,10 @@
 #ifndef DENDRITE_H_
 #define DENDRITE_H_
 
-
 #include "../andreKildefiler/time.h"
 #include "../andreKildefiler/main.h"
 #include "../neuroElements/synapse.h"
 #include "../neuroElements/auron.h"
-//#include "../andreKildefiler/aktivitetsObj.h"
-
 
 //Deklarasjoner:
 class i_synapse;
@@ -41,8 +38,8 @@ class s_auron;
 
 /*****************************************************************
 ** class dendritt 			-  	Notater:
-** 	
-** 		- dendritt må ha aktivitetsVariabel.
+** 		- Skal vekk. Class dendrite skal ikkje være med i K_auron! 	
+** 			(i_dendrite skal vekk. Alt innhold skal inn i s_dendrite..)
 **
 *****************************************************************/
 class i_dendrite : public timeInterface{
@@ -54,7 +51,6 @@ class i_dendrite : public timeInterface{
 	virtual void doCalculation() {}
 
 	virtual inline void newInputSignal( double ) =0;
-	//virtual inline void feedbackToDendrite() =0;
 
 	public:
 	i_dendrite(std::string sNavn /*="dendrite"*/);
@@ -66,7 +62,6 @@ class i_dendrite : public timeInterface{
 	friend class i_synapse;
 	friend class i_axon;
 	friend class i_auron;
-	//friend class i_dendrite;
 
 	friend class s_synapse;
 	friend class s_axon;
@@ -99,9 +94,6 @@ class s_dendrite : public i_dendrite{
 	s_dendrite( s_auron* pPostSynAuron_Arg ); // : pElementOfAuron(pPostSynAuron_Arg)  		Definisjon i neuroElement.cpp
 	~s_dendrite();
 
-
-	//TODO LEGG TIL dendrite::leggTilSynapse(synapse*) ! Gjør saker lettere, og bedre innkapsling!
-	
 	//Destructor:
 	/* kommenterer ut mens s_synapser ikkje er laga enda.. //{
 	~sDendritt()
@@ -120,9 +112,7 @@ class s_dendrite : public i_dendrite{
 	friend class s_sensor_auron;
 
 	friend class s_axon;
-	// Skal vekk: ? :
 	friend class s_synapse;
-	//friend std::ostream & operator<< (std::ostream & ut, axon  );
 	friend std::ostream & operator<< (std::ostream & ut, s_axon* );
 
 	friend int main(int, char**); //TODO SLETT
@@ -130,24 +120,20 @@ class s_dendrite : public i_dendrite{
 
 class K_dendrite : public i_dendrite{
  	inline void doTask();
-	inline void feedbackToDendrite();
+	//inline void feedbackToDendrite();
 
 	// Overlagrer i_dendrite::pElementOfAuron og i_dendrite::pInnSynapser, slik at desse blir modellspesifikke.
-	// 	Ligger også i i_dendrite, slik at i_dendrite* også kan kalle pElementOfAuron og pInnSynapser.
 	K_auron* pElementOfAuron;
 	std::list<K_synapse*> pInnSynapser;
 	
-	// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
 	inline double recalculateKappa();
 
-	
 	inline void newInputSignal(double);
 
 	public:
 	K_dendrite( K_auron* );
 	~K_dendrite();
 
-	// Skal vekk: ? :
 	friend class K_synapse;
 	friend class K_auron;
 };

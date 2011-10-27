@@ -62,13 +62,11 @@ class i_axon : public timeInterface{
 	
 	
 	
-	friend void testFunksjon_slett(s_auron*);
 	//friend std::ostream & operator<< (std::ostream & ut, axon );
-	friend std::ostream & operator<< (std::ostream & ut, s_axon* ); //XXX XXX denne skal ha argument (..., i_axon* ); XXX
+	friend std::ostream & operator<< (std::ostream & ut, s_axon* );
 	friend int main(int, char**); //TODO SLETT
 
 	friend class i_synapse;
-//	friend class i_axon;
 	friend class i_auron;
 	friend class i_dendrite;
 
@@ -97,33 +95,20 @@ class s_axon : public i_axon{
 	****        -timeInterface("axon")              ****
 	****                                           ****
 	**************************************************/
-	s_axon(s_auron* pAuronArg);// : timeInterface("axon"), pElementOfAuron(pAuronArg) 		//XXX Bare mens eg utvikler i_auron. Kan fjærne etterkvart..
-	//axon(const i_auron* p_iAuronArg);
+	s_axon(s_auron* pAuronArg);
 	~s_axon();
 
-
-
-
 	friend class i_auron;
-	//friend class s_auron;
 	friend class s_synapse;
-	friend void testFunksjon_slett(s_auron*);
-	//friend std::ostream & operator<< (std::ostream & ut, axon );
-	friend std::ostream & operator<< (std::ostream & ut, s_axon* ); //XXX XXX denne skal ha argument (..., i_axon* ); XXX
-	friend int main(int, char**); //TODO SLETT
+	friend std::ostream & operator<< (std::ostream & ut, s_axon* );
+	friend int main(int, char**);
 };
 
 
 
-/*****************************
-**  TODO TODO 
-**  Har oppdaga at det ikkje er naudsynt med oppdeling av nodene, med mindre man vil ha mulighet for auka spatiell oppløsning. 
-**  Dersom denne koden skal brukes pragmatisk er det difor mulig å fjærne class K_axon (og føre alt over i K_auron). Dette gjelder også for K_dendrite..
-*****************************/
 class K_axon : public i_axon{
 	inline void doTask();
 
-	// Desse overlagres i de modell-speisfikke elementa (s_axon og K_axon), for å gi mulighet til å kalle modellspesifikke funksjoner og variabler for s_axon/K_axon.
 	K_auron* pElementOfAuron;
 	std::list<K_synapse*> pUtSynapser;
 
@@ -136,9 +121,9 @@ class K_axon : public i_axon{
 	~K_axon();
 
 
-	//Skal vekk:
 	friend class K_synapse;
 	friend class K_auron;
 };
+
 #endif
 // vim:fdm=marker:fmr=//{,//}
