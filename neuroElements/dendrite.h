@@ -69,7 +69,6 @@ class i_dendrite : public timeInterface{
 	friend class s_dendrite;
 
 	friend class K_synapse;
-	friend class K_axon;
 	friend class K_auron;
 	friend class K_dendrite;
 };

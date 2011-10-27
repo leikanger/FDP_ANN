@@ -34,7 +34,6 @@
 //#include "../andreKildefiler/aktivitetsObj.h"
 class i_axon;
 class s_axon;
-class K_axon;
 class i_dendrite;
 class s_dendrite;
 class K_dendrite;
@@ -96,8 +95,15 @@ class s_synapse : public i_synapse{
 class K_synapse : public i_synapse{
 	inline void doTask();
 	
+	// NYTT:
+	unsigned uTemporalDistanceFromSoma; // Avstant fra axon hillock til synapse langs axon.
+	unsigned uTemporalDistanceToSoma; 	// Avstand fra dendrite til soma.
+	void scheduleTransmission(); 		// Tar hand om alt som har med å schedule transmission (legge til synapse etter rett delay og anna).
+
+	K_auron* pPreNodeAuron;
+	// GAMMELT:
 	// Overlagrer peikarane, for å få rett preElement og postElement for synapsen (av rett modell).
- 	K_axon* pPreNodeAxon;
+ 	// K_axon* pPreNodeAxon; GJORT OM TIL pPreNodeAuron!
 	K_dendrite* pPostNodeDendrite; 
 
 	double dPresynPeriodINVERSE;
@@ -112,7 +118,6 @@ class K_synapse : public i_synapse{
 
 	friend class K_dendrite;
 	friend class K_auron;
-	friend class K_axon;
 
 	friend int main(int, char**);
 };

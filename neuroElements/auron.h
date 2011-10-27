@@ -49,7 +49,7 @@ using std::cout;
 
 // klasse deklarasjoner:
 class s_dendrite;
-class i_axon; 	//TODO Vekk med K_axon! XXX
+class i_axon; 	//TODO Vekk med K_axon! XXX --og dermed heile abstrakte i_axon: overfør alt til s_axon!
 class s_axon;
 
 /*******************
@@ -157,7 +157,6 @@ class i_auron : public timeInterface
 
 	friend class i_axon; // VEKK med den?
 	friend class s_axon;
-	friend class K_axon;
 
 	friend class i_synapse;
 	friend class s_synapse;
@@ -212,9 +211,15 @@ class s_auron : public i_auron
 
 class K_auron : public i_auron
 { // {
+
+	// Fra axon: 
+	std::list<K_synapse*> pUtSynapser;
+	//protected:
+	void doTransmission();
+	
 	// TA VEKK:
 	//                  		OVERLAGRA fra i_auron
-	K_axon* pOutputAxon; 			// Overlagrer i_auron::i_axon til K_auron::K_axon. Dette er alternativ til å caste pOutputAxon ved accessering til K_auron::pOutputAxon
+	//K_axon* pOutputAxon; 			// Overlagrer i_auron::i_axon til K_auron::K_axon. Dette er alternativ til å caste pOutputAxon ved accessering til K_auron::pOutputAxon
  	K_dendrite* pInputDendrite;  	// Samme for pInputDendrite.
 	
 	// Kappa - loggfil:

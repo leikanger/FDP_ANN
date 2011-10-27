@@ -42,14 +42,13 @@ class s_auron;
 class K_auron;
 
 class s_axon;
-class K_axon;
 
 /* <<interface>> */
 class i_axon : public timeInterface{
 	// XXX XXX XXX Utsetter doCalculation() for alle axon: (definerer den til å gjøre ingenting her for å unngå at klassene under blir abstract..)
 	virtual void doCalculation() {}
 	
-	// Desse overlagres i de modell-speisfikke elementa (s_axon og K_axon), for å gi mulighet til å kalle modellspesifikke funksjoner og variabler for s_axon/K_axon.
+	// Desse overlagres i de modell-speisfikke elementa (s_axon), for å gi mulighet til å kalle modellspesifikke funksjoner og variabler for s_axon.
 	i_auron* pElementOfAuron; 		 // Flytta til i_axon
 	std::list<i_synapse*> pUtSynapser; // Flytta til i_axon
 
@@ -72,7 +71,6 @@ class i_axon : public timeInterface{
 
 	friend class K_auron;
 	friend class K_synapse;
-	friend class K_axon;
 	
 
 	friend class s_synapse;
@@ -84,7 +82,7 @@ class i_axon : public timeInterface{
 class s_axon : public i_axon{
 	inline void doTask();
 
-	// Desse overlagres i de modell-speisfikke elementa (s_axon og K_axon), for å gi mulighet til å kalle modellspesifikke funksjoner og variabler for s_axon/K_axon.
+	// Desse overlagres i de modell-speisfikke elementa (s_axon), for å gi mulighet til å kalle modellspesifikke funksjoner og variabler for s_axon.
 	s_auron* pElementOfAuron;
 	std::list<s_synapse*> pUtSynapser;
 
@@ -105,25 +103,6 @@ class s_axon : public i_axon{
 };
 
 
-
-class K_axon : public i_axon{
-	inline void doTask();
-
-	K_auron* pElementOfAuron;
-	std::list<K_synapse*> pUtSynapser;
-
-	
-	protected:
-	void doTransmission();
-
-	public:
-	K_axon(K_auron*);
-	~K_axon();
-
-
-	friend class K_synapse;
-	friend class K_auron;
-};
 
 #endif
 // vim:fdm=marker:fmr=//{,//}

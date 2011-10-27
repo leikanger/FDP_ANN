@@ -14,7 +14,12 @@ Progging:
 - Lage nettverk med alle-til-alle koblinger -- alle er initiellt koblet med alle andre noder. Synaptisk plasticitet fikser biffen!
 	- dette kan være superspennende! Kan lage mange sensor-auron som senser på en-eller-annen verdi og gir ut eit float-signal til nettet. Etter synaptisk plasticitet (og spesiellt dersom man har med belønning) kan det blir shitbra!
 
+Fikse kode / umiddelbar plan:
 
+_ FIX: kommentarFIX01@neuroElement.cpp XXX XXX 
+- Sjekk [kommentarID_asdff213@neuroelement.cpp]
+- Sjekk [kommentarID_asd603@neuroElement.cpp]
+- Lag uTemporalDistanceFromSoma som viktig element i K_auron::doTransmission()
 
 
 
