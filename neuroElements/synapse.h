@@ -98,7 +98,7 @@ class K_synapse : public i_synapse{
 	// NYTT:
 	unsigned uTemporalDistanceFromSoma; // Avstant fra axon hillock til synapse langs axon.
 	unsigned uTemporalDistanceToSoma; 	// Avstand fra dendrite til soma.
-	void scheduleTransmission(); 		// Tar hand om alt som har med å schedule transmission (legge til synapse etter rett delay og anna).
+	//void scheduleTransmission(); 		// Tar hand om alt som har med å schedule transmission (legge til synapse etter rett delay og anna).
 
 	K_auron* pPreNodeAuron;
 	// GAMMELT:
@@ -111,7 +111,8 @@ class K_synapse : public i_synapse{
 	const inline double getTotalTransmission();
 
 	public:
-	K_synapse(K_auron*, K_auron*, double dSynVekt_Arg =1, bool bInhibEffekt_Arg =false) ;
+	K_synapse(K_auron*, K_auron*, double dSynVekt_Arg =1, bool bInhibEffekt_Arg =false, unsigned uTemporalDistanceFromSoma_arg =1) ;
+	//K_synapse(K_auron*, K_auron*, double dSynVekt_Arg =1, bool bInhibEffekt_Arg =false) ;
 	~K_synapse();
 	
 	inline void skrivUt();

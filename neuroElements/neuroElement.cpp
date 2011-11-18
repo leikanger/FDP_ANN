@@ -363,8 +363,8 @@ s_synapse::~s_synapse()
 }
 //}2
 //{2 K_synapse
-K_synapse::K_synapse(K_auron* pPresynAuron_arg, K_auron* pPostsynAuron_arg, double dSynVekt_Arg /*=1*/, bool bInhibEffekt_Arg /*=false*/ )
- :  i_synapse(dSynVekt_Arg * FYRINGSTERSKEL      , bInhibEffekt_Arg, "K_synapse") , pPreNodeAuron(pPresynAuron_arg), pPostNodeDendrite(pPostsynAuron_arg->pInputDendrite) 
+K_synapse::K_synapse(K_auron* pPresynAuron_arg, K_auron* pPostsynAuron_arg, double dSynVekt_Arg /*=1*/, bool bInhibEffekt_Arg /*=false*/ , unsigned uTemporalDistanceFromSoma_arg /* =1*/)
+ :  i_synapse(dSynVekt_Arg * FYRINGSTERSKEL      , bInhibEffekt_Arg, "K_synapse") , uTemporalDistanceFromSoma(uTemporalDistanceFromSoma_arg) , pPreNodeAuron(pPresynAuron_arg), pPostNodeDendrite(pPostsynAuron_arg->pInputDendrite)
 {
 	cout<<"Constructor :\tK_synapse::K_synapse(" <<pPreNodeAuron->sNavn <<", " <<pPostNodeDendrite->pElementOfAuron->sNavn <<".pInputDendrite, ...)\n";
 
@@ -985,7 +985,7 @@ inline void K_sensor_auron::updateSensorValue()
 
 	if( dSensedValue != dLastSensedValue){
 		//changeKappa_absArg( dSensedValue ); XXX FARLIG! IKKJE BRUK changeKappa_absArg() !
-		changeKappa_derivedArg( dSensedValue-dLastSensedValue );
+		changeKappa_derivedArg( (dSensedValue-dLastSensedValue)*ALPHA );
 	}
 
 	#if DEBUG_UTSKRIFTS_NIVAA > 3
@@ -1014,7 +1014,8 @@ inline void s_sensor_auron::updateSensorValue()
 	static double sdValue = 0;
 	sdLastValue = sdValue;
 	sdValue = (*pSensorFunction)();
-	pInputDendrite->newInputSignal( (  sdValue )); // XXX OPPMERKSOMHET!    Sender inn umiddelbart sensa signal, ikkje den deriverte.  (Sjekk dette).
+	pInputDendrite->newInputSignal( ( sdValue )); // XXX OPPMERKSOMHET!    Sender inn umiddelbart sensa signal, ikkje den deriverte.  (Sjekk dette).
+	// WHATTEFUKK? Kvifor blir det likt når eg sender in dobbelt av sensa verdi? 
 } //}
 
 

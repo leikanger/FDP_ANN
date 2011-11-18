@@ -217,6 +217,7 @@ class K_auron : public i_auron
 	//protected:
 	void doTransmission();
 	
+
 	// TA VEKK:
 	//                  		OVERLAGRA fra i_auron
 	//K_axon* pOutputAxon; 			// Overlagrer i_auron::i_axon til K_auron::K_axon. Dette er alternativ til å caste pOutputAxon ved accessering til K_auron::pOutputAxon

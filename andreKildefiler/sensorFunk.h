@@ -3,7 +3,18 @@
 #include "../neuroElements/synapse.h"
 
 #define PI 3.14159
-// Sensorfunk. Skal være til sensorneurons.. (i fremtida. Dette er en plan..)
+
+inline double dynamiskSensorFunk()
+{
+	return (1.1+sin((float)time_class::getTid()/100.0))*(float)FYRINGSTERSKEL;
+}
+inline double statiskSensorFunk()
+{
+	return 1.1*FYRINGSTERSKEL;
+	//return 1.5000000*FYRINGSTERSKEL;
+}
+
+// GAMMELT:
 inline double sensorFunk1()
 {
 	#define SVINGNINGS_AMP 2.133
@@ -49,11 +60,6 @@ inline double sensorFunk4()
 {
 	//return (( 1+((float)time_class::getTid() / 300) ) * FYRINGSTERSKEL);
 	return ( FYRINGSTERSKEL*( 2 * (1 + sin( 3.14*(float)time_class::getTid()/4000 ))) );
-}
-inline double statiskSensorFunk()
-{
-	return 2*FYRINGSTERSKEL;
-	//return 1.5000000*FYRINGSTERSKEL;
 }
 
 // TEST 1 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 

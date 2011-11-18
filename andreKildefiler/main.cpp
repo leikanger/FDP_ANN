@@ -34,6 +34,7 @@
 
 #include "main.h"
 //#include "../neuroElements/auron.h"
+#include "../neuroElements/synapse.h"
 #include "time.h"
 #include "sensorFunk.h"
 
@@ -154,6 +155,16 @@ int main(int argc, char *argv[])
 
 
 	// Testoppsett:
+// Blanda:
+	#if 0
+	K_auron* K = new K_sensor_auron("KN", &statiskSensorFunk);
+	s_auron* S = new s_sensor_auron("SN", &statiskSensorFunk);
+	#else
+	K_auron* K = new K_sensor_auron("KN", &dynamiskSensorFunk);
+	s_auron* S = new s_sensor_auron("SN", &dynamiskSensorFunk);
+	#endif
+
+// BARE KAPPA:
 	#if 0
 	K_sensor_auron* Ks1 = new K_sensor_auron("K_sensor_auron", &sensorFunk1a);
 	K_auron* k1 = new K_auron("k1");
@@ -161,11 +172,13 @@ int main(int argc, char *argv[])
 
 	#else 	// 	KANN-Test
 	 	//{ KANN: TEST-oppsett.
-		#if 1
+		#if 0
 
 		cout<<"\n\nLAGER KANN\n\n";
 
 		K_auron* K1 = new K_auron("K1" /*, arg2 = 0? */);
+		K_auron* K2 = new K_auron("K2" );
+		K_auron* K3 = new K_auron("K3" );
 	
 		K_sensor_auron* KsStatisk = new K_sensor_auron("KsStatisk", &statiskSensorFunk);
 		new K_synapse(KsStatisk, K1, 200);
@@ -173,13 +186,28 @@ int main(int argc, char *argv[])
 	
 
 		K_sensor_auron* Ks1 = new K_sensor_auron( "Ks1", &sensorFunk1 );
-		new K_synapse( Ks1, K1, 400, true ); 
+		new K_synapse( Ks1, K1, 400, false ); 
 	
 		K_sensor_auron* Ks2 = new K_sensor_auron( "Ks2", &sensorFunk2 );
-		new K_synapse( Ks2, K1, 400, true ); 
+		new K_synapse( Ks2, K1, 400, false ); 
+		new K_synapse( Ks2, KsStatisk, 333, false);
 
-		new K_synapse( KsStatisk, K1, 700, true );
+		new K_synapse( KsStatisk, K1, 300, true );
+
+	
+		new K_synapse( Ks1, K2, 400);
+		new K_synapse( Ks2, K2, 200);
+		new K_synapse( Ks1, K3, 250);
+		new K_synapse( Ks2, K3, 100);
+		new K_synapse( K2, K3, 100);
+		new K_synapse( K1, K3, 200, true);
+		new K_synapse( K3, K1, 100);
+		new K_synapse( K3, K1, 100, true);
+
 		#endif
+
+
+
 
 		#if 0 // Testoppsett 1, KANN
 			K_auron* Ks1 = new K_sensor_auron("Ks1", &sensorFunk_TEST1_s1 );
