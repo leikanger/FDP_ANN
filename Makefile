@@ -7,6 +7,11 @@ CPPFLAGS=${CFLAGS}
 #all: andreKildefiler/main.cpp andreKildefiler/main.h andreKildefiler/tid.cpp andreKildefiler/time.h neuroElements/axon.h neuroElements/dendrite.h neuroElements/synapse.h neuroElements/neuroElement.cpp
 #	clear; echo "make all:\n\n"; g++ ${CFLAGS} andreKildefiler/main.cpp neuroElements/neuroElement.cpp -o auroNett.out
 
+
+altI_en: andreKildefiler/*.cpp andreKildefiler/*.h neuroElements/*.cpp neuroElements/*.h
+	echo "\n\n\n\nmake altI_en:\n\n"
+	${CPP} ${CFLAGS} andreKildefiler/main.cpp neuroElements/neuroElement.cpp -o auroNett.out 
+
 auroNett.out: main.o neuroElement.o
 	echo "\n\n\n\nmake auroNett.out:\n\n"
 	${CPP} ${CFLAGS} main.o neuroElement.o -o auroNett.out
@@ -18,9 +23,6 @@ main.o: andreKildefiler/main.cpp andreKildefiler/main.h andreKildefiler/time.h
 	${CPP} ${CFLAGS} -c andreKildefiler/main.cpp 
 
 
-altI_en: andreKildefiler/*.cpp andreKildefiler/*.h neuroElements/*.cpp neuroElements/*.h
-	echo "\n\n\n\nmake altI_en:\n\n"
-	${CPP} ${CFLAGS} andreKildefiler/main.cpp neuroElements/neuroElement.cpp -o auroNett.out 
 
 c:
 	make clean; clear; echo "\nHAR FJÆNA ALLE .out FILENE. Kjører make\n\n"; make

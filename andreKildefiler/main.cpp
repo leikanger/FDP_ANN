@@ -156,14 +156,15 @@ int main(int argc, char *argv[])
 
 	// Testoppsett:
 // Blanda:
-	#if 0
-	K_auron* K = new K_sensor_auron("KN", &statiskSensorFunk);
-	s_auron* S = new s_sensor_auron("SN", &statiskSensorFunk);
-	#endif
+
 	#if 1
-	K_auron* K = new K_sensor_auron("KN", &dynamiskSensorFunk);
-	s_auron* S = new s_sensor_auron("SN", &dynamiskSensorFunk);
+	//STATISK
+	K_auron* Ks = new K_sensor_auron("_sKN", &statiskSensorFunk);
+	s_auron* Ss = new s_sensor_auron("_sSN", &statiskSensorFunk);
 	#endif
+	//DYNAMISK
+	K_auron* Kd = new K_sensor_auron("_dKN", &dynamiskSensorFunk);
+	s_auron* Sd = new s_sensor_auron("_dSN", &dynamiskSensorFunk);
 
 //  BARE KAPPA:
 	#if 0
@@ -341,7 +342,7 @@ void* taskSchedulerFunction(void* )
 			// (*K_iter)->doTask();    // Løsninga for FDP: dette skaper en spike ved t=0 i plot av depol.
 		// Setter v_0 til 0 og t_0 til [no]:
 		(*K_iter)->dDepolAtStartOfTimeWindow = 0;
-		(*K_iter)->ulStartOfTimewindow = time_class::getTid();
+		(*K_iter)->dStartOfTimeWindow = (double)time_class::getTid();
 		// Regner ut resulterende periode, osv.
 		(*K_iter)->doCalculation();
 	}

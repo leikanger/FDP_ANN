@@ -60,7 +60,7 @@ class recalcKappaClass : public timeInterface
 	public:
 	recalcKappaClass(K_auron* pKnyttaTilKappaAuron_arg) : timeInterface("Kappa-recalc. obj."), pKappaAuron_obj(pKnyttaTilKappaAuron_arg){
 		// Setter periode mellom ralkulering lavt:
-		ulEstimatedTaskTime = 1; // Denne blir overskrevet første gang den kjører.
+		dEstimatedTaskTime = 1; // Denne blir overskrevet første gang den kjører.
 
 		// Legger til element-peiker i std::list<timeInterface*> pPeriodicElements:
 		time_class::addElementIn_pPeriodicElements( this );
@@ -113,10 +113,23 @@ class i_auron : public timeInterface
 	inline virtual const void writeAPtoLog()
 	{
 		// XXX Kommenterer ut for å lettere sjå gjennom log-fil:
-		#if 0 //KOMMENTERER UT. 
+		#if 1 //KOMMENTERER UT. 
 
 		// Lager en vertikal "strek" fra v=0 til v=Terskel*(110%)
-		for(float fTerkelProsent_temp = 0; fTerkelProsent_temp<1.2; fTerkelProsent_temp+=0.001)
+		for(float fTerkelProsent_temp = 1.35; fTerkelProsent_temp>1.1; fTerkelProsent_temp-=0.001)
+		{
+			// TID: endre fra present time iteration til å være gitt av dEstimatedTaskTime i K_auron!
+			depol_logFile 	<<time_class::getTid() <<"\t" <<fTerkelProsent_temp*FYRINGSTERSKEL <<"; \t #Action potential\n" ;
+		}
+	 	depol_logFile.flush();
+		#endif
+	}
+	inline void DEBUTsettMerkeIPlott()
+	{
+		#if 1 //KOMMENTERER UT. 
+
+		// Lager en vertikal "strek" fra v=0 til v=Terskel*(110%)
+		for(float fTerkelProsent_temp = 1.4; fTerkelProsent_temp<1.7; fTerkelProsent_temp+=0.001)
 		{
 			depol_logFile 	<<time_class::getTid() <<"\t" <<fTerkelProsent_temp*FYRINGSTERSKEL <<"; \t #Action potential\n" ;
 		}
@@ -199,8 +212,9 @@ class s_auron : public i_auron
 
 	inline virtual const void writeDepolToLog()
 	{
-	 	//depol_logFile 	<<(unsigned long)time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"; \t #Depol\n" ;
-	 	//depol_logFile.flush();
+		// TODO TODO TODO Plasser all kode som har med å skrive depol til logg, HER! TODO TODO TODO Bra å ha alt samla her!
+		depol_logFile 	<<time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"; \t #Depolarization\n" ;
+		depol_logFile.flush();
 	}
 //{friend
 	friend class s_axon;
@@ -235,7 +249,8 @@ class K_auron : public i_auron
 
 
 	double dDepolAtStartOfTimeWindow;
-	unsigned long ulStartOfTimewindow;
+	double dStartOfTimeWindow; 		// Start-tidspunkt for dette time window.
+	// Flytta til protected (@asdf1515): double dNextStartOfTimeWindow; 	// Start-tidspunkt for neste time window (brukes til å finne start-depol. for neste time window).
 
 	double dLastCalculatedPeriod;
 	double dPeriodINVERSE;
@@ -251,9 +266,30 @@ class K_auron : public i_auron
 
 	bool bAuronHarPropagertAtDenErInaktiv;
 
+
+	// For å lage fin vertikal "strek" ved AP: OVERLAGRER fra i_auron: (for å få eksakt fyringstid!)
+	inline virtual const void writeAPtoLog()
+	{
+		// XXX Kommenterer ut for å lettere sjå gjennom log-fil:
+		#if 1 //KOMMENTERER UT. 
+
+		// Lager en vertikal "strek" fra v=0 til v=Terskel*(110%)
+		for(float fTerkelProsent_temp = 1.35; fTerkelProsent_temp>1.1; fTerkelProsent_temp-=0.001)
+		{
+			// TID: endre fra present time iteration til å være gitt av dEstimatedTaskTime i K_auron!
+			depol_logFile 	<<dEstimatedTaskTime <<"\t" <<fTerkelProsent_temp*FYRINGSTERSKEL <<"; \t #Action potential\n" ;
+		}
+	 	depol_logFile.flush();
+		#endif
+	}
+
+
 	protected:
 	inline void changeKappa_derivedArg( double );
 	inline void changeKappa_absArg(double);
+
+	// Sjå @asdf1515
+	double dNextStartOfTimeWindow; 	// Start-tidspunkt for neste time window (brukes til å finne start-depol. for neste time window).
 
 	// Rekalkulering av kappa, for å unngå 'truncation error':
 	inline virtual double recalculateKappa();
@@ -265,6 +301,9 @@ class K_auron : public i_auron
 	inline void doTask();
 	inline void doCalculation();
 
+	// XXX NY XXX
+	inline void estimatePeriod();
+
 	public:
 	K_auron(std::string sNavn_Arg ="unnamed", double dStartKappa_arg = 0, unsigned uStartDepol_prosent =0); 	
 	~K_auron();
@@ -274,8 +313,17 @@ class K_auron : public i_auron
 	// TODO TODO Skriv om heile funk. No er det veldig dårlig (uoptimalisert) stil.
 	inline const double getCalculateDepol()
 	{
-		return (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * (time_class::getTid() - ulStartOfTimewindow )) + dAktivitetsVariabel ;
+		// GAMMEL: return (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * (time_class::getTid() - ulStartOfTimewindow )) + dAktivitetsVariabel ;
+
+		// Går over til bedre tidssoppløysing: double-precition float number accuracy!
+		return (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * (dNextStartOfTimeWindow - dStartOfTimeWindow )) + dAktivitetsVariabel ; //v(t)=K(1-e^-at)-v_+e^-at = (v_0 - K) e^-at + K   !
 	}
+	#if 0 
+	inline const double getCalculateDepol(double dTidspunktArg)
+	{
+		return (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * (dTidspunktArg - dStartOfTimeWindow )) + dAktivitetsVariabel ; //v(t)=K(1-e^-at)-v_+e^-at = (v_0 - K) e^-at + K   !
+	}
+	#endif
 
 	
 	const inline void writeDepolToLog()

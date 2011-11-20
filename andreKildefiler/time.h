@@ -46,11 +46,12 @@ void loggeFunk_K_auron(); // auron.h
 class timeInterface
 {
 	public:
-	timeInterface(std::string s) : ulEstimatedTaskTime(0), sClassName(s){}
+	timeInterface(std::string s) : dEstimatedTaskTime(0), sClassName(s){}
 
 	virtual void doTask() =0;
 	virtual void doCalculation() =0;
-	unsigned long ulEstimatedTaskTime; 
+	//unsigned long dEstimatedTaskTime; 
+	double dEstimatedTaskTime; 
 
 	//for debugging:
 	std::string sClassName;
@@ -73,7 +74,7 @@ class time_class : public timeInterface {
 	static std::list<timeInterface*> pWorkTaskQue;
 	static std::list<timeInterface*> pCalculatationTaskQue;
 
-	// Liste som sjekkes ved kvar tidsiterering: Dersom eit element har ulEstimatedTaskTime til neste tidssted legges peiker inn i pWorkTaskQue.
+	// Liste som sjekkes ved kvar tidsiterering: Dersom eit element har dEstimatedTaskTime til neste tidssted legges peiker inn i pWorkTaskQue.
 	static std::list<timeInterface*> pPeriodicElements;
 
 	protected:

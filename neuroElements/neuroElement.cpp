@@ -161,10 +161,11 @@ K_auron::K_auron(std::string sNavn_Arg /*="unnamed"*/, double dStartKappa_arg /*
 
 	// Initialiserer aktivitetsvariablene kappa til å være verdien dStartKappa_arg:
 	dAktivitetsVariabel = dStartKappa_arg;
+	// XXX XXX XXX  MÅ IKKJE EG DEFINERE: dNextStartOfTimeWindow ??? XXX XXX XXX
 	//changeKappa_derivedArg( dStartKappa_arg );
 
 	// Initierer første 'time window':
-	ulStartOfTimewindow = time_class::getTid();
+	dStartOfTimeWindow = (double)time_class::getTid();
 // XXX XXX HAR TATT VEKK DENNE FUNKSJONALITETEN! XXX XXX
 //		dDepolAtStartOfTimeWindow = uStartDepol_prosent * FYRINGSTERSKEL;
 
@@ -549,6 +550,9 @@ cerr<<"DEBUG: K_dendrite\n";
 inline void K_dendrite::newInputSignal( double dNewSignal_arg )
 { //{2
 	// TODO Legg inn spatiotemporal differensiering for ulike synapser. Dette gjør at eg må gjøre om heile strukturen til dette opplegget.
+
+	// TODO TODO TODO ESTIMER Tidspunk for overføring. No setter eg bare oppdateringstidsspunkt for kappa til midten av tidsiterasjonen.. TODO TODO TODO
+	pElementOfAuron->dNextStartOfTimeWindow = (double)time_class::getTid() +0.5;
 	pElementOfAuron->changeKappa_derivedArg( dNewSignal_arg );
 } //}2
 
@@ -556,6 +560,8 @@ inline void K_auron::changeKappa_derivedArg( double dInputDerived_arg)//int deri
 {
 	// Arg legges til Kappa no, og effektene av endringa kalkuleres i .doCalculation().
 	dChangeInKappa_this_iter +=  dInputDerived_arg ;
+
+	// TODO TODO SKAL eg gjøre noe med dNextStartOfTimeWindow her (tidspunkt for oppdatering av kappa)?
 
 	// Legger den i pCalculatationTaskQue, slik at effekt av all endring i kappa ila. tidsiterasjonen beregnes etter iterasjonen.
 	time_class::addCalculationIn_pCalculatationTaskQue( this );
@@ -624,8 +630,7 @@ inline void s_dendrite::newInputSignal( double dNewSignal_arg )
 	}
 
 	// Skriver til log for aktivitetsVar:
-	pElementOfAuron->depol_logFile 	<<time_class::getTid() <<"\t" <<pElementOfAuron->dAktivitetsVariabel <<"; \t #Depolarization\n" ;
-	pElementOfAuron->depol_logFile.flush();
+	pElementOfAuron->writeDepolToLog();
 } //}2
 
 inline void s_dendrite::calculateLeakage()
@@ -747,21 +752,30 @@ inline void K_auron::doTask()
 	// 		Dette kan gjøres direkte, for å slippe litt jobb: Dersom vi legger til 1 i fyringsestimatet, er ikkje axon-delay naudsynt.. TODO
 	// 		time_class::addTaskIn_pWorkTaskQue( p OutputAxon );
 	//}
-	// XXX Gjør doTransmission() umiddelbart. Dette kan være rett, eller feil. Definer doTransmission() slik at det blir rett!
-	doTransmission();
+	// Gjør doTransmission() umiddelbart. Dette kan være rett, eller feil. Definer doTransmission() slik at det blir rett!
+	//doTransmission(); // Er ikkje det litt rart å overføre Kappa ved fyring? Unødvendig! KOMMENTERER UT
+	// TODO Lag en funk. som gjør alt som skal gjøres ved fyring!
+
+//if(dEstimatedTaskTime > time_class::getTid() ) Sjekke om dette er feilen: var ikkje det, no..
 
 	// Initialiserer nytt 'time window':
-	dDepolAtStartOfTimeWindow = 0;
-	ulStartOfTimewindow = time_class::getTid();
+		// (Setter depol. til 0)
+	dDepolAtStartOfTimeWindow = 0; 
+		// (Setter dStartOfTimeWindow til dNextStartOfTimeWindow -- estimert tidsspunkt for fyring..)
+	dStartOfTimeWindow = dEstimatedTaskTime; //SPSIELLT FOR FYRING! Ellers brukes: dNextStartOfTimeWindow;
+	//GAMMEL LØYSING: u lStartOfTimewindow = time_class::getTid();
 
 	// Gjør kalkuleringer for å planlegge neste fyring.
-	doCalculation();
+	// 	GAMMEL: doCalculation(); //XXX HER MÅ dNextStartOfTimeWindow være definert!
+	//estimatePeriod(); 		// NY. Gjør det som må gjøres etter fyring (estimerer neste fyringstid..)
+	// 	Kommenterer ut: la oss anta at vi har en rett periode (ble definert forrige iterasjon eller forrige gang kappa ble endret..)
 	
 	// Logger AP (vertikal strek)
 	writeAPtoLog();
 
-	// Oppdaterer ulEstimatedTaskTime til [no] + dLastCalculatedPeriod:
-	ulEstimatedTaskTime = time_class::getTid() + (unsigned long)(dLastCalculatedPeriod+0.5);
+	// Oppdaterer dEstimatedTaskTime til [no] + dLastCalculatedPeriod:
+	//dEstimatedTaskTime = dStartOfTimeWindow + dLastCalculatedPeriod; DETTE BLIR ekvivalent med:
+	dEstimatedTaskTime += dLastCalculatedPeriod;
 } //}1
 /* K_synapse::doTask() 	: 		Simulerer overføring i synapsen */
 inline void K_synapse::doTask()
@@ -842,7 +856,8 @@ void time_class::doTask()
 	*************************************************/
 	for( std::list<timeInterface*>::iterator pPE_iter = pPeriodicElements.begin() ; pPE_iter != pPeriodicElements.end() ; pPE_iter++ )
 	{
-		if( (*pPE_iter)->ulEstimatedTaskTime == ulTime+1 )
+		// Typekonverderer dEstimatedTaskTime til unsigned long, og sjekker om elementet er planlagt å gjennomføre noe neste iter (legger til 0.5 for å få rett avrunding):
+		if( (unsigned long)( (*pPE_iter)->dEstimatedTaskTime +0.5) == ulTime+1 )
 		{
 			addTaskIn_pWorkTaskQue( (*pPE_iter) );
 			// Dette fører til eit kall til eit tidsElements doTask(). Teller antall kall (til rapporten):
@@ -884,12 +899,19 @@ void K_auron::doCalculation()
 	// Viktig å kalkulere depol med GAMMEL Kappa! Ellers får vi hopp i depol!
 	// Lagrer v_0 og t_0 for neste 'time window':
 	dDepolAtStartOfTimeWindow = getCalculateDepol();
-	ulStartOfTimewindow = time_class::getTid();
+	// TODO Dette må endres når eg begynner med synaptisk input for nodene! Da blir det litt annaleis ?
+	dStartOfTimeWindow = dNextStartOfTimeWindow; //GAMMEL LØYSING: time_class::getTid();
 	
 	// Oppdaterer Kappa
 	dAktivitetsVariabel += dChangeInKappa_this_iter;
 	dChangeInKappa_this_iter = 0;
 
+	estimatePeriod();
+}
+
+inline void K_auron::estimatePeriod()
+{
+	 
 	//***********************************************
 	//*  Beregn estimert fyringstid:   				*
 	//***********************************************
@@ -911,9 +933,13 @@ void K_auron::doCalculation()
 		#endif
 
 
-		// 	For K_auron trenger vi ikkje legge til elementet i [liste som skal sjekkes]. pAllKappaAurons sjekkes alltid.. 												+0.5 for rett avrunding.
-		ulEstimatedTaskTime =( ( (double)time_class::getTid() + log( (dAktivitetsVariabel-dDepolAtStartOfTimeWindow)/(dAktivitetsVariabel-(double)FYRINGSTERSKEL) )   /  (double)ALPHA )+0.5)  ; // TODO +1 ekstra for å få delay i dendrite.
-																																												 //+1 for å også få delay i axon.
+		// 	For K_auron trenger vi ikkje legge til elementet i [liste som skal sjekkes]. pAllKappaAurons sjekkes alltid.. 	
+		// GAMMEL: (1) Typekonverterer tid til double (2) legger til beregnet estimert fyringstid TODO VALIDER dette! -igjen og igjen!
+		// GAMMEL: dEstimatedTaskTime = ( (double)time_class::getTid() + log( (dAktivitetsVariabel-dDepolAtStartOfTimeWindow)/(dAktivitetsVariabel-(double)FYRINGSTERSKEL) )   /  (double)ALPHA )  ; // TODO +1 ekstra for å få delay:axon,d.
+		dEstimatedTaskTime = ( dStartOfTimeWindow 	+ log( (dAktivitetsVariabel-dDepolAtStartOfTimeWindow)/(dAktivitetsVariabel-(double)FYRINGSTERSKEL) )   /  (double)ALPHA )  ; // TODO +1 ekstra for å få delay i dendrite, axon ?
+		// [estimert tid}  = 		[no]			+ 		[remainder of depolarizing phase] 
+		// GÅR HER UT IFRA AT Kappa endres kvar iterasjon! Seier at [no] er samme som dStartOfTimeWindow: dette er bare rett dersom vi oppdaterer start of time window kvar iter!
+																										
 		/*
 		* 	Her er eit problem:
 		* 		Refraction time: Dersom vi bare legger til en, så vil oppladning starte umiddelbart. Når kappa blir endra, så vil oppladninga (som starter for tidlig) være det einaste som er viktig. Dette skaper problemer.
@@ -933,8 +959,8 @@ void K_auron::doCalculation()
 		bAuronHarPropagertAtDenErInaktiv = false;
 
 	}else{
-		// setter planlagt task time til no, slik at den aldri vil fyre pga. ulEstimatedTaskTime. (når den sjekker nest gang, så vil [no] være i fortida..)
-		ulEstimatedTaskTime = time_class::getTid();
+		// setter planlagt task time til no, slik at den aldri vil fyre pga. dEstimatedTaskTime. (når den sjekker nest gang, så vil [no] være i fortida..)
+		dEstimatedTaskTime = 0; //(double)time_class::getTid();
 		
 		// Setter dLastCalculatedPeriod, dChangeInPeriodINVERSE, dPeriodINVERSE.
 		dLastCalculatedPeriod = 0; 	// Er dette greit?    SKUMMELT! (men funker).
@@ -942,7 +968,7 @@ void K_auron::doCalculation()
 		dPeriodINVERSE = 0;
 		
 		#if DEBUG_UTSKRIFTS_NIVAA > 4
-			cout<<"Kappa er mindre enn Tau. Setter ulEstimatedTaskTime = [no] (vil ikkje ha noko å sei for fyringa).\n";
+			cout<<"Kappa er mindre enn Tau. Setter dEstimatedTaskTime = [no] (vil ikkje ha noko å sei for fyringa).\n";
 			cerr<<"Setter [dPeriodINVERSE, dPeriodInverse_static_local, dChangeInPeriodINVERSE, dLastCalculatedPeriod] til [ "
 			 	<<dPeriodINVERSE <<","
 				<<dChangeInPeriodINVERSE <<", "
@@ -959,11 +985,16 @@ void K_auron::doCalculation()
 	}
 
 
-	// Dersom Kappa endres slik at node vil fyre neste iter (sjeldent), så fanges dette opp her:
+	// Dersom Kappa endres slik at node vil fyre neste iter (sjeldent), så fanges dette opp her: (Dette skjer av og til.., men laga også feil før eg runda rett. DETTE ER EN POTENSIELL FEILKILDE: kommenterer ut!)
 	// XXX BLIR IKKJE DETTE REDUNDANT? Legges til her, og i time_class::doTask(), eine fjærnes så når tidsiterasjonen starter. XXX ???
 	// kommentarID_asdff213@neuroelement.cpp
-	if( ulEstimatedTaskTime == time_class::getTid()+1)
+	#if 0
+	if( (unsigned long)(dEstimatedTaskTime+0.5) == (time_class::getTid()+1) ){
+		//writeAPtoLog();  //TESTET: FEIL???
+		DEBUTsettMerkeIPlott();
 		time_class::addTaskIn_pWorkTaskQue( this );
+	}
+	#endif
 
 	// Skriver til log for depol:
 	writeDepolToLog();
@@ -996,6 +1027,9 @@ inline void K_sensor_auron::updateSensorValue()
 
 	//if( dSensedValue != dLastSensedValue){
 		//changeKappa_absArg( dSensedValue ); FARLIG! IKKJE BRUK changeKappa_absArg() !
+		//
+		// Lagre tidspunkt for oppdatering av kappa som starten av iterasjonen (definer dette som samplingstidspunkt av sensa variabel).
+		dNextStartOfTimeWindow = (double)time_class::getTid(); // Setter den til [no], før eg beregner resultatet av denne oppdateringa i changeKappa_derivedArg( .. );
 		changeKappa_derivedArg(   (dSensedValue-dLastSensedValue) );  //TODO Finn ut om denne er gange ALPHA.
 		// XXX Veit ikkje kva hvilken som funker: Forrige er konkluderte med var at ALPHA måtte være med.. FAEEN.
 		//changeKappa_derivedArg( ALPHA*   (dSensedValue-dLastSensedValue) );  //TODO Finn ut om denne er gange ALPHA.
@@ -1062,7 +1096,7 @@ void recalcKappaClass::doTask()
 	#endif
 
 	// Schedule recalcKappaClass til å kjøre på kalkulert tid:
-	ulEstimatedTaskTime = time_class::getTid() + sdValue;
+	dEstimatedTaskTime = (double)time_class::getTid() + sdValue;
 
 } //}
 

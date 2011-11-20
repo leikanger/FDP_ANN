@@ -6,7 +6,7 @@
 
 inline double dynamiskSensorFunk()
 {
-	return (1.1+sin((float)time_class::getTid() * ALPHA))*(float)FYRINGSTERSKEL;
+	return (2.1+sin((double)time_class::getTid() * (double)ALPHA))*(double)FYRINGSTERSKEL;
 }
 inline double statiskSensorFunk()
 {
