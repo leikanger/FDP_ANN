@@ -6,11 +6,11 @@
 
 inline double dynamiskSensorFunk()
 {
-	return (1.1+sin((float)time_class::getTid()/100.0))*(float)FYRINGSTERSKEL;
+	return (1.1+sin((float)time_class::getTid() * ALPHA))*(float)FYRINGSTERSKEL;
 }
 inline double statiskSensorFunk()
 {
-	return 1.1*FYRINGSTERSKEL;
+	return 1.100000000000*(double)FYRINGSTERSKEL;
 	//return 1.5000000*FYRINGSTERSKEL;
 }
 

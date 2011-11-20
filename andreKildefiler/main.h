@@ -54,12 +54,12 @@
 #define RECALC_c4 0.5
 
 #define UTSKRIFT_AV_TID 1
-#define UTSKRIFT_AV_TID_KVAR_Nte_ITER 100
+#define UTSKRIFT_AV_TID_KVAR_Nte_ITER 100000
 
 #define DEBUG_UTSKRIFTS_NIVAA 0
 #define DOT_ENTER_UTSKRIFT_AV_TID 0 // Betyr enter kvar n'te iter. (der n er tall som blir def.). Definer til 0 eller false for å slå av.
 
-#define ALPHA (double)0.004000000
+#define ALPHA (double)0.0001000000
 #define LEKKASJEFAKTOR_FOR_DEPOL (double)(1-ALPHA)
 
 

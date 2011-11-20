@@ -159,18 +159,19 @@ int main(int argc, char *argv[])
 	#if 0
 	K_auron* K = new K_sensor_auron("KN", &statiskSensorFunk);
 	s_auron* S = new s_sensor_auron("SN", &statiskSensorFunk);
-	#else
+	#endif
+	#if 1
 	K_auron* K = new K_sensor_auron("KN", &dynamiskSensorFunk);
 	s_auron* S = new s_sensor_auron("SN", &dynamiskSensorFunk);
 	#endif
 
-// BARE KAPPA:
+//  BARE KAPPA:
 	#if 0
 	K_sensor_auron* Ks1 = new K_sensor_auron("K_sensor_auron", &sensorFunk1a);
 	K_auron* k1 = new K_auron("k1");
 	new K_synapse(Ks1, k1, true);
 
-	#else 	// 	KANN-Test
+//	#else 	// 	KANN-Test
 	 	//{ KANN: TEST-oppsett.
 		#if 0
 
@@ -326,12 +327,12 @@ void* taskSchedulerFunction(void* )
 	**  Initierer kjøring :    **
 	****************************/
 
+	// Initialiserer tid: begynner på iter 1. Dette (t_0=1) er viktig for å få rett initiering av K_auron som begynner med en konst kappa (gir K=(v_0-K)e^(-a*(1-0)) istedenfor K=..*e^0)
+	time_class::ulTime = 0;
+
 	// Initierer arbeidskø (time_class::pWorkTaskQue)
 	initialiserArbeidsKoe();
 
-
-	// Initialiserer tid: begynner på iter 1. Dette (t_0=1) er viktig for å få rett initiering av K_auron som begynner med en konst kappa (gir K=(v_0-K)e^(-a*(1-0)) istedenfor K=..*e^0)
-	time_class::ulTime = 1;
 
 	// Initialiserer 'time window' for alle K_auron:
 	for( std::list<K_auron*>::iterator K_iter = K_auron::pAllKappaAurons.begin(); K_iter != K_auron::pAllKappaAurons.end(); K_iter++ )

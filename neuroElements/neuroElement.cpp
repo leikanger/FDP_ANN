@@ -140,10 +140,6 @@ K_auron::K_auron(std::string sNavn_Arg /*="unnamed"*/, double dStartKappa_arg /*
 {
 	ulTimestampForrigeFyring = time_class::getTid();
 
-	// Initierer første 'time window':
-	ulStartOfTimewindow = time_class::getTid();
-	dDepolAtStartOfTimeWindow = uStartDepol_prosent * FYRINGSTERSKEL;
-
 	// Initierer andre medlemsvariabler:
 	dChangeInKappa_this_iter = 0;
 	dChangeInPeriodINVERSE = 0;
@@ -164,7 +160,13 @@ K_auron::K_auron(std::string sNavn_Arg /*="unnamed"*/, double dStartKappa_arg /*
  	pInputDendrite = new K_dendrite(this);
 
 	// Initialiserer aktivitetsvariablene kappa til å være verdien dStartKappa_arg:
-	changeKappa_derivedArg( dStartKappa_arg );
+	dAktivitetsVariabel = dStartKappa_arg;
+	//changeKappa_derivedArg( dStartKappa_arg );
+
+	// Initierer første 'time window':
+	ulStartOfTimewindow = time_class::getTid();
+// XXX XXX HAR TATT VEKK DENNE FUNKSJONALITETEN! XXX XXX
+//		dDepolAtStartOfTimeWindow = uStartDepol_prosent * FYRINGSTERSKEL;
 
 	// Utskrift til logg. LOGG-initiering (lag ei .oct fil som er kjørbar)
 	std::ostringstream tempFilAdr;
@@ -182,7 +184,7 @@ K_auron::K_auron(std::string sNavn_Arg /*="unnamed"*/, double dStartKappa_arg /*
 			<<"\tTau:   \t\t\t\t" <<FYRINGSTERSKEL <<endl
 			<<"\n\n";
 
-	// Kjører auronets doCalculation() for å få rett verdier:
+	// Finner v(t_0) på normal måte: doCalculation();
 	doCalculation();
 
 } 
@@ -246,11 +248,12 @@ K_sensor_auron::K_sensor_auron( std::string sNavn_Arg , double (*pFunk_arg)(void
 	pAllAurons.push_back( this ); 
 
 	// Tar første sample av pSensorFunction:
-	dAktivitetsVariabel = (*pSensorFunction)();
+	dAktivitetsVariabel = (*pSensorFunction)(); // Trur den beregner pSendedValue av 0. Blir dette feil?
+	dSensedValue = dAktivitetsVariabel;
 
 	// Initialiserer kappaRecalculator i tilfelle sensorauron seinere skal få mulighet for input-synapser:
+// XXX Har ikkje med recalculate kappa for sensor-auron: sensor-auron kan kun få input fra sensed element. asdf41412@neuroElement.cpp
 	kappaRecalculator.pKappaAuron_obj = this;
-
 	recalculateKappa();
 }
 //}2
@@ -564,7 +567,6 @@ inline void K_auron::changeKappa_derivedArg( double dInputDerived_arg)//int deri
 	#endif
 }
 
-
 // XXX XXX XXX FARLIG ! Lager føkk når den endrer kappa, og doCalculation(). Kalkulerer v_0 fra gammel tid, men ny kappa. XXX IKKJE BRUK!
 inline void K_auron::changeKappa_absArg(double dNewKappa)
 { //{
@@ -591,10 +593,14 @@ inline void s_dendrite::newInputSignal( double dNewSignal_arg )
 { //{2 .. }
 
 	// Sjekker om input er blokkert grunnet 'refraction period':
- 	if( bBlockInput_refractionTime ) return;
+	// TODO HAR tatt det vekk fra både KANN og SANN, for å fjærne en feilkilde i sammenligninga. TODO OTOD TODO TODO  	NESTE LINJE SKAL VÆRE MED om vi skal ha med refraction time i simuleringen.
+	// XXX id:asdf21344@neuroElement.cpp
+ 	// if( bBlockInput_refractionTime ) return;
 
 	// beregner lekkasje av depol siden sist:
 	calculateLeakage();
+
+// VIKTIG123@neuroElement.cpp :  ALPHA for SANN: Sjå ALPHA under..
 
 	// Bli heilt sikker på ALPHA: XXX XXX XXX ALPHA XXX XXX xxx XXX
 	pElementOfAuron->dAktivitetsVariabel +=  dNewSignal_arg * ALPHA;
@@ -609,8 +615,9 @@ inline void s_dendrite::newInputSignal( double dNewSignal_arg )
 	// Dersom auron går over fyringsterskel: fyr A.P.
 	if( pElementOfAuron->dAktivitetsVariabel > FYRINGSTERSKEL )
 	{
+		// SJEKKER Å TA BORT FOR Å FJÆRNE FEIL når eg sammenligner med KANN. TODO ta tilbake dersom dette ref.time skal være med! asdf21344@neuroElement.cpp
 		// Blokkerer videre input grunnet 'refraction time':
-		bBlockInput_refractionTime = true;
+		//bBlockInput_refractionTime = true;
 
 		// Spatioteporal delay from AP initialization at axon hillock:
 		time_class::addTaskIn_pWorkTaskQue( pElementOfAuron );
@@ -683,7 +690,8 @@ inline void s_axon::doTask()
 { //{ ** AXON
 
 	// Avblokkerer dendritt. Opner den for meir input. Foreløpig er dette måten 'refraction time' funker på.. (etter 2 ms-dendrite og auron overføring..)
-	pElementOfAuron->pInputDendrite ->bBlockInput_refractionTime = false;
+	// XXX id:asdf21344@neuroElement.cpp
+	//pElementOfAuron->pInputDendrite ->bBlockInput_refractionTime = false;
 
 	#if DEBUG_UTSKRIFTS_NIVAA > 3
  	cout<<"s_axon::doTask()\tLegger inn alle outputsynapser i arbeidskø. Mdl. av auron: " <<pElementOfAuron->sNavn <<" - - - - - - - - - - - - - - - \n";
@@ -748,12 +756,12 @@ inline void K_auron::doTask()
 
 	// Gjør kalkuleringer for å planlegge neste fyring.
 	doCalculation();
-
-	// Oppdaterer ulEstimatedTaskTime til [no] + dLastCalculatedPeriod:
-	ulEstimatedTaskTime = time_class::getTid() + (unsigned long)dLastCalculatedPeriod;
-
+	
 	// Logger AP (vertikal strek)
 	writeAPtoLog();
+
+	// Oppdaterer ulEstimatedTaskTime til [no] + dLastCalculatedPeriod:
+	ulEstimatedTaskTime = time_class::getTid() + (unsigned long)(dLastCalculatedPeriod+0.5);
 } //}1
 /* K_synapse::doTask() 	: 		Simulerer overføring i synapsen */
 inline void K_synapse::doTask()
@@ -886,10 +894,11 @@ void K_auron::doCalculation()
 	//*  Beregn estimert fyringstid:   				*
 	//***********************************************
 	if( dAktivitetsVariabel > FYRINGSTERSKEL){
-		static double dPeriodInverse_static_local = 0;
+		static double dPeriodInverse_static_local;
 	
 		// Berenger dPeriodINVERSE og dChangeInPeriodINVERSE:
-		dLastCalculatedPeriod  = (( log( dAktivitetsVariabel / (dAktivitetsVariabel - FYRINGSTERSKEL) ) / ALPHA) +0.5) 									+1 		; // +1 for å gi delay til dendrite (GJØRE TIL +2?)XXX
+		// dLastCalculatedPeriod gir synaptisk overføring. Perioden er uavhengig av spatiotemporal effekts. Dermed: +A simulerer en refraction time på A tidssteg. ref:asdf5415@neuroElement.cpp
+		dLastCalculatedPeriod  = (( log( dAktivitetsVariabel / (dAktivitetsVariabel - (double)FYRINGSTERSKEL) ) / (double)ALPHA)) 	;	//							+1 		; // +1 for å gi refraction time XXX
 		dPeriodInverse_static_local = 1/dLastCalculatedPeriod;
 		dChangeInPeriodINVERSE = dPeriodInverse_static_local - dPeriodINVERSE;
 		dPeriodINVERSE = dPeriodInverse_static_local;
@@ -903,7 +912,7 @@ void K_auron::doCalculation()
 
 
 		// 	For K_auron trenger vi ikkje legge til elementet i [liste som skal sjekkes]. pAllKappaAurons sjekkes alltid.. 												+0.5 for rett avrunding.
-		ulEstimatedTaskTime =( ( time_class::getTid() + log( (dAktivitetsVariabel-dDepolAtStartOfTimeWindow)/(dAktivitetsVariabel-FYRINGSTERSKEL) )   /  ALPHA )+0.5)  		+2 ; //+1 for å få delay i dendrite. 
+		ulEstimatedTaskTime =( ( (double)time_class::getTid() + log( (dAktivitetsVariabel-dDepolAtStartOfTimeWindow)/(dAktivitetsVariabel-(double)FYRINGSTERSKEL) )   /  (double)ALPHA )+0.5)  ; // TODO +1 ekstra for å få delay i dendrite.
 																																												 //+1 for å også få delay i axon.
 		/*
 		* 	Her er eit problem:
@@ -915,7 +924,7 @@ void K_auron::doCalculation()
 	
 	
 	
-		// XXX KJører synaptisk overføring kvar gang Kappa endres. Dette er ikkje optimalt. Men det vil nok bli rett. Mens eg utvikler Kappa-mekanismer..
+		// XXX KJører synaptisk overføring kvar gang Kappa endres.
 		
 		// Propagerer aktivitetsnivå. Gjør umiddelbart doTransmission(). Denne tar hand om spatiotemporale effekter!
 		doTransmission();
@@ -979,14 +988,18 @@ inline void K_sensor_auron::updateSensorValue()
 	DEBUG("K_sensor_auron::updateSensorValue()");
 	#endif
 
+// Oppdaterer sensed value. Ved init av K_sensor_auron, blir dSensedValue satt til verdien til pSensorFunc()..
 	// To variabler for å finne deriverte. Denne skal bestemme ny kappa..
 	dLastSensedValue = dSensedValue;
-	dSensedValue = /* ALPHA*  */ (*pSensorFunction)(); //TODO Finn ut om denne er gange ALPHA.
+		// VIKTIG123@neuonElements.cpp ALPHA for KANN:
+	dSensedValue =  (*pSensorFunction)();
 
-	if( dSensedValue != dLastSensedValue){
-		//changeKappa_absArg( dSensedValue ); XXX FARLIG! IKKJE BRUK changeKappa_absArg() !
-		changeKappa_derivedArg( (dSensedValue-dLastSensedValue)*ALPHA );
-	}
+	//if( dSensedValue != dLastSensedValue){
+		//changeKappa_absArg( dSensedValue ); FARLIG! IKKJE BRUK changeKappa_absArg() !
+		changeKappa_derivedArg(   (dSensedValue-dLastSensedValue) );  //TODO Finn ut om denne er gange ALPHA.
+		// XXX Veit ikkje kva hvilken som funker: Forrige er konkluderte med var at ALPHA måtte være med.. FAEEN.
+		//changeKappa_derivedArg( ALPHA*   (dSensedValue-dLastSensedValue) );  //TODO Finn ut om denne er gange ALPHA.
+	//}
 
 	#if DEBUG_UTSKRIFTS_NIVAA > 3
 	cout<<"Kappa for K_sensor_auron: " <<dAktivitetsVariabel <<"\n\n";
@@ -1010,12 +1023,11 @@ inline void s_sensor_auron::updateAllSensorAurons()
 
 inline void s_sensor_auron::updateSensorValue()
 { //{
-	static double sdLastValue = 0;
+//	static double sdLastValue = 0;
 	static double sdValue = 0;
-	sdLastValue = sdValue;
+//	sdLastValue = sdValue;
 	sdValue = (*pSensorFunction)();
 	pInputDendrite->newInputSignal( ( sdValue )); // XXX OPPMERKSOMHET!    Sender inn umiddelbart sensa signal, ikkje den deriverte.  (Sjekk dette).
-	// WHATTEFUKK? Kvifor blir det likt når eg sender in dobbelt av sensa verdi? 
 } //}
 
 
@@ -1123,6 +1135,12 @@ inline void K_auron::doTransmission()
 	#if DEBUG_UTSKRIFTS_NIVAA > 3
  	cout<<"K_auron::doTransmission()\tLegger inn alle outputsynapser i arbeidskø. Mdl. av auron: " <<pElementOfAuron->sNavn <<" - - - - - - - - - - - - - - - \n";
 	#endif
+
+
+	/* TODO Flytt overføringsdelay over hit: fra K_auron::doCalculation() - i ligninga av estimert fyringstid: plusser på en for dendrite og en for axon. 
+	Ta vekk den siste, og legg delay inn som element i kvar synapse. Ordner delay her.
+	Delay kan dermed være forskjellig for kvar synapse!
+	TODO */
 
 	// Legg til alle utsynapser i pWorkTaskQue:
  	for( std::list<K_synapse*>::iterator iter = pUtSynapser.begin(); iter != pUtSynapser.end(); iter++ )

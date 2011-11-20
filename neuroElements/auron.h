@@ -112,12 +112,16 @@ class i_auron : public timeInterface
 	// For å lage fin vertikal "strek" ved AP:
 	inline virtual const void writeAPtoLog()
 	{
+		// XXX Kommenterer ut for å lettere sjå gjennom log-fil:
+		#if 0 //KOMMENTERER UT. 
+
 		// Lager en vertikal "strek" fra v=0 til v=Terskel*(110%)
 		for(float fTerkelProsent_temp = 0; fTerkelProsent_temp<1.2; fTerkelProsent_temp+=0.001)
 		{
 			depol_logFile 	<<time_class::getTid() <<"\t" <<fTerkelProsent_temp*FYRINGSTERSKEL <<"; \t #Action potential\n" ;
 		}
 	 	depol_logFile.flush();
+		#endif
 	}
 
 
@@ -195,8 +199,8 @@ class s_auron : public i_auron
 
 	inline virtual const void writeDepolToLog()
 	{
-	 	depol_logFile 	<<(unsigned long)time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"; \t #Depol\n" ;
-	 	depol_logFile.flush();
+	 	//depol_logFile 	<<(unsigned long)time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"; \t #Depol\n" ;
+	 	//depol_logFile.flush();
 	}
 //{friend
 	friend class s_axon;
@@ -270,9 +274,7 @@ class K_auron : public i_auron
 	// TODO TODO Skriv om heile funk. No er det veldig dårlig (uoptimalisert) stil.
 	inline const double getCalculateDepol()
 	{
-		double dDepol_temp = (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * (time_class::getTid() - ulStartOfTimewindow)) + dAktivitetsVariabel ;
-
-		return dDepol_temp;
+		return (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * (time_class::getTid() - ulStartOfTimewindow )) + dAktivitetsVariabel ;
 	}
 
 	
