@@ -12,6 +12,10 @@ altI_en: andreKildefiler/*.cpp andreKildefiler/*.h neuroElements/*.cpp neuroElem
 	echo "\n\n\n\nmake altI_en:\n\n"
 	${CPP} ${CFLAGS} andreKildefiler/main.cpp neuroElements/neuroElement.cpp -o auroNett.out 
 
+altI_enGCC: andreKildefiler/*.cpp andreKildefiler/*.h neuroElements/*.cpp neuroElements/*.h
+	echo "\n\n\n\nmake altI_en: i GCC\n\n"
+	g++ ${CFLAGS} andreKildefiler/main.cpp neuroElements/neuroElement.cpp -o auroNett.out 
+
 auroNett.out: main.o neuroElement.o
 	echo "\n\n\n\nmake auroNett.out:\n\n"
 	${CPP} ${CFLAGS} main.o neuroElement.o -o auroNett.out

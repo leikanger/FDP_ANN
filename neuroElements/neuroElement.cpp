@@ -33,6 +33,7 @@
 std::ostream & operator<< (std::ostream& ut, i_auron* pAuronArg );
 
 
+extern unsigned long ulLengthOfSimulation;
 
 
 /*************************************************************
@@ -78,16 +79,38 @@ void K_auron::callDestructorForAllKappaAurons()
 i_auron::i_auron(std::string sNavn_Arg /*="unnamed"*/, double dStartAktVar /*=0*/) : timeInterface("auron"), dAktivitetsVariabel(dStartAktVar), sNavn(sNavn_Arg)
 {
 
-	// Printing to log file. Initiation of file stream and creation of a .oct file that is executable in octave.
-	std::ostringstream tempFilAdr;
-	tempFilAdr<<"./datafiles_for_evaluation/log_auron" <<sNavn <<"-depol" <<".oct";
+	#if LOGG_DEPOL
+		// Printing to log file. Initiation of file stream and creation of a .oct file that is executable in octave.
+		std::ostringstream tempFilAdr;
+		tempFilAdr<<"./datafiles_for_evaluation/log_auron" <<sNavn <<"-depol" <<".oct";
+	
+		std::string tempStr( tempFilAdr.str() );
+	
+		// need c-style string for open() function:
+		depol_logFile.open( tempStr.c_str() );
 
-	std::string tempStr( tempFilAdr.str() );
+		depol_logFile<< "# Kjøring med "
+					 <<"\n#\tAlpha = \t" <<ALPHA 
+					 <<"\n#\tAntall Iter = \t" <<ulLengthOfSimulation <<"\n\n";
+		depol_logFile<<"data=[";
+		depol_logFile.flush();
+	#endif
+
+	// Lager en loggfil for tidspunkt for action potential:
+	std::ostringstream tempFilAdr2;
+	tempFilAdr2<<"./datafiles_for_evaluation/log_auron" <<sNavn <<"-firingTimes" <<".oct";
+
+	std::string tempStr2( tempFilAdr2.str() );
 
 	// need c-style string for open() function:
-	depol_logFile.open( tempStr.c_str() );
-	depol_logFile<<"data=[";
-	depol_logFile.flush();
+ 	actionPotential_logFile.open( tempStr2.c_str() );
+	actionPotential_logFile << "# Kjøring med "
+				 			<<"\n#\tAlpha = \t" <<ALPHA 
+				 			<<"\n#\tAntall Iter = \t" <<ulLengthOfSimulation <<"\n\n"
+							<<"data=[";
+	actionPotential_logFile.flush();
+
+
 
 }
 i_auron::~i_auron()
@@ -97,17 +120,25 @@ i_auron::~i_auron()
 	// remove auron from pAllAurons:
 	pAllAurons.remove(this);
 
-	// Finalize octave script to make it executable:
-	depol_logFile 	<<"];\n\n"
-					<<"axis([0, " <<time_class::getTid() <<", 0, " <<FYRINGSTERSKEL*1.3 <<"]);\n"
-					<<"plot( data([1:end],1), data([1:end],2), \".;Depolarization;\");\n"
-					<<"title \"Depolarization for auron " <<sNavn <<"\"\n"
-					<<"xlabel Time\n" <<"ylabel \"Activity variable\"\n"
-					//<<"akser=[0 data(end,1) 0 1400 ]; axis(akser);\n"
-					<<"print(\'./eps/eps_auron" <<sNavn <<"-depol.eps\', \'-deps\');\n"
-					<<"sleep(" <<OCTAVE_SLEEP_ETTER_PLOTTA <<"); "
-					;
-	depol_logFile.close();
+	#if LOGG_DEPOL
+		// Finalize octave script to make it executable:
+		depol_logFile 	<<"];\n\n"
+						<<"axis([0, " <<time_class::getTid() <<", 0, " <<FYRINGSTERSKEL*1.3 <<"]);\n"
+						<<"plot( data([1:end],1), data([1:end],2), \".;Depolarization;\");\n"
+						<<"title \"Depolarization for auron " <<sNavn <<"\"\n"
+						<<"xlabel Time\n" <<"ylabel \"Activity variable\"\n"
+						//<<"akser=[0 data(end,1) 0 1400 ]; axis(akser);\n"
+						<<"print(\'./eps/eps_auron" <<sNavn <<"-depol.eps\', \'-deps\');\n"
+						<<"sleep(" <<OCTAVE_SLEEP_ETTER_PLOTTA <<"); "
+						;
+		depol_logFile.flush();
+		depol_logFile.close();
+	#endif
+	
+	// Loggfil for firing time:
+	actionPotential_logFile<<"];";
+	actionPotential_logFile.flush();
+	actionPotential_logFile.close();
 }
 //}2
 //{2 *** s_auron
@@ -559,14 +590,17 @@ inline void K_dendrite::newInputSignal( double dNewSignal_arg )
 inline void K_auron::changeKappa_derivedArg( double dInputDerived_arg)//int derivedInput_arg )
 {
 	// Arg legges til Kappa no, og effektene av endringa kalkuleres i .doCalculation().
-	dChangeInKappa_this_iter +=  dInputDerived_arg ;
+	dChangeInKappa_this_iter +=  dInputDerived_arg ; // TODO SKAL Være delt på ALPHA! (Det gir rett svar, fordi eg ganger med alpha på s_dendrite::newInputSignal()...
+										// TODO TODO TODO FIKS DETTE: SJå asdf1235 (under)
 
 	// TODO TODO SKAL eg gjøre noe med dNextStartOfTimeWindow her (tidspunkt for oppdatering av kappa)?
 
 	// Legger den i pCalculatationTaskQue, slik at effekt av all endring i kappa ila. tidsiterasjonen beregnes etter iterasjonen.
 	time_class::addCalculationIn_pCalculatationTaskQue( this );
 
-	writeKappaToLog();
+	#if LOGG_KAPPA
+		writeKappaToLog();
+	#endif
 
 	#if DEBUG_UTSKRIFTS_NIVAA > 3
 	cout<<sNavn <<"\t:\tTid:\t" <<time_class::getTid() <<" ,\tKappa :\t" <<dAktivitetsVariabel <<endl;
@@ -589,7 +623,9 @@ inline void K_auron::changeKappa_absArg(double dNewKappa)
 	// Legger den i pCalculatationTaskQue, slik at effekt av all endring i kappa ila. tidsiterasjonen beregnes etter iterasjonen.
 	time_class::addCalculationIn_pCalculatationTaskQue( this );
 	
-	writeKappaToLog();
+	#if LOGG_KAPPA
+		writeKappaToLog();
+	#endif
 } //}
 //}1
 
@@ -609,7 +645,9 @@ inline void s_dendrite::newInputSignal( double dNewSignal_arg )
 // VIKTIG123@neuroElement.cpp :  ALPHA for SANN: Sjå ALPHA under..
 
 	// Bli heilt sikker på ALPHA: XXX XXX XXX ALPHA XXX XXX xxx XXX
-	pElementOfAuron->dAktivitetsVariabel +=  dNewSignal_arg * ALPHA;
+	pElementOfAuron->dAktivitetsVariabel +=  dNewSignal_arg * ALPHA;  //SJEKKA FOR MOTSATT: at K_auron::changeKappa_derivedArg(..) delte på \alpha før endring av kappa. Dette vil (teoretisk) gi samme resultat. 
+																		// Eg har ikkje gjort det om, fordi eg allerede har gjort alle forsøka til artikkelen med slik det er no..
+										// TODO TODO TODO FIKS DETTE: SJå asdf1235 (over)
 
 	#if DEBUG_UTSKRIFTS_NIVAA > 2
 	cout<<time_class::getTid() <<"\ts_dendrite::newInputSignal( " <<dNewSignal_arg <<" ); \t\tgir depol. :  " <<pElementOfAuron->dAktivitetsVariabel <<"\n";
@@ -1033,7 +1071,6 @@ inline void K_sensor_auron::updateSensorValue()
 		changeKappa_derivedArg(   (dSensedValue-dLastSensedValue) );  //TODO Finn ut om denne er gange ALPHA.
 		// XXX Veit ikkje kva hvilken som funker: Forrige er konkluderte med var at ALPHA måtte være med.. FAEEN.
 		//changeKappa_derivedArg( ALPHA*   (dSensedValue-dLastSensedValue) );  //TODO Finn ut om denne er gange ALPHA.
-	//}
 
 	#if DEBUG_UTSKRIFTS_NIVAA > 3
 	cout<<"Kappa for K_sensor_auron: " <<dAktivitetsVariabel <<"\n\n";

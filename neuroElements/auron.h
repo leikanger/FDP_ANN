@@ -36,6 +36,7 @@
 #ifndef AURON_H_
 #define AURON_H_
 
+#include <iomanip> // For setprecision()   FUNKER IKKJE FOR clang++-kompilatoren..
 
 #include "../andreKildefiler/main.h"
 #include "../andreKildefiler/time.h"
@@ -107,13 +108,28 @@ class i_auron : public timeInterface
 	//også her kan eg bruke \kappa for å finne nivået i kvart neuron..
 
 
-	std::ofstream depol_logFile;
+	#if LOGG_DEPOL 
+		std::ofstream depol_logFile;
+	#endif
+	std::ofstream actionPotential_logFile;
 	
 	// For å lage fin vertikal "strek" ved AP:
 	inline virtual const void writeAPtoLog()
 	{
 		// XXX Kommenterer ut for å lettere sjå gjennom log-fil:
-		#if 1 //KOMMENTERER UT. 
+		
+		// Logger fyringstidspunkt:
+		actionPotential_logFile<<time_class::getTid() <<";\n";
+		actionPotential_logFile.flush();
+
+		// SKriver en enkelt linje med tidspunktet:
+		#if LOGG_DEPOL
+		depol_logFile 	<<time_class::getTid() <<"\t" <<1.1*FYRINGSTERSKEL <<"; \t #Action potential - APAPAP\n" ;
+		#endif
+
+		#if 0 //KOMMENTERER UT. 
+
+		#if LOGG_DEPOL 
 
 		// Lager en vertikal "strek" fra v=0 til v=Terskel*(110%)
 		for(float fTerkelProsent_temp = 1.35; fTerkelProsent_temp>1.1; fTerkelProsent_temp-=0.001)
@@ -123,10 +139,11 @@ class i_auron : public timeInterface
 		}
 	 	depol_logFile.flush();
 		#endif
+		#endif
 	}
 	inline void DEBUTsettMerkeIPlott()
 	{
-		#if 1 //KOMMENTERER UT. 
+		#if LOGG_DEPOL  
 
 		// Lager en vertikal "strek" fra v=0 til v=Terskel*(110%)
 		for(float fTerkelProsent_temp = 1.4; fTerkelProsent_temp<1.7; fTerkelProsent_temp+=0.001)
@@ -212,9 +229,12 @@ class s_auron : public i_auron
 
 	inline virtual const void writeDepolToLog()
 	{
-		// TODO TODO TODO Plasser all kode som har med å skrive depol til logg, HER! TODO TODO TODO Bra å ha alt samla her!
+
+		// Plasserer all kode som har med å skrive depol til logg.
+		#if LOGG_DEPOL  // Kan sette om depol. skal skrives til logg i main.h
 		depol_logFile 	<<time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"; \t #Depolarization\n" ;
 		depol_logFile.flush();
+		#endif
 	}
 //{friend
 	friend class s_axon;
@@ -271,15 +291,27 @@ class K_auron : public i_auron
 	inline virtual const void writeAPtoLog()
 	{
 		// XXX Kommenterer ut for å lettere sjå gjennom log-fil:
-		#if 1 //KOMMENTERER UT. 
 
-		// Lager en vertikal "strek" fra v=0 til v=Terskel*(110%)
-		for(float fTerkelProsent_temp = 1.35; fTerkelProsent_temp>1.1; fTerkelProsent_temp-=0.001)
-		{
-			// TID: endre fra present time iteration til å være gitt av dEstimatedTaskTime i K_auron!
-			depol_logFile 	<<dEstimatedTaskTime <<"\t" <<fTerkelProsent_temp*FYRINGSTERSKEL <<"; \t #Action potential\n" ;
-		}
-	 	depol_logFile.flush();
+		// Skriver fyringstidspunkt i loggfil for fyringstidspunkt:
+			actionPotential_logFile.precision(11);
+		actionPotential_logFile<<dEstimatedTaskTime <<";\n";		
+		actionPotential_logFile.flush();
+
+		#if LOGG_DEPOL 
+			depol_logFile 	<<dEstimatedTaskTime <<"\t" <<1.2345*FYRINGSTERSKEL <<"; \t #Action potential - APAPAP\n" ;
+		#endif
+
+		#if 0 //KOMMENTERER UT. 
+
+		#if LOGG_DEPOL 
+			// Lager en vertikal "strek" fra v=0 til v=Terskel*(110%)
+			for(float fTerkelProsent_temp = 1.35; fTerkelProsent_temp>1.1; fTerkelProsent_temp-=0.001)
+			{
+				// TID: endre fra present time iteration til å være gitt av dEstimatedTaskTime i K_auron!
+				depol_logFile 	<<dEstimatedTaskTime <<"\t" <<fTerkelProsent_temp*FYRINGSTERSKEL <<"; \t #Action potential\n" ;
+			}
+	 		depol_logFile.flush();
+		#endif
 		#endif
 	}
 
@@ -328,15 +360,22 @@ class K_auron : public i_auron
 	
 	const inline void writeDepolToLog()
 	{
+		#if LOGG_DEPOL 
+		// Sette precision for output: Funker bare med #include <iomanip>; , som ikkje funker for clang++-compiler..
+		//depol_logFile.precision(11);
+
 		// Skriver dDepolAtStartOfTimeWindow til logg:
 		depol_logFile 	<<(unsigned long)time_class::getTid() <<"\t" <<getCalculateDepol() <<"; \t #Depol\n" ;
 		depol_logFile.flush();
+		#endif
 	}
 	const inline void writeKappaToLog()
 	{
-		// Skriver dDepolAtStartOfTimeWindow til logg:
-		kappa_logFile 	<<time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"; \t #Kappa\n" ;
-		kappa_logFile.flush();
+		#if LOGG_KAPPA
+			// Skriver dDepolAtStartOfTimeWindow til logg:
+			kappa_logFile 	<<time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"; \t #Kappa\n" ;
+			kappa_logFile.flush();
+		#endif
 	}
 
 	static const inline void loggeFunk_K_auron()
@@ -345,9 +384,12 @@ class K_auron : public i_auron
 		for( std::list<K_auron*>::iterator iter = K_auron::pAllKappaAurons.begin(); iter != K_auron::pAllKappaAurons.end(); iter++ )
 		{
 			// Denne er kjøres inne i writeDepolToLog() :  (*iter) ->calculateDepol();
-			(*iter) ->writeDepolToLog();
-
-			(*iter) ->writeKappaToLog();
+			#if LOGG_DEPOL
+				(*iter) ->writeDepolToLog();
+			#endif
+			#if LOGG_KAPPA
+				(*iter) ->writeKappaToLog();
+			#endif
 		}
 	}
 

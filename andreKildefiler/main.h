@@ -54,12 +54,15 @@
 #define RECALC_c4 0.5
 
 #define UTSKRIFT_AV_TID 1
-#define UTSKRIFT_AV_TID_KVAR_Nte_ITER 100000
+#define UTSKRIFT_AV_TID_KVAR_Nte_ITER 1000000
+
+#define LOGG_DEPOL false // Denne gir om implementasjonen skal skrive til depol-logg.
+#define LOGG_KAPPA false // ...samma for kappa
 
 #define DEBUG_UTSKRIFTS_NIVAA 0
 #define DOT_ENTER_UTSKRIFT_AV_TID 0 // Betyr enter kvar n'te iter. (der n er tall som blir def.). Definer til 0 eller false for å slå av.
 
-#define ALPHA (double)0.10000
+#define ALPHA (double)0.000001
 #define LEKKASJEFAKTOR_FOR_DEPOL (double)(1-ALPHA)
 
 

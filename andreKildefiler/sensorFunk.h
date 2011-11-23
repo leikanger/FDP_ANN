@@ -10,7 +10,7 @@ inline double dynamiskSensorFunk()
 }
 inline double statiskSensorFunk()
 {
-	return 1.100000000000*(double)FYRINGSTERSKEL;
+	return 1.100000000000*(double)FYRINGSTERSKEL ;
 	//return 1.5000000*FYRINGSTERSKEL;
 }
 
