@@ -36,7 +36,9 @@
 #ifndef AURON_H_
 #define AURON_H_
 
-#include <iomanip> // For setprecision()   FUNKER IKKJE FOR clang++-kompilatoren..
+#if GCC
+	#include <iomanip> // For setprecision()   FUNKER IKKJE FOR clang++-kompilatoren..
+#endif
 
 #include "../andreKildefiler/main.h"
 #include "../andreKildefiler/time.h"
@@ -293,7 +295,9 @@ class K_auron : public i_auron
 		// XXX Kommenterer ut for å lettere sjå gjennom log-fil:
 
 		// Skriver fyringstidspunkt i loggfil for fyringstidspunkt:
+		#if GCC
 			actionPotential_logFile.precision(11);
+		#endif
 		actionPotential_logFile<<dEstimatedTaskTime <<";\n";		
 		actionPotential_logFile.flush();
 
@@ -361,8 +365,10 @@ class K_auron : public i_auron
 	const inline void writeDepolToLog()
 	{
 		#if LOGG_DEPOL 
-		// Sette precision for output: Funker bare med #include <iomanip>; , som ikkje funker for clang++-compiler..
-		//depol_logFile.precision(11);
+		#if GCC
+			// Sette precision for output: Funker bare med #include <iomanip>; , som ikkje funker for clang++-compiler..
+			depol_logFile.precision(11);
+		#endif
 
 		// Skriver dDepolAtStartOfTimeWindow til logg:
 		depol_logFile 	<<(unsigned long)time_class::getTid() <<"\t" <<getCalculateDepol() <<"; \t #Depol\n" ;

@@ -157,14 +157,17 @@ int main(int argc, char *argv[])
 	// Testoppsett:
 // Blanda:
 
-	#if 0
 	//STATISK
-	K_auron* Ks = new K_sensor_auron("_sKN", &statiskSensorFunk);
-	s_auron* Ss = new s_sensor_auron("_sSN", &statiskSensorFunk);
+	#if 1
+		K_auron* Ks = new K_sensor_auron("_sKN", &statiskSensorFunk);
+		s_auron* Ss = new s_sensor_auron("_sSN", &statiskSensorFunk);
 	#endif
+
 	//DYNAMISK
+	#if 0
 //	K_auron* Kd = new K_sensor_auron("_dKN", &dynamiskSensorFunk);
 	s_auron* Sd = new s_sensor_auron("_dSN", &dynamiskSensorFunk);
+	#endif
 
 //  BARE KAPPA:
 	#if 0
