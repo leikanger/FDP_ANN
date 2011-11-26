@@ -39,6 +39,10 @@
 
 
 
+
+extern unsigned long ulTemporalAccuracyPerSensoryFunctionOscillation;
+
+
 //Defines:
 
 // Velger KANN eller SANN for neste compilasjon
@@ -57,12 +61,24 @@
 #define UTSKRIFT_AV_TID_KVAR_Nte_ITER 1000000
 
 #define LOGG_DEPOL true 	// Denne gir om implementasjonen skal skrive til depol-logg.
-#define LOGG_KAPPA false 	// ...samma for kappa
+#define LOGG_KAPPA true 	// ...samma for kappa
 
-#define ALPHA (double)0.0100000000000 //00000005
-#define LEKKASJEFAKTOR_FOR_DEPOL (double)(1-ALPHA)
+//#define T 						(double)0.01 					//[ms]: tidsiterasjoner
+//#define ALPHA   				(double)1  //[verdi]: Lekkkasje per tidsiterasjon = [lengde på tidsiter]*[lekkasjefaktor]
+
+//#define T 						(double)1/ulTemporalAccuracyPerSensoryFunctionOscillation
+#define ALPHA   				(double)10  //[verdi]: Lekkkasje per tidsiterasjon = [ALPHA]/[ulTemporalAccuracyPerSensoryFunctionOscillation]
+//#define LEKKASJE_KONST   		(double) (T*ALPHA)
+#define LEKKASJE_KONST   		(double) (ALPHA/ulTemporalAccuracyPerSensoryFunctionOscillation)
+#define LEKKASJEFAKTOR_FOR_DEPOL (double)(1-LEKKASJE_KONST)
+
+#define NUMBER_OF_SENSOR_FUNKTION_OSCILLATIONS 2 // ANtall ganger sinus-funksjonen skal gjøre full gjennomgang.
+#define FYRINGSTERSKEL 1000.00000
+
 
 #define OCTAVE_SLEEP_ETTER_PLOTTA 4
+
+
 
 #define GCC false // Må til for å bruke iomanip.h
 
@@ -70,8 +86,7 @@
 #define DOT_ENTER_UTSKRIFT_AV_TID 0 // Betyr enter kvar n'te iter. (der n er tall som blir def.). Definer til 0 eller false for å slå av.
 
 
-#define FYRINGSTERSKEL 1000.00000
-
+#define PI 3.14159265
 
 #define DEBUG_EXIT(tekst) cerr<<"\n\nDEBUG_EXIT :\t" <<tekst <<"\nexit(99);\n\n"; exit(99);
 //#define DEBUG(tekst) cerr<<"DEBUG :\t" <<tekst <<"\n";
@@ -100,6 +115,9 @@ using std::endl;
 
 
 // deklarasjoner:
+
+extern bool bContinueExecution;
+
 
 class comparisonClass{
 	public:

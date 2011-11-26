@@ -56,17 +56,19 @@ extern std::list<s_sensor_auron*> s_sensor_auron::pAllSensorAurons;
 
 extern unsigned long time_class::ulTime;
 
-extern unsigned long ulLengthOfSimulation;
+extern unsigned long ulTemporalAccuracyPerSensoryFunctionOscillation;
 
 std::ostream & operator<<(std::ostream& ut, i_auron* pAuronArg );
 
+bool bContinueExecution = true; // Sjå main.h
 
 
 
 
 // Foreløpig testvariabel: 		Global variabel som skal lese inn fra argv**. 	
 // XXX Gå over til funk-som-global-variabel!   Og referer til stroustrup i rapport.
-unsigned long ulLengthOfSimulation;
+unsigned long ulTemporalAccuracyPerSensoryFunctionOscillation;
+
 //{ Alternativt med referanse-returnerende funk. : 
 /**********************************************************************************
 *** 	int& nAntallTidsiterasjoner()
@@ -98,11 +100,11 @@ int main(int argc, char *argv[])
 			{
 				case 'i':
 					// Sjekker om antall iterasjoner er i samme argument (uten mellomrom):
-					if( 		(ulLengthOfSimulation = atoi( &argv[innArgumentPos][2])) ) 	cout<<"Simulation length set to " <<ulLengthOfSimulation <<" time steps\n";
+					if( 		(ulTemporalAccuracyPerSensoryFunctionOscillation = NUMBER_OF_SENSOR_FUNKTION_OSCILLATIONS * atoi( &argv[innArgumentPos][2])) ) 	cout<<"Simulation length set to " <<ulTemporalAccuracyPerSensoryFunctionOscillation <<" time steps\n";
 					// Ellers: sjekker om det er på neste argument (med mellomrom):
-					else if( 	(ulLengthOfSimulation = atoi( argv[innArgumentPos+1]) ) ){
+					else if( 	(ulTemporalAccuracyPerSensoryFunctionOscillation = atoi( argv[innArgumentPos+1]) ) ){
 						++innArgumentPos;
-						cout<<"Anntall tidsiterasjoner er satt til " <<ulLengthOfSimulation <<endl;
+						cout<<"Anntall tidsiterasjoner er satt til " <<ulTemporalAccuracyPerSensoryFunctionOscillation <<endl;
 					}else{
 						cout<<"Can not read argument. Please follow the conventions:" <<endl;
 						skrivUtArgumentKonvensjoner(argv[0]);
@@ -131,14 +133,14 @@ int main(int argc, char *argv[])
 			if( ( (nInnInt = atoi( argv[innArgumentPos]))>0) ) //Skal eg sette øvre grense også?
 			{
 				cout<<"Argument gives number of iterations to be: \t\t" <<nInnInt <<endl;
-				ulLengthOfSimulation=nInnInt;
+				ulTemporalAccuracyPerSensoryFunctionOscillation=nInnInt;
 			}else{
 				cout<<"Number of iterations must be a positive number.\nUse default: " <<DEFAULT_ANTALL_TIDSITERASJONER <<endl;
 			}
 		}
 	}else{ // for if(argc > 1)
 		cout<<"No arguments listed. Continue with default values:\tNumber of iterations: " <<DEFAULT_ANTALL_TIDSITERASJONER <<endl;
-		ulLengthOfSimulation = DEFAULT_ANTALL_TIDSITERASJONER;
+		ulTemporalAccuracyPerSensoryFunctionOscillation = DEFAULT_ANTALL_TIDSITERASJONER;
 
 		skrivUtArgumentKonvensjoner(argv[0]);
 	} //}1
@@ -164,8 +166,8 @@ int main(int argc, char *argv[])
 	#endif
 
 	//DYNAMISK
-	#if 0
-//	K_auron* Kd = new K_sensor_auron("_dKN", &dynamiskSensorFunk);
+	#if 1
+	K_auron* Kd = new K_sensor_auron("_dKN", &dynamiskSensorFunk);
 	s_auron* Sd = new s_sensor_auron("_dSN", &dynamiskSensorFunk);
 	#endif
 
@@ -354,7 +356,7 @@ void* taskSchedulerFunction(void* )
 	/* * * * * * * * Begynner vanlig kjøring av auroNett * * * * * * * * */
 
 	// Hoved-loop:
-	while( time_class::ulTime <= ulLengthOfSimulation) 
+	while( bContinueExecution )
 	{
 
 		// Setter igang utføring av neste jobb i lista:

@@ -302,7 +302,7 @@ class K_auron : public i_auron
 		actionPotential_logFile.flush();
 
 		#if LOGG_DEPOL 
-			depol_logFile 	<<dEstimatedTaskTime <<"\t" <<1.2345*FYRINGSTERSKEL <<"; \t #Action potential - APAPAP\n" ;
+			depol_logFile 	<<dEstimatedTaskTime <<"\t" <<0 <<"; \t #Action potential - APAPAP\n" ;
 		#endif
 
 		#if 0 //KOMMENTERER UT. 
@@ -349,15 +349,15 @@ class K_auron : public i_auron
 	// TODO TODO Skriv om heile funk. No er det veldig dårlig (uoptimalisert) stil.
 	inline const double getCalculateDepol()
 	{
-		// GAMMEL: return (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * (time_class::getTid() - ulStartOfTimewindow )) + dAktivitetsVariabel ;
+		// GAMMEL: return (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)LEKKASJE_KONST  * (time_class::getTid() - ulStartOfTimewindow )) + dAktivitetsVariabel ;
 
 		// Går over til bedre tidssoppløysing: double-precition float number accuracy!
-		return (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * (dNextStartOfTimeWindow - dStartOfTimeWindow )) + dAktivitetsVariabel ; //v(t)=K(1-e^-at)-v_+e^-at = (v_0 - K) e^-at + K   !
+		return (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-LEKKASJE_KONST  * (dNextStartOfTimeWindow - dStartOfTimeWindow )) + dAktivitetsVariabel ; //v(t)=K(1-e^-at)-v_+e^-at = (v_0 - K) e^-at + K   !
 	}
 	#if 0 
 	inline const double getCalculateDepol(double dTidspunktArg)
 	{
-		return (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)ALPHA  * (dTidspunktArg - dStartOfTimeWindow )) + dAktivitetsVariabel ; //v(t)=K(1-e^-at)-v_+e^-at = (v_0 - K) e^-at + K   !
+		return (dDepolAtStartOfTimeWindow - dAktivitetsVariabel)*exp(-(double)LEKKASJE_KONST  * (dTidspunktArg - dStartOfTimeWindow )) + dAktivitetsVariabel ; //v(t)=K(1-e^-at)-v_+e^-at = (v_0 - K) e^-at + K   !
 	}
 	#endif
 
@@ -370,7 +370,7 @@ class K_auron : public i_auron
 			depol_logFile.precision(11);
 		#endif
 
-		// Skriver dDepolAtStartOfTimeWindow til logg:
+		// Skriver dDepolAtStartOfTimeWindow til logg: (Tid er gitt i prosent av heile kjøretid)
 		depol_logFile 	<<(unsigned long)time_class::getTid() <<"\t" <<getCalculateDepol() <<"; \t #Depol\n" ;
 		depol_logFile.flush();
 		#endif

@@ -33,7 +33,8 @@
 std::ostream & operator<< (std::ostream& ut, i_auron* pAuronArg );
 
 
-extern unsigned long ulLengthOfSimulation;
+extern unsigned long ulTemporalAccuracyPerSensoryFunctionOscillation;
+extern bool bContinueExecution;
 
 
 /*************************************************************
@@ -90,8 +91,8 @@ i_auron::i_auron(std::string sNavn_Arg /*="unnamed"*/, double dStartAktVar /*=0*
 		depol_logFile.open( tempStr.c_str() );
 
 		depol_logFile<< "# Kjøring med "
-					 <<"\n#\tAlpha = \t" <<ALPHA 
-					 <<"\n#\tAntall Iter = \t" <<ulLengthOfSimulation <<"\n\n";
+					 <<"\n#\tAlpha = \t" <<LEKKASJE_KONST 
+					 <<"\n#\tAntall Iter = \t" <<ulTemporalAccuracyPerSensoryFunctionOscillation <<"\n\n";
 		depol_logFile<<"data=[";
 		depol_logFile.flush();
 	#endif
@@ -105,8 +106,8 @@ i_auron::i_auron(std::string sNavn_Arg /*="unnamed"*/, double dStartAktVar /*=0*
 	// need c-style string for open() function:
  	actionPotential_logFile.open( tempStr2.c_str() );
 	actionPotential_logFile << "# Kjøring med "
-				 			<<"\n#\tAlpha = \t" <<ALPHA 
-				 			<<"\n#\tAntall Iter = \t" <<ulLengthOfSimulation <<"\n\n"
+				 			<<"\n#\tAlpha = \t" <<LEKKASJE_KONST 
+				 			<<"\n#\tAntall Iter = \t" <<ulTemporalAccuracyPerSensoryFunctionOscillation <<"\n\n"
 							<<"data=[";
 	actionPotential_logFile.flush();
 
@@ -123,10 +124,10 @@ i_auron::~i_auron()
 	#if LOGG_DEPOL
 		// Finalize octave script to make it executable:
 		depol_logFile 	<<"];\n\n"
-						<<"axis([0, " <<time_class::getTid() <<", 0, " <<FYRINGSTERSKEL*1.3 <<"]);\n"
 						<<"plot( data([1:end],1), data([1:end],2), \".;Depolarization;\");\n"
 						<<"title \"Depolarization for auron " <<sNavn <<"\"\n"
 						<<"xlabel Time\n" <<"ylabel \"Activity variable\"\n"
+						<<"axis([0, " <<time_class::getTid() <<", 0, " <<FYRINGSTERSKEL*1.3 <<"]);\n"
 						//<<"akser=[0 data(end,1) 0 1400 ]; axis(akser);\n"
 						<<"print(\'./eps/eps_auron" <<sNavn <<"-depol.eps\', \'-deps\');\n"
 						<<"sleep(" <<OCTAVE_SLEEP_ETTER_PLOTTA <<"); "
@@ -249,7 +250,7 @@ cerr<<"DEBUG auron ~pInputDendrite: \n"; // TODO  TODO TA VEKK§!
 
 cout<<"DEBUG loggFil-avslutting\nKOMMENTERT UT -- FIKS Dette: skal være med!\n";
 
-/* TODO TODO OTDO TODO SKALVÆRE;MED! Inneholder feil? --type segfault!
+/* TODO TODO OTDO TODO SKALVÆRE;MED! Inneholder feil? --type segfault! */
 	// Rett slutt på utskriftsfil-logg:
 	kappa_logFile<<time_class::getTid() <<"\t" <<dAktivitetsVariabel <<"];\n"
 					<<"axis([0," <<time_class::getTid() <<"])\n"
@@ -262,7 +263,7 @@ cout<<"DEBUG loggFil-avslutting\nKOMMENTERT UT -- FIKS Dette: skal være med!\n"
 					<<"sleep(" <<OCTAVE_SLEEP_ETTER_PLOTTA <<"); "
 					;
 	kappa_logFile.close();
-*/
+/**/
 
 
 
@@ -590,7 +591,7 @@ inline void K_dendrite::newInputSignal( double dNewSignal_arg )
 inline void K_auron::changeKappa_derivedArg( double dInputDerived_arg)//int derivedInput_arg )
 {
 	// Arg legges til Kappa no, og effektene av endringa kalkuleres i .doCalculation().
-	dChangeInKappa_this_iter +=  dInputDerived_arg ; // TODO SKAL Være delt på ALPHA! (Det gir rett svar, fordi eg ganger med alpha på s_dendrite::newInputSignal()...
+	dChangeInKappa_this_iter +=  dInputDerived_arg ; // TODO SKAL Være delt på LEKKASJE_KONST! (Det gir rett svar, fordi eg ganger med alpha på s_dendrite::newInputSignal()...
 										// TODO TODO TODO FIKS DETTE: SJå asdf1235 (under)
 
 	// TODO TODO SKAL eg gjøre noe med dNextStartOfTimeWindow her (tidspunkt for oppdatering av kappa)?
@@ -642,10 +643,10 @@ inline void s_dendrite::newInputSignal( double dNewSignal_arg )
 	// beregner lekkasje av depol siden sist:
 	calculateLeakage();
 
-// VIKTIG123@neuroElement.cpp :  ALPHA for SANN: Sjå ALPHA under..
+// VIKTIG123@neuroElement.cpp :  LEKKASJE_KONST for SANN: Sjå LEKKASJE_KONST under..
 
-	// Bli heilt sikker på ALPHA: XXX XXX XXX ALPHA XXX XXX xxx XXX
-	pElementOfAuron->dAktivitetsVariabel +=  dNewSignal_arg * ALPHA;  //SJEKKA FOR MOTSATT: at K_auron::changeKappa_derivedArg(..) delte på \alpha før endring av kappa. Dette vil (teoretisk) gi samme resultat. 
+	// Bli heilt sikker på LEKKASJE_KONST: XXX XXX XXX LEKKASJE_KONST XXX XXX xxx XXX
+	pElementOfAuron->dAktivitetsVariabel +=  dNewSignal_arg * LEKKASJE_KONST;  //SJEKKA FOR MOTSATT: at K_auron::changeKappa_derivedArg(..) delte på \alpha før endring av kappa. Dette vil (teoretisk) gi samme resultat. 
 																		// Eg har ikkje gjort det om, fordi eg allerede har gjort alle forsøka til artikkelen med slik det er no..
 										// TODO TODO TODO FIKS DETTE: SJå asdf1235 (over)
 
@@ -677,7 +678,7 @@ inline void s_dendrite::calculateLeakage()
 	if( pElementOfAuron->ulTimestampLastInput != time_class::getTid() )
 	{
 		// regner ut, og trekker fra lekkasje av depol til postsyn neuron.
-	 	pElementOfAuron->dAktivitetsVariabel *= pow( (double)(1-ALPHA), (double)(time_class::getTid() - pElementOfAuron->ulTimestampLastInput) );
+	 	pElementOfAuron->dAktivitetsVariabel *= pow( (double)(1-LEKKASJE_KONST), (double)(time_class::getTid() - pElementOfAuron->ulTimestampLastInput) );
 	
 		// Gjøres i s_dendrite::newInputSignal(): 
 		//ulTimestampLastInput = time_class::getTid(); 
@@ -854,6 +855,13 @@ inline void K_dendrite::doTask()
 void time_class::doTask()
 { 	//{1 
 
+	// Sjekker om den har kjørt ferdig:
+	if( ulTime > ulTemporalAccuracyPerSensoryFunctionOscillation * NUMBER_OF_SENSOR_FUNKTION_OSCILLATIONS )
+	{
+		bContinueExecution = false;
+		return;
+	}
+
 	// gjennomfører planlagte kalkulasjoner:
 	doCalculation();
 
@@ -934,12 +942,21 @@ void K_auron::doCalculation()
  	cout<<"[K, T] = " <<dAktivitetsVariabel <<", " <<FYRINGSTERSKEL <<endl;
 	#endif
 
+
+	// BRUTE-force feilfiks:
+	if(dEstimatedTaskTime<time_class::getTid()){
+		dDepolAtStartOfTimeWindow = 0;
+	//	dStartOfTimeWindow = dNextStartOfTimeWindow;
+	}
+
+
 	// Viktig å kalkulere depol med GAMMEL Kappa! Ellers får vi hopp i depol!
 	// Lagrer v_0 og t_0 for neste 'time window':
 	dDepolAtStartOfTimeWindow = getCalculateDepol();
 	// TODO Dette må endres når eg begynner med synaptisk input for nodene! Da blir det litt annaleis ?
 	dStartOfTimeWindow = dNextStartOfTimeWindow; //GAMMEL LØYSING: time_class::getTid();
 	
+
 	// Oppdaterer Kappa
 	dAktivitetsVariabel += dChangeInKappa_this_iter;
 	dChangeInKappa_this_iter = 0;
@@ -958,7 +975,7 @@ inline void K_auron::estimatePeriod()
 	
 		// Berenger dPeriodINVERSE og dChangeInPeriodINVERSE:
 		// dLastCalculatedPeriod gir synaptisk overføring. Perioden er uavhengig av spatiotemporal effekts. Dermed: +A simulerer en refraction time på A tidssteg. ref:asdf5415@neuroElement.cpp
-		dLastCalculatedPeriod  = (( log( dAktivitetsVariabel / (dAktivitetsVariabel - (double)FYRINGSTERSKEL) ) / (double)ALPHA)) 	;	//							+1 		; // +1 for å gi refraction time XXX
+		dLastCalculatedPeriod  = (( log( dAktivitetsVariabel / (dAktivitetsVariabel - (double)FYRINGSTERSKEL) ) / (double)LEKKASJE_KONST)) 	;	//							+1 		; // +1 for å gi refraction time XXX
 		dPeriodInverse_static_local = 1/dLastCalculatedPeriod;
 		dChangeInPeriodINVERSE = dPeriodInverse_static_local - dPeriodINVERSE;
 		dPeriodINVERSE = dPeriodInverse_static_local;
@@ -973,8 +990,8 @@ inline void K_auron::estimatePeriod()
 
 		// 	For K_auron trenger vi ikkje legge til elementet i [liste som skal sjekkes]. pAllKappaAurons sjekkes alltid.. 	
 		// GAMMEL: (1) Typekonverterer tid til double (2) legger til beregnet estimert fyringstid TODO VALIDER dette! -igjen og igjen!
-		// GAMMEL: dEstimatedTaskTime = ( (double)time_class::getTid() + log( (dAktivitetsVariabel-dDepolAtStartOfTimeWindow)/(dAktivitetsVariabel-(double)FYRINGSTERSKEL) )   /  (double)ALPHA )  ; // TODO +1 ekstra for å få delay:axon,d.
-		dEstimatedTaskTime = ( dStartOfTimeWindow 	+ log( (dAktivitetsVariabel-dDepolAtStartOfTimeWindow)/(dAktivitetsVariabel-(double)FYRINGSTERSKEL) )   /  (double)ALPHA )  ; // TODO +1 ekstra for å få delay i dendrite, axon ?
+		// GAMMEL: dEstimatedTaskTime = ( (double)time_class::getTid() + log( (dAktivitetsVariabel-dDepolAtStartOfTimeWindow)/(dAktivitetsVariabel-(double)FYRINGSTERSKEL) )   /  (double)LEKKASJE_KONST )  ; // TODO +1 ekstra for å få delay:axon,d.
+		dEstimatedTaskTime = ( dStartOfTimeWindow 	+ log( (dAktivitetsVariabel-dDepolAtStartOfTimeWindow)/(dAktivitetsVariabel-(double)FYRINGSTERSKEL) )   /  (double)LEKKASJE_KONST )  ; // TODO +1 ekstra for å få delay i dendrite, axon ?
 		// [estimert tid}  = 		[no]			+ 		[remainder of depolarizing phase] 
 		// GÅR HER UT IFRA AT Kappa endres kvar iterasjon! Seier at [no] er samme som dStartOfTimeWindow: dette er bare rett dersom vi oppdaterer start of time window kvar iter!
 																										
@@ -1060,7 +1077,7 @@ inline void K_sensor_auron::updateSensorValue()
 // Oppdaterer sensed value. Ved init av K_sensor_auron, blir dSensedValue satt til verdien til pSensorFunc()..
 	// To variabler for å finne deriverte. Denne skal bestemme ny kappa..
 	dLastSensedValue = dSensedValue;
-		// VIKTIG123@neuonElements.cpp ALPHA for KANN:
+		// VIKTIG123@neuonElements.cpp LEKKASJE_KONST for KANN:
 	dSensedValue =  (*pSensorFunction)();
 
 	//if( dSensedValue != dLastSensedValue){
@@ -1068,9 +1085,9 @@ inline void K_sensor_auron::updateSensorValue()
 		//
 		// Lagre tidspunkt for oppdatering av kappa som starten av iterasjonen (definer dette som samplingstidspunkt av sensa variabel).
 		dNextStartOfTimeWindow = (double)time_class::getTid(); // Setter den til [no], før eg beregner resultatet av denne oppdateringa i changeKappa_derivedArg( .. );
-		changeKappa_derivedArg(   (dSensedValue-dLastSensedValue) );  //TODO Finn ut om denne er gange ALPHA.
-		// XXX Veit ikkje kva hvilken som funker: Forrige er konkluderte med var at ALPHA måtte være med.. FAEEN.
-		//changeKappa_derivedArg( ALPHA*   (dSensedValue-dLastSensedValue) );  //TODO Finn ut om denne er gange ALPHA.
+		changeKappa_derivedArg(   (dSensedValue-dLastSensedValue) );  //TODO Finn ut om denne er gange LEKKASJE_KONST.
+		// XXX Veit ikkje kva hvilken som funker: Forrige er konkluderte med var at LEKKASJE_KONST måtte være med.. FAEEN.
+		//changeKappa_derivedArg( LEKKASJE_KONST*   (dSensedValue-dLastSensedValue) );  //TODO Finn ut om denne er gange LEKKASJE_KONST.
 
 	#if DEBUG_UTSKRIFTS_NIVAA > 3
 	cout<<"Kappa for K_sensor_auron: " <<dAktivitetsVariabel <<"\n\n";
