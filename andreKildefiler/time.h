@@ -112,6 +112,30 @@ class time_class : public timeInterface {
 		}
 	} //}
 
+
+#if 1
+	static inline void addTaskInPresentTimeIteration(timeInterface* pTimeClassArg)
+	{
+// 		// XXX Dette er bra, men eg skal gjøre det for alle K_auron når eg går inn i en tidsiter. 
+// 			// Da kan eg også gjøre det her!
+/*		for( std::list<time_class*>::iterator iter = pWorkTaskQue.begin(); iter != pWorkTaskQue.end(); iter++ )
+		{
+	 		if( typeid(*iter) == typeid(K_auron*) )
+			{
+	 			
+			}
+		}
+*/		 
+		
+		// Foreløpig legger eg den bare til først i denne iter: (etter nåværande elem.)
+		if( pWorkTaskQue.size() > 1 ){
+			std::list<timeInterface*>::iterator iter = pWorkTaskQue.begin();
+			++iter;
+			pWorkTaskQue.insert(iter, pTimeClassArg ); 
+		}
+	}
+#endif
+
 	static inline void addCalculationIn_pCalculatationTaskQue( timeInterface* pObject_arg)
 	{
 	 	pCalculatationTaskQue.push_back( pObject_arg );

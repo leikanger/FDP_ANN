@@ -126,7 +126,7 @@ class i_auron : public timeInterface
 
 		// SKriver en enkelt linje med tidspunktet:
 		#if LOGG_DEPOL
-		depol_logFile 	<<time_class::getTid() <<"\t" <<1.1*FYRINGSTERSKEL <<"; \t #Action potential - APAPAP\n" ;
+			depol_logFile 	<<time_class::getTid() <<"\t" <<0*FYRINGSTERSKEL <<"; \t #Action potential - APAPAP\n" ;
 		#endif
 
 		#if 0 //KOMMENTERER UT. 
@@ -302,6 +302,7 @@ class K_auron : public i_auron
 		actionPotential_logFile.flush();
 
 		#if LOGG_DEPOL 
+			depol_logFile 	<<dEstimatedTaskTime <<"\t" <<FYRINGSTERSKEL <<"; \t #Action potential - APAPAP\n" ;
 			depol_logFile 	<<dEstimatedTaskTime <<"\t" <<0 <<"; \t #Action potential - APAPAP\n" ;
 		#endif
 

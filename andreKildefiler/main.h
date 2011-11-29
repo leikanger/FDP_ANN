@@ -72,17 +72,20 @@ extern unsigned long ulTemporalAccuracyPerSensoryFunctionOscillation;
 #define LEKKASJE_KONST   		(double) (ALPHA/ulTemporalAccuracyPerSensoryFunctionOscillation)
 #define LEKKASJEFAKTOR_FOR_DEPOL (double)(1-LEKKASJE_KONST)
 
-#define NUMBER_OF_SENSOR_FUNKTION_OSCILLATIONS 2 // ANtall ganger sinus-funksjonen skal gjøre full gjennomgang.
+#define NUMBER_OF_SENSOR_FUNKTION_OSCILLATIONS 1 // ANtall ganger sinus-funksjonen skal gjøre full gjennomgang.
 #define FYRINGSTERSKEL 1000.00000
 
 
-#define OCTAVE_SLEEP_ETTER_PLOTTA 4
+#define OCTAVE_SLEEP_ETTER_PLOTTA 0
 
 
 
-#define GCC false // Må til for å bruke iomanip.h
+#define GCC true // Må til for å bruke iomanip.h
 
 #define DEBUG_UTSKRIFTS_NIVAA 0
+#define DEBUG_SKRIV_UT_DESTRUCTOR 	0
+#define DEBUG_SKRIV_UT_CONSTRUCTOR 	0
+
 #define DOT_ENTER_UTSKRIFT_AV_TID 0 // Betyr enter kvar n'te iter. (der n er tall som blir def.). Definer til 0 eller false for å slå av.
 
 
@@ -91,6 +94,12 @@ extern unsigned long ulTemporalAccuracyPerSensoryFunctionOscillation;
 #define DEBUG_EXIT(tekst) cerr<<"\n\nDEBUG_EXIT :\t" <<tekst <<"\nexit(99);\n\n"; exit(99);
 //#define DEBUG(tekst) cerr<<"DEBUG :\t" <<tekst <<"\n";
 #define DEBUG(tekst) ;
+
+
+#if GCC
+	#include <iomanip> // For setprecision()   FUNKER IKKJE FOR clang++-kompilatoren..
+#endif
+
 
 #ifndef MAIN_H_
 #define MAIN_H_

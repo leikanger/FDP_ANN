@@ -62,7 +62,8 @@ std::ostream & operator<<(std::ostream& ut, i_auron* pAuronArg );
 
 bool bContinueExecution = true; // Sjå main.h
 
-
+bool bLogLogExecution = false; 	// For å lage log/log plot av feil: sett denne til true
+int nResolutionInLogLogErrorPlot;
 
 
 // Foreløpig testvariabel: 		Global variabel som skal lese inn fra argv**. 	
@@ -96,11 +97,20 @@ int main(int argc, char *argv[])
 		{
 			cout<<"argv[" <<innArgumentPos <<"]: " <<argv[innArgumentPos] <<endl;
 
-			switch( argv[innArgumentPos][1] )
-			{
-				case 'i':
+			if( 		argv[innArgumentPos][1] == 'L' ){
+					bLogLogExecution = true;
+					if( nResolutionInLogLogErrorPlot =  atoi( &argv[innArgumentPos][2]) ){
+						cout<<"log/log error plot with " <<nResolutionInLogLogErrorPlot <<" entries.\n"; 
+					}else{
+						cout<<"Can not read argument. Please follow the conventions:" <<endl;
+						skrivUtArgumentKonvensjoner(argv[0]);
+						exit(-1);
+						//continue;
+					}
+			}else if( 	argv[innArgumentPos][1] == 'i' ){
 					// Sjekker om antall iterasjoner er i samme argument (uten mellomrom):
-					if( 		(ulTemporalAccuracyPerSensoryFunctionOscillation = NUMBER_OF_SENSOR_FUNKTION_OSCILLATIONS * atoi( &argv[innArgumentPos][2])) ) 	cout<<"Simulation length set to " <<ulTemporalAccuracyPerSensoryFunctionOscillation <<" time steps\n";
+					if( 		(ulTemporalAccuracyPerSensoryFunctionOscillation = NUMBER_OF_SENSOR_FUNKTION_OSCILLATIONS * atoi( &argv[innArgumentPos][2])) ) 	
+						cout<<"Simulation length set to " <<ulTemporalAccuracyPerSensoryFunctionOscillation <<" time steps\n";
 					// Ellers: sjekker om det er på neste argument (med mellomrom):
 					else if( 	(ulTemporalAccuracyPerSensoryFunctionOscillation = atoi( argv[innArgumentPos+1]) ) ){
 						++innArgumentPos;
@@ -108,20 +118,18 @@ int main(int argc, char *argv[])
 					}else{
 						cout<<"Can not read argument. Please follow the conventions:" <<endl;
 						skrivUtArgumentKonvensjoner(argv[0]);
-						continue;
-						//exit(-1);
+						exit(-1);
+						//continue;
 					}
-				default:
-					if( atoi( argv[innArgumentPos] ) )
-						cout<<"Her var eit tall, ja!\n";
-
-					cout<<"Unknown argument: " <<argv[innArgumentPos] <<"\tUnable to complete request. Try again." <<endl;
-					skrivUtArgumentKonvensjoner(argv[0]);
-			}
+			}else{
+				cout<<"Unknown argument: " <<argv[innArgumentPos] <<"\tUnable to complete request. Try again." <<endl;
+				skrivUtArgumentKonvensjoner(argv[0]);
+				exit(-1);
+			} 
 
 			// Går vidare til neste argument.
 			if( argv[innArgumentPos+1] ) 
-				innArgumentPos++;
+				++innArgumentPos;
 			else // dersom det ikkje finnes fleire argument å lese: break.
 				break;
 		}
@@ -130,15 +138,18 @@ int main(int argc, char *argv[])
 		{
 			int nInnInt;
 			//innArgumentPos er på siste argumentet for programkallet.
-			if( ( (nInnInt = atoi( argv[innArgumentPos]))>0) ) //Skal eg sette øvre grense også?
+			if( ( (nInnInt = atoi( argv[innArgumentPos]))) ) //Skal eg sette øvre grense også?
 			{
-				cout<<"Argument gives number of iterations to be: \t\t" <<nInnInt <<endl;
-				ulTemporalAccuracyPerSensoryFunctionOscillation=nInnInt;
-			}else{
-				cout<<"Number of iterations must be a positive number.\nUse default: " <<DEFAULT_ANTALL_TIDSITERASJONER <<endl;
+				if(nInnInt <= 0){
+					cout<<"Number of iterations must be a positive number.\nUse default: " <<DEFAULT_ANTALL_TIDSITERASJONER <<endl;
+				}else{
+					cout<<"Argument gives number of iterations to be: \t\t" <<nInnInt <<endl;
+					ulTemporalAccuracyPerSensoryFunctionOscillation=nInnInt;
+				}
 			}
 		}
-	}else{ // for if(argc > 1)
+		cout<<"\n";
+	}else{ //  if(argc > 1) : else
 		cout<<"No arguments listed. Continue with default values:\tNumber of iterations: " <<DEFAULT_ANTALL_TIDSITERASJONER <<endl;
 		ulTemporalAccuracyPerSensoryFunctionOscillation = DEFAULT_ANTALL_TIDSITERASJONER;
 
@@ -155,22 +166,86 @@ int main(int argc, char *argv[])
 	if( system("rm ./datafiles_for_evaluation/log_*.oct") != 0)
 		cout<<"Could not remove old log files. Please do this manually to avoid accidendtally plotting old results.\n";
 
+	// Ny mekanisme: Lag log/log errorplot datafil. Kjører simuleringe med [100 : 100*2^nResolutionInLogLogErrorPlot] tidssteg. Lagrer slutt-verdien for depol. verdien.
+	if( bLogLogExecution ){ 	// Skal kjøre for å generere datafil til log-log error plot.
 
-	// Testoppsett:
-// Blanda:
+			cout<<"FUNKER IKKJE ENDA. Avslutter!\n\n"; exit(0);
 
-	//STATISK
-	#if 1
-		K_auron* Ks = new K_sensor_auron("_sKN", &statiskSensorFunk);
-		s_auron* Ss = new s_sensor_auron("_sSN", &statiskSensorFunk);
-	#endif
+			// TODO : Lag en egen logge-fil for LogLogError-datafila.
+			// Lager logge-fil (der data skal skrives).
+			std::ofstream LogLog_logFile;
+			std::ostringstream tempFilAdr;
+			tempFilAdr<<"./datafiles_for_evaluation/log_LogLog_data_file" <<".oct";
+	
+			std::string tempStr( tempFilAdr.str() );
+	
+			// need c-style string for open() function:
+			LogLog_logFile.open( tempStr.c_str() );
 
-	//DYNAMISK
-	#if 1
-	K_auron* Kd = new K_sensor_auron("_dKN", &dynamiskSensorFunk);
-	s_auron* Sd = new s_sensor_auron("_dSN", &dynamiskSensorFunk);
-	#endif
+			LogLog_logFile<< "# Log/Log datafil med slutt-depol. ved ei kjøring med [100 : 100*(2^" <<nResolutionInLogLogErrorPlot <<")] iterasjoner.\n";
+			LogLog_logFile<<"data=[";
+			LogLog_logFile.flush();
 
+
+
+
+			for( int i=0; i<nResolutionInLogLogErrorPlot; i++ )
+			{
+				// Resetter Tid
+				time_class::ulTime = 0;
+				// Setter temporalAccuracy:
+	 			ulTemporalAccuracyPerSensoryFunctionOscillation = 100*pow(2,i);
+				// Lager auron:
+				K_sensor_auron KN("KN", &dynamiskSensorFunk);
+				s_sensor_auron SN("SN", &dynamiskSensorFunk);
+
+				// Starter kjøring:
+				bContinueExecution = true; 
+				cout 	<<"\nSTARTER kjøring nummer " <<i 
+						<<" med temporalAccuracy " <<ulTemporalAccuracyPerSensoryFunctionOscillation <<".\tStarter på tid:" <<time_class::ulTime <<endl;
+				// ********* taskSchedulerFunction(0) ***********
+				taskSchedulerFunction(0);
+
+				cout<<"sluttTid: " <<time_class::ulTime <<"\tdepol for KN og SN:\t[" <<KN.getCalculateDepol() <<", " <<SN.dAktivitetsVariabel <<"]\n";
+				cout<<"Siste fyringstid for SN:" <<SN.ulTimestampForrigeFyring <<endl;
+
+				// Skriv slutt-verdi til logg-fil for log/log-plot (for KN og SN: lag to kolonner i data matrisa)
+				LogLog_logFile 	<<KN.getCalculateDepol() <<", "
+								<<SN.dAktivitetsVariabel <<";\n";
+//				delete KN;
+//				delete SN;
+			
+			}
+			
+			// Avslutter LogLog-datafil:
+			LogLog_logFile<<"]; \n";
+
+
+	}else{ 						// Skal kjøre på vanlig måte.
+
+		// Testoppsett:
+	// Blanda:
+
+		//STATISK
+		#if 0
+			K_auron* Ks = new K_sensor_auron("_sKN", &statiskSensorFunk);
+			s_auron* Ss = new s_sensor_auron("_sSN", &statiskSensorFunk);
+		#endif
+
+		//LINEÆRT ØKANDE DEPOL. VELOCITY
+		#if 0
+			K_auron* Kd = new K_sensor_auron("_dKN", &linearilyIncreasingDepolVelocity);
+			s_auron* Sd = new s_sensor_auron("_dSN", &linearilyIncreasingDepolVelocity);
+		#endif
+
+		//DYNAMISK
+		#if 1
+			K_auron* Kd = new K_sensor_auron("_dKN", &dynamiskSensorFunk);
+			s_auron* Sd = new s_sensor_auron("_dSN", &dynamiskSensorFunk);
+		#endif
+
+
+//{ KOMMENTERT UT
 //  BARE KAPPA:
 	#if 0
 	K_sensor_auron* Ks1 = new K_sensor_auron("K_sensor_auron", &sensorFunk1a);
@@ -246,37 +321,42 @@ int main(int argc, char *argv[])
 
 	//} Slutt KANN-testopplegg
 	#endif
+//}
 
 
 
-
-	cout<<"******************************************\n*** BEGYNNER KJØRING AV ANN: ***\n******************************************\n\n";
+		cout<<"******************************************\n*** BEGYNNER KJØRING AV ANN: ***\n******************************************\n\n";
 
 
 /******************************************* Starter void taskSchedulerFunction(void*); ****************************************************/
-	taskSchedulerFunction(0);
+		taskSchedulerFunction(0);
 /*******************************************************************************************************************************************/
 
 
-	cout<<"\n\n\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\nAvslutter.\n\n\n";
+		cout<<"\n\n\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\nAvslutter.\n\n\n";
+		#if GCC	
+			cout.precision(20);
+		#endif
+		cout<<"siste depol. for [SN, KN]: \t[" <<Sd->dAktivitetsVariabel <<", " <<Kd->getCalculateDepol() <<"]\n\n";
 
 	
 
-	cout<<"\n\n\n\nSkriver ut alle auron: \t\t";
-	for( std::list<i_auron*>::iterator iter = i_auron::pAllAurons.begin() ;  iter != i_auron::pAllAurons.end() ;  iter++ )
-	{
-		cout<<"[ " <<(*iter)->sNavn <<" ]\t";
-	}
-	cout<<"\n\n";
+		cout<<"\n\n\n\nSkriver ut alle auron: \t\t";
+		for( std::list<i_auron*>::iterator iter = i_auron::pAllAurons.begin() ;  iter != i_auron::pAllAurons.end() ;  iter++ )
+		{
+			cout<<"[ " <<(*iter)->sNavn <<" ]\t";
+		}
+		cout<<"\n\n";
+	
+		#if DEBUG_UTSKRIFTS_NIVAA > 3
+			time_class::skrivUt_pPeriodicElements();
+		#endif
 
-	#if DEBUG_UTSKRIFTS_NIVAA > 3
-		time_class::skrivUt_pPeriodicElements();
-	#endif
 
+		// Avlutt alle loggane rett:
+		i_auron::callDestructorForAllAurons();
 
-	// Avlutt alle loggane rett:
-	i_auron::callDestructorForAllAurons();
-
+	} // if( bLogLogExecution == false ){ .. }
 
 	cout<<"\n\nWIN!\n\n\n";
 	return 0;
@@ -288,6 +368,7 @@ void skrivUtArgumentKonvensjoner(std::string programKall)
 	cout <<"\n\nConventions for executing auron.out: \n"
 		 <<"\t"<<programKall <<"[-options] [number of iterations]\n"
 		 <<"\t\tOptions: \n\t\t\t-i [n] \t number of iterations on simulation."
+		 <<"\t\t\n         \t\t\t-L [n] \t make log/log plot of error for [100:100*2^[n]] time iterations."
 		 <<"\n\n\n\n\n";
 } //}
 
@@ -300,19 +381,25 @@ void skrivUtArgumentKonvensjoner(std::string programKall)
 void initialiserArbeidsKoe()
 { //{1
 	// Sjekker om arbeidskø er initialisert fra før. I så fall returner uten å gjøre meir. (dette vil aldri skje - forsikrer meg mot det alikevel)
-	static bool bInitialisertAllerede = false;
-	if(bInitialisertAllerede) return;
+	//static bool bInitialisertAllerede = false;
+	//if(bInitialisertAllerede ) return;
+	// Da er den kjørt før: Slett alt! 
+	while( ! time_class::pWorkTaskQue.empty() ){
+		time_class::pWorkTaskQue.pop_front();
+	}
+	 
 
 	
 	// Lager instans av time, og legger den i det frie lageret.
-	time_class* pHovedskille = new time_class();
+//	time_class* pHovedskille = new time_class();
 	// Legger til denne peikeren i arbeidskøa (som ligger som static-element i class time) :
- 	time_class::pWorkTaskQue 	.push_back( pHovedskille );
+// 	time_class::pWorkTaskQue 	.push_back( pHovedskille );
+ 	time_class::pWorkTaskQue 	.push_back( new time_class() );
 
 	// No ligger peikeren pHovedskille som einaste element i pWorkTaskQue. Kvar gang denne kjører doTask() vil den ikkje fjærne seg fra arbeidsliste, men flytte seg bakerst i køa isteden.
 
 	// static bInitialisertAllerede vil eksistere kvar gang denne funksjonen kalles. Setter dermed bInitialisertAllerede til true for å forhindre at fleire time legges til arbeidsKoe.
-	bInitialisertAllerede = true;
+	//bInitialisertAllerede = true;
 } //}1
 
 
@@ -336,9 +423,13 @@ void* taskSchedulerFunction(void* )
 	// Initialiserer tid: begynner på iter 1. Dette (t_0=1) er viktig for å få rett initiering av K_auron som begynner med en konst kappa (gir K=(v_0-K)e^(-a*(1-0)) istedenfor K=..*e^0)
 	time_class::ulTime = 0;
 
-	// Initierer arbeidskø (time_class::pWorkTaskQue)
+	// Initierer arbeidskø (time_class::pWorkTaskQue)   Om dette er gjort før, returnerer den bare..
 	initialiserArbeidsKoe();
 
+	// Skriver ut pAlleKappaAuron:
+	cout<<"SKRIVER ut pAlleKappaAuron\n";
+	for( std::list<K_auron*>::iterator iter = K_auron::pAllKappaAurons.begin(); iter != K_auron::pAllKappaAurons.end(); iter++ )
+		cout<<"\titer->sNavn: " <<(*iter)->sNavn <<endl;
 
 	// Initialiserer 'time window' for alle K_auron:
 	for( std::list<K_auron*>::iterator K_iter = K_auron::pAllKappaAurons.begin(); K_iter != K_auron::pAllKappaAurons.end(); K_iter++ )

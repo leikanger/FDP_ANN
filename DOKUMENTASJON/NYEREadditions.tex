@@ -34,6 +34,16 @@
 	K_sensor_auron starta med K=sensed value. Oppdaterte første tidssteg til (sensedValue-0)*ALPHA. Dette gjorde at Kappa ble for høg resten av tida. DRITT!
 	Innførte at K_sensor_auron::K_sensor_auron() også lagra dLastSensedValue til å være Kappa, ved init av K_sensor_auron. No funker det for statisk sensorfunk!
 
+\section{Legg til task i presentTimeIteration}
+Har lagt til funksjonen time\_class::addTaskInPresentTimeIteration(K_auron* pK_auronArg) som kan legge til eit K\_auron til nåværende tidsiter.
+Dette for å unngå at depol. går langt over terskel.
+(Før brute-force'a eg eit AP dersom depol var over terskel. Trur dette blir unødvendig med dette nye tillegget!)
+
+FETT, trur det funker nå. Men er ikkje sikker fordi eg vil skrive artikkel istadenfor å utvikle meir.
+Pluss at eg har eksamen om ei veke :(
+
+
+
 \section{PLAN}
 	- innfør float-tid for KANN. (sjå \ref{secKontinuerligTid}).
 
