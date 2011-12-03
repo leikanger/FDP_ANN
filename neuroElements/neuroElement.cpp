@@ -900,7 +900,7 @@ void time_class::doTask()
 { 	//{1 
 
 	// Sjekker om den har kjørt ferdig:
-	if( ulTime >= ulTemporalAccuracyPerSensoryFunctionOscillation * NUMBER_OF_SENSOR_FUNKTION_OSCILLATIONS )
+	if( ulTime >= ulTotalNumberOfIterations )   //ulTemporalAccuracyPerSensoryFunctionOscillation * NUMBER_OF_SENSOR_FUNKTION_OSCILLATIONS )
 	{
 		bContinueExecution = false;
 		return;

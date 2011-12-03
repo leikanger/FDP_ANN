@@ -56,7 +56,13 @@ extern std::list<s_sensor_auron*> s_sensor_auron::pAllSensorAurons;
 
 extern unsigned long time_class::ulTime;
 
-extern unsigned long ulTemporalAccuracyPerSensoryFunctionOscillation;
+extern unsigned long ulTemporalAccuracyPerSensoryFunctionOscillation = 	DEFAULT_ANTALL_TIDSITERASJONER;
+int nNumberOfSensorFunctionOscillations = 								DEFAULT_NUMBER_OF_SENSOR_FUNKTION_OSCILLATIONS;
+extern unsigned long ulTotalNumberOfIterations = 						ulTemporalAccuracyPerSensoryFunctionOscillation*nNumberOfSensorFunctionOscillations;
+// Foreløpig testvariabel: 		Global variabel som skal lese inn fra argv**. 	
+// XXX Gå over til funk-som-global-variabel!   Og referer til stroustrup i rapport.
+//unsigned long ulTemporalAccuracyPerSensoryFunctionOscillation;
+
 
 std::ostream & operator<<(std::ostream& ut, i_auron* pAuronArg );
 
@@ -66,9 +72,6 @@ bool bLogLogExecution = false; 	// For å lage log/log plot av feil: sett denne 
 int nResolutionInLogLogErrorPlot;
 
 
-// Foreløpig testvariabel: 		Global variabel som skal lese inn fra argv**. 	
-// XXX Gå over til funk-som-global-variabel!   Og referer til stroustrup i rapport.
-unsigned long ulTemporalAccuracyPerSensoryFunctionOscillation;
 
 //{ Alternativt med referanse-returnerende funk. : 
 /**********************************************************************************
@@ -107,20 +110,40 @@ int main(int argc, char *argv[])
 						exit(-1);
 						//continue;
 					}
-			}else if( 	argv[innArgumentPos][1] == 'i' ){
+			}else if( 	argv[innArgumentPos][1] == 'p' ){
 					// Sjekker om antall iterasjoner er i samme argument (uten mellomrom):
-					if( 		(ulTemporalAccuracyPerSensoryFunctionOscillation = NUMBER_OF_SENSOR_FUNKTION_OSCILLATIONS * atoi( &argv[innArgumentPos][2])) ) 	
+					if( 		(ulTemporalAccuracyPerSensoryFunctionOscillation = atoi( &argv[innArgumentPos][2])) ) 	
 						cout<<"Simulation length set to " <<ulTemporalAccuracyPerSensoryFunctionOscillation <<" time steps\n";
 					// Ellers: sjekker om det er på neste argument (med mellomrom):
 					else if( 	(ulTemporalAccuracyPerSensoryFunctionOscillation = atoi( argv[innArgumentPos+1]) ) ){
 						++innArgumentPos;
-						cout<<"Anntall tidsiterasjoner er satt til " <<ulTemporalAccuracyPerSensoryFunctionOscillation <<endl;
+						cout<<"Anntall tidsiterasjoner er satt til " <<ulTemporalAccuracyPerSensoryFunctionOscillation <<" per sensor funtion oscillation\n";
 					}else{
 						cout<<"Can not read argument. Please follow the conventions:" <<endl;
 						skrivUtArgumentKonvensjoner(argv[0]);
 						exit(-1);
 						//continue;
 					}
+			}else if( 	argv[innArgumentPos][1] == 'n' ){
+					if( 		(nNumberOfSensorFunctionOscillations = atoi( &argv[innArgumentPos][2])) ) 	
+						// Sjekker om antall oscillasjoner er i samme argument (uten mellomrom):
+							cout<<"Simulation length set to " <<nNumberOfSensorFunctionOscillations <<" sensory function oscillations\n";
+						// Ellers: sjekker om det er på neste argument (med mellomrom):
+					else if( 	(nNumberOfSensorFunctionOscillations = atoi( argv[innArgumentPos+1]) ) ){
+						++innArgumentPos;
+						cout<<"Simulation length set to " <<nNumberOfSensorFunctionOscillations <<" sensory function oscillations\n";
+					}else{
+						cout<<"Can not read argument. Please follow the conventions:" <<endl;
+						skrivUtArgumentKonvensjoner(argv[0]);
+						exit(-1);
+						//continue;
+					}
+
+					if( nNumberOfSensorFunctionOscillations < 0){
+						cout<<"Number of sensory function oscillations set to an invalid number (" <<nNumberOfSensorFunctionOscillations <<"). Try again.\n";
+						exit(-1);
+					}
+					
 			}else{
 				cout<<"Unknown argument: " <<argv[innArgumentPos] <<"\tUnable to complete request. Try again." <<endl;
 				skrivUtArgumentKonvensjoner(argv[0]);
@@ -154,8 +177,20 @@ int main(int argc, char *argv[])
 		ulTemporalAccuracyPerSensoryFunctionOscillation = DEFAULT_ANTALL_TIDSITERASJONER;
 
 		skrivUtArgumentKonvensjoner(argv[0]);
-	} //}1
+	} 
 	
+	// Setter totalt antall iterasjoner:
+	ulTotalNumberOfIterations = nNumberOfSensorFunctionOscillations * ulTemporalAccuracyPerSensoryFunctionOscillation;
+
+	//}1
+	
+
+
+
+
+
+
+
 	// Returverdien på systemkallet returnerer -1 (eller andre feilmeldinger) ved feil og 0 når det går bra.
 	// Dersom ./datafiles_for_evaluation/ ikkje finnes, lages den. Dersm den finnes gjør ikkje kallet noke:
 	if( system("mkdir datafiles_for_evaluation") != 0 ){
@@ -367,7 +402,8 @@ void skrivUtArgumentKonvensjoner(std::string programKall)
 { //{
 	cout <<"\n\nConventions for executing auron.out: \n"
 		 <<"\t"<<programKall <<"[-options] [number of iterations]\n"
-		 <<"\t\tOptions: \n\t\t\t-i [n] \t number of iterations on simulation."
+		 <<"\t\tOptions: \n\t\t\t-p [n] \t number of iterations per sensor function oscillation."
+		 <<"\t\t\n         \t\t\t-n [n] \t number of oscillations for sensor function."
 		 <<"\t\t\n         \t\t\t-L [n] \t make log/log plot of error for [100:100*2^[n]] time iterations."
 		 <<"\n\n\n\n\n";
 } //}

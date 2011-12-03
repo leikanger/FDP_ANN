@@ -41,15 +41,20 @@
 
 
 extern unsigned long ulTemporalAccuracyPerSensoryFunctionOscillation;
+extern int nNumberOfSensorFunctionOscillations;
+extern unsigned long ulTotalNumberOfIterations;
 
 
 //Defines:
+
+#define GCC false // Må til for å bruke iomanip.h
 
 // Velger KANN eller SANN for neste compilasjon
 #define KANN 1
 #define SANN 1
 
 #define DEFAULT_ANTALL_TIDSITERASJONER 1000
+#define DEFAULT_NUMBER_OF_SENSOR_FUNKTION_OSCILLATIONS 1 // ANtall ganger sinus-funksjonen skal gjøre full gjennomgang.
 //#define MIN_PERIODE_MELLOM_REKALKULERING_AV_KAPPA 100
 
 #define RECALC_c1 100 
@@ -58,7 +63,7 @@ extern unsigned long ulTemporalAccuracyPerSensoryFunctionOscillation;
 #define RECALC_c4 0.5
 
 #define UTSKRIFT_AV_TID 1
-#define UTSKRIFT_AV_TID_KVAR_Nte_ITER 1000000
+#define UTSKRIFT_AV_TID_KVAR_Nte_ITER 100
 
 #define LOGG_DEPOL true 	// Denne gir om implementasjonen skal skrive til depol-logg.
 #define LOGG_KAPPA true 	// ...samma for kappa
@@ -72,7 +77,6 @@ extern unsigned long ulTemporalAccuracyPerSensoryFunctionOscillation;
 #define LEKKASJE_KONST   		(double) (ALPHA/ulTemporalAccuracyPerSensoryFunctionOscillation)
 #define LEKKASJEFAKTOR_FOR_DEPOL (double)(1-LEKKASJE_KONST)
 
-#define NUMBER_OF_SENSOR_FUNKTION_OSCILLATIONS 1 // ANtall ganger sinus-funksjonen skal gjøre full gjennomgang.
 #define FYRINGSTERSKEL 1000.00000
 
 
@@ -80,13 +84,12 @@ extern unsigned long ulTemporalAccuracyPerSensoryFunctionOscillation;
 
 
 
-#define GCC true // Må til for å bruke iomanip.h
 
-#define DEBUG_UTSKRIFTS_NIVAA 0
+#define DOT_ENTER_UTSKRIFT_AV_TID 	100 // Betyr enter kvar n'te iter. (der n er tall som blir def.). Definer til 0 eller false for å slå av.
+#define DEBUG_UTSKRIFTS_NIVAA 		0
 #define DEBUG_SKRIV_UT_DESTRUCTOR 	0
 #define DEBUG_SKRIV_UT_CONSTRUCTOR 	0
 
-#define DOT_ENTER_UTSKRIFT_AV_TID 0 // Betyr enter kvar n'te iter. (der n er tall som blir def.). Definer til 0 eller false for å slå av.
 
 
 #define PI 3.14159265
