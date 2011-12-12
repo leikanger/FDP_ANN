@@ -466,6 +466,8 @@ class K_sensor_auron : public K_auron{
 		}
 
 	friend class time_class;
+	friend void* taskSchedulerFunction(void*);
+//	friend int main(int argc, char *argv[]);
 };
 
 

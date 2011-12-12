@@ -33,12 +33,13 @@
 
 
 #include "main.h"
-//#include "../neuroElements/auron.h"
+#include "../neuroElements/auron.h"
 #include "../neuroElements/synapse.h"
 #include "time.h"
 #include "sensorFunk.h"
 
 #include <sstream> 
+
 
 void initialiserArbeidsKoe();
 void skrivUtArgumentKonvensjoner(std::string);
@@ -110,7 +111,7 @@ int main(int argc, char *argv[])
 						exit(-1);
 						//continue;
 					}
-			}else if( 	argv[innArgumentPos][1] == 'p' ){
+			}else if( 	argv[innArgumentPos][1] == 'r' ){
 					// Sjekker om antall iterasjoner er i samme argument (uten mellomrom):
 					if( 		(ulTemporalAccuracyPerSensoryFunctionOscillation = atoi( &argv[innArgumentPos][2])) ) 	
 						cout<<"Simulation length set to " <<ulTemporalAccuracyPerSensoryFunctionOscillation <<" time steps\n";
@@ -267,14 +268,14 @@ int main(int argc, char *argv[])
 			s_auron* Ss = new s_sensor_auron("_sSN", &statiskSensorFunk);
 		#endif
 
-		//LINEÆRT ØKANDE DEPOL. VELOCITY
-		#if 0
+		//LINEÆRT ØKANDE DEPOL. VELOCITY 
+		#if 1
 			K_auron* Kd = new K_sensor_auron("_dKN", &linearilyIncreasingDepolVelocity);
 			s_auron* Sd = new s_sensor_auron("_dSN", &linearilyIncreasingDepolVelocity);
 		#endif
 
 		//DYNAMISK
-		#if 1
+		#if 0
 			K_auron* Kd = new K_sensor_auron("_dKN", &dynamiskSensorFunk);
 			s_auron* Sd = new s_sensor_auron("_dSN", &dynamiskSensorFunk);
 		#endif
@@ -362,6 +363,7 @@ int main(int argc, char *argv[])
 
 		cout<<"******************************************\n*** BEGYNNER KJØRING AV ANN: ***\n******************************************\n\n";
 
+//		K_sensor_auron::updateAllSensorAurons();
 
 /******************************************* Starter void taskSchedulerFunction(void*); ****************************************************/
 		taskSchedulerFunction(0);
@@ -372,7 +374,8 @@ int main(int argc, char *argv[])
 		#if GCC	
 			cout.precision(20);
 		#endif
-		cout<<"siste depol. for [SN, KN]: \t[" <<Sd->dAktivitetsVariabel <<", " <<Kd->getCalculateDepol() <<"]\n\n";
+		
+		//cout<<"siste depol. for [SN, KN]: \t[" <<Sd->dAktivitetsVariabel <<", " <<Kd->getCalculateDepol() <<"]\n\n";
 
 	
 
@@ -402,9 +405,9 @@ void skrivUtArgumentKonvensjoner(std::string programKall)
 { //{
 	cout <<"\n\nConventions for executing auron.out: \n"
 		 <<"\t"<<programKall <<"[-options] [number of iterations]\n"
-		 <<"\t\tOptions: \n\t\t\t-p [n] \t number of iterations per sensor function oscillation."
-		 <<"\t\t\n         \t\t\t-n [n] \t number of oscillations for sensor function."
-		 <<"\t\t\n         \t\t\t-L [n] \t make log/log plot of error for [100:100*2^[n]] time iterations."
+		 <<"\t\tOptions: \n\t\t\t-r [n] \t number of iterations per sensor function oscillation."
+		 <<"\t\t\n           \t\t-n [n] \t number of oscillations for sensor function."
+		 <<"\t\t\n           \t\t-L [n] \t make log/log plot of error for [100:100*2^[n]] time iterations."
 		 <<"\n\n\n\n\n";
 } //}
 
@@ -479,6 +482,20 @@ void* taskSchedulerFunction(void* )
 		(*K_iter)->doCalculation();
 	}
 
+	// Initialiserer 'time window' for alle K_sensor_auron:
+	//K_sensor_auron::updateAllSensorAurons();
+#if 1
+	for( std::list<K_sensor_auron*>::iterator K_iter = K_sensor_auron::pAllSensorAurons.begin(); K_iter != K_sensor_auron::pAllSensorAurons.end(); K_iter++ )
+	{
+		// Initierer 'time window':
+			// (*K_iter)->doTask();    // Løsninga for FDP: dette skaper en spike ved t=0 i plot av depol.
+		// Setter v_0 til 0 og t_0 til [no]:
+		(*K_iter)->updateSensorValue() ;
+		(*K_iter)->dStartOfTimeWindow = (double)time_class::getTid();
+		// Regner ut resulterende periode, osv.
+		(*K_iter)->doCalculation();
+	}
+#endif
 
 	/* * * * * * * * Begynner vanlig kjøring av auroNett * * * * * * * * */
 
